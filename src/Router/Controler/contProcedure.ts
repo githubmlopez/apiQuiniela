@@ -29,7 +29,7 @@ export async function ctrlExecProcedure(req : Request, res : Response) {
     ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
   } else {
-    res.status(400).json({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});     
+    res.status(422).json({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});     
   }
 }
 

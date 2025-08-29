@@ -64,7 +64,7 @@ export function constPredicado(sql, where) {
 export function formatRepPar(query, repParameters) {
     const kNumero = 'number';
     const kstring = 'string';
-    console.log('✅ Parametros ', repParameters);
+    console.log('✅ Parametros Formateo', repParameters);
     let formattedQuery = query;
     for (const key in repParameters) {
         if (repParameters.hasOwnProperty(key)) {
