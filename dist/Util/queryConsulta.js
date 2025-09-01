@@ -1,7 +1,7 @@
-const kCorrecto = 1;
-const kErrorNeg = 3;
 export function prepResponse(query, resultado, tipo) {
     const kCorrecto = 1;
+    const kErrorUs = 2;
+    const kErrorNeg = 3;
     console.log('✅ Estoy en prepRespone');
     const queryJson = 'FOR JSON PATH';
     const kSql = 'S';
@@ -24,12 +24,12 @@ export function prepResponse(query, resultado, tipo) {
             if (objetoTipado.data) {
                 const parsedData = JSON.parse(objetoTipado.data);
                 if (Array.isArray(parsedData)) {
-                    return { estatus: kCorrecto, data: parsedData, errorUs: objetoTipado.errUs,
+                    return { estatus: kCorrecto, data: parsedData, errorUs: null,
                         errorNeg: null };
                 }
                 else {
                     console.log('✅NO Es un arreglo ');
-                    return { estatus: kCorrecto, data: [JSON.parse(objetoTipado.data)], errorUs: objetoTipado.errUs,
+                    return { estatus: kCorrecto, data: [JSON.parse(objetoTipado.data)], errorUs: null,
                         errorNeg: null };
                 }
             }
@@ -42,7 +42,7 @@ export function prepResponse(query, resultado, tipo) {
                 }
             }
         }
-        return { estatus: kErrorNeg, data: null, errorUs: 'No fue posible extrer informacion 2', errorNeg: null };
+        return { estatus: kErrorUs, data: null, errorUs: 'No fue posible extrer informacion 2', errorNeg: null };
     }
 }
 export function constPredicado(sql, where) {
@@ -64,7 +64,7 @@ export function constPredicado(sql, where) {
 export function formatRepPar(query, repParameters) {
     const kNumero = 'number';
     const kstring = 'string';
-    console.log('✅ Parametros Formateo', repParameters);
+    console.log('✅ Parametros Formateado', repParameters);
     let formattedQuery = query;
     for (const key in repParameters) {
         if (repParameters.hasOwnProperty(key)) {

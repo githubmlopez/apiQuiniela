@@ -86,7 +86,7 @@ query  : string
   // Lllamado a funcion que determina y construye el response   
 
   const resRquest : I_InfResponse = prepResponse(query, resultado, tipo) as I_InfResponse;
-  console.log ('✅ prepResponse ok', resultado);
+  console.log ('✅ prepResponse ok', resRquest);
 
   return resRquest;
 

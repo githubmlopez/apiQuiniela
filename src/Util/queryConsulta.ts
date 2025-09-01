@@ -2,11 +2,10 @@
 import { I_ResProcedure, I_InfResponse, I_Header  } from '../index.js';
 import { KeyValueObject } from '../index.js';
 
-const kCorrecto = 1;
-const kErrorNeg = 3;
-
 export function prepResponse(query : string, resultado : any, tipo : string) : I_InfResponse {
     const kCorrecto = 1;
+    const kErrorUs  = 2;
+    const kErrorNeg = 3; 
     console.log ('✅ Estoy en prepRespone');
     const queryJson = 'FOR JSON PATH';
     const kSql = 'S';
@@ -27,11 +26,11 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
           if (objetoTipado.data) {
             const parsedData = JSON.parse(objetoTipado.data);
             if (Array.isArray(parsedData)) {
-              return {estatus: kCorrecto, data : parsedData, errorUs : objetoTipado.errUs,
+              return {estatus: kCorrecto, data : parsedData, errorUs : null,
               errorNeg :null};
             } else {
               console.log('✅NO Es un arreglo ');
-              return {estatus: kCorrecto, data : [JSON.parse(objetoTipado.data)], errorUs : objetoTipado.errUs,
+              return {estatus: kCorrecto, data : [JSON.parse(objetoTipado.data)], errorUs : null,
               errorNeg :null};
             }
           } else {
@@ -42,7 +41,7 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
             }
           }
         }
-        return {estatus: kErrorNeg, data : null, errorUs : 'No fue posible extrer informacion 2', errorNeg : null};
+        return {estatus: kErrorUs, data : null, errorUs : 'No fue posible extrer informacion 2', errorNeg : null};
     }
 }
 
@@ -69,7 +68,7 @@ export function constPredicado(sql : string, where:  string[] | null | undefined
 export function formatRepPar(query: string, repParameters: KeyValueObject) : string {
       const kNumero: string = 'number';
       const kstring: string = 'string';
-      console.log('✅ Parametros Formateo', repParameters);
+      console.log('✅ Parametros Formateado', repParameters);
       let formattedQuery = query;
     
       for (const key in repParameters) {

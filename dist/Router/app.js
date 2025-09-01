@@ -8,7 +8,7 @@ import { authenticateToken } from '../index.js';
 import { obtCorsOpt } from '../Middle/index.js';
 export const app = express();
 const allowedOrigins = ['http://localhost:3000', 'https://quiniela-frontend-next.vercel.app',
-    'https://f57f15690750.ngrok-free.app', 'https://tf0tfk68-3000.usw3.devtunnels.ms'];
+    'https://b12519dc9462.ngrok-free.app', 'https://353cc0ca41c0.ngrok-free.app'];
 const corsOptions = obtCorsOpt(allowedOrigins);
 // Middlewares
 app.use(helmet());

@@ -46,7 +46,7 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    let horaLimite : string;
    let titQuiniela : string;
    let bSurvivor : boolean;
-  console.log('✅ Inf Usuario asig 1');
+
    if (resUsuario && resUsuario.data && Array.isArray(resUsuario.data) && resUsuario.data.length > 0) {
    const loginData = resUsuario.data[0];
    const parsedInfUsuario = JSON.parse(loginData.infUsuario);

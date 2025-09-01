@@ -22,7 +22,6 @@ export async function def_Q_SURVIVOR(sequelize: any) {
       ID_EQUIPO_SUV : {
          type: DataTypes.INTEGER  ,
          allowNull: true,
-         primaryKey: true
       },
       SITUACION : {
          type: DataTypes.STRING (1),
