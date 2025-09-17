@@ -9,11 +9,10 @@ import { authenticateToken } from '../index.js'
 
 import { obtCorsOpt } from '../Middle/index.js';
 
-
 export const app = express();
 
-const allowedOrigins = ['http://localhost:3000', 'https://quiniela-frontend-next.vercel.app',
-'https://b12519dc9462.ngrok-free.app', 'https://353cc0ca41c0.ngrok-free.app'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'https://quiniela-frontend-next.vercel.app',
+'https://a1b4d2619486.ngrok-free.app', 'https://a2ebaec67254.ngrok-free.app'];
 const corsOptions = obtCorsOpt(allowedOrigins);
 
 // Middlewares

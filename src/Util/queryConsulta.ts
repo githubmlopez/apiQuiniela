@@ -18,7 +18,11 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
       }
       console.log('✅resultado Format ', resFormat);
       if (tipo === kSql) {
-        return {estatus: kCorrecto, data : resFormat, errorUs: null, errorNeg : null};
+        if (resFormat.length === 0) {
+          return {estatus: kCorrecto, data : null, errorUs: null, errorNeg : null};
+        } else {
+          return {estatus: kCorrecto, data : resFormat, errorUs: null, errorNeg : null};
+        }
       } else {
         if (tipo === kProcedure) {
           const objetoTipado: I_ResProcedure = resultado[0] as I_ResProcedure;
@@ -35,7 +39,7 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
             }
           } else {
             if (objetoTipado.errNeg) {
-            return {estatus: kErrorNeg, data : [], errorUs : objetoTipado.errUs, errorNeg : JSON.parse(objetoTipado.errNeg)};
+            return {estatus: kErrorNeg, data : null, errorUs : objetoTipado.errUs, errorNeg : JSON.parse(objetoTipado.errNeg)};
             } else {
             throw('No fue posible extraer informacion 1');
             }
@@ -215,7 +219,11 @@ export function processSqlServerJsonResult(sqlQueryResult: any): Array<Record<st
 
     // Si tu JSON final tiene una propiedad 'data'
     if (parsedResult && parsedResult.data) {
+        if (parsedResult.data.length === 0) {
+        return null;
+        } else {
         return [parsedResult.data]; // Devuelve el contenido de la propiedad 'data'
+        }
     } else {
     // Si el JSON directamente es el objeto o array que buscamos
         return [parsedResult];

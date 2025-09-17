@@ -46,6 +46,7 @@ async function ExecQuery(tipo, query) {
     console.log('✅resultado Orig ', resultado);
     // Lllamado a funcion que determina y construye el response   
     const resRquest = prepResponse(query, resultado, tipo);
+    console.log('✅ Query ', query);
     console.log('✅ prepResponse ok', resRquest);
     return resRquest;
 }

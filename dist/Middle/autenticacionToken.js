@@ -3,6 +3,7 @@ import { envConfig } from '../index.js';
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 const kErrorAut = 4;
 export const authenticateToken = (req, res, next) => {
+    console.log('✅Entro a Autenticacion');
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         res.status(401).json({ estatus: kErrorAut, data: null, errorUs: 'Acceso denegado. No se proporcionó token',
@@ -19,7 +20,9 @@ export const authenticateToken = (req, res, next) => {
     try {
         // Verifica el token
         const decoded = jwt.verify(token, palabraSegura);
+        console.log('✅Ejecuto verify', decoded);
         req.datosUsuario = decoded; // Puedes usar 'req.usuario', 'req.authData', etc.
+        console.log('✅Actualizo request ');
         next(); // Permite que la solicitud continúe a la siguiente función (tu controlador)
     }
     catch (error) {

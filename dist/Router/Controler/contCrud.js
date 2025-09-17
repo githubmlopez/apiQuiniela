@@ -6,10 +6,11 @@ const sequelize = await getInstancia();
 export async function ctrCrudCreate(req, res) {
     console.log('✅ Crud Create', req.datosUsuario);
     const objCrud = creaObjCrud(req);
-    console.log('✅ objCrud', objCrud);
+    const contexto = 'Ejecucion Crud/Create';
     try {
         const resData = await ejecFuncion(createRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
         res.status(200).json(resData);
+        console.log('✅ Regreso de ejecutar procedimiento');
     }
     catch (error) {
         res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: error, errorNeg: null });

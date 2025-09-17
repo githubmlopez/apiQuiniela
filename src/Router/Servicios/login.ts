@@ -53,7 +53,6 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    const parsedInfPeriodo = JSON.parse(loginData.infPeriodo); 
    const parsedInfQuiniela = JSON.parse(loginData.InfQuiniela);
    const parsedInfSurvivor = JSON.parse(loginData.infSurvivor);
-
    idQuiniela = parsedInfUsuario.ID_QUINIELA;
    idParticipante = parsedInfUsuario.ID_PARTICIPANTE;
    idPeriodo = parsedInfPeriodo.ID_PERIODO;
