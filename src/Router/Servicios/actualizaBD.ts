@@ -1,4 +1,4 @@
-import { Sequelize, Model, Transaction, ValidationError} from 'sequelize';
+import { Sequelize, Model, Transaction, ValidationError, ValidationErrorItem} from 'sequelize';
 import { I_InfResponse } from '../../index.js';
 import { getInstancia } from '../../index.js';
 
@@ -67,12 +67,18 @@ export async function createRecord (
   const existingRecord : I_InfResponse = await findOneByPrimaryKey(model, data); 
 
   if (existingRecord && existingRecord.data && existingRecord.data.length > 0 && existingRecord.data[0]?.dataValues) {
-    throw ('Registro ya existe ' + model.name);
-   } else {
+    // throw ('Registro ya existe ' + model.name);
+    return {
+    estatus: kErrorNeg,
+    data: null,
+    errorUs: null,
+    errorNeg: ['Registro ya existe']
+    }
+    } else {
     const resultado : I_OperaResult = await obtResultado(
     async (model: any, data: any, opciones?: { transaction?: Transaction }) => {
-      const instance = await model.create(data, opciones);
-      return instance; 
+    const instance = await model.create(data, opciones);
+    return instance; 
     },
     model, 
     data,  
@@ -98,9 +104,11 @@ export async function updateRecord (
     const whereClause = buildPKWhereClause (model, data);
     const resultado : I_OperaResult = await obtResultado (
     async (model: any, data: any, opciones?: { transaction?: Transaction }) => {
-      const instance = await model.update(data, {
-      where: whereClause, ...opciones  // Utiliza la variable whereClause directamente
-      });
+    const instance = await model.update(data, {
+    where: whereClause,
+    individualHooks: true,   // 🔥 activa validaciones y hooks
+    ...opciones
+    });
       return instance; 
     },
     model, 
@@ -110,7 +118,12 @@ export async function updateRecord (
   const resData : any  = obtContadorReg (resultado.validationErrors);
   return {estatus : kCorrecto, data : resData, errorUs: null, errorNeg : resultado.validationErrors as string[] | null};
   } else { 
-    throw ('Registro no existe ' + model.name);
+    return {
+    estatus: kErrorNeg,
+    data: null,
+    errorUs: null,
+    errorNeg: ['Registro a actualizar no existe']
+    }
   } 
 }
 
@@ -134,7 +147,12 @@ export async function DeleteRecord (
   const resData : any  = obtContadorReg (resultado.validationErrors);
   return {estatus : kCorrecto, data : resData, errorUs: null, errorNeg : resultado.validationErrors as string[] | null};
   } else {
-  throw ('Registro no existe ' + model.name);
+  return {
+    estatus: kErrorNeg,
+    data: null,
+    errorUs: null,
+    errorNeg: ['Registro a borrar no existe']
+    }
 }
 }
 
@@ -252,3 +270,31 @@ export function obtContadorReg (valError : string[] | null | undefined, data? : 
   return resData;
 }
 
+/**
+ * Convierte una lista de errores personalizados en una instancia de ValidationError de Sequelize.
+ * 
+ * @param errores Lista de objetos con { campo, mensaje }
+ * @param instance Instancia del modelo Sequelize donde ocurrió la validación
+ * @returns ValidationError listo para lanzar con throw
+ */
+
+export function construirErroresValidacion(
+  errores: { campo: string; mensaje: string }[],
+  instance: any
+): ValidationError {
+  const validationItems = errores.map(
+    (err) =>
+      new ValidationErrorItem(
+        err.mensaje,              // message
+        'validation error',       // type
+        err.campo,                // path
+        instance[err.campo],      // value
+        instance,                 // instance
+        'customValidation',       // validatorKey (puede ser genérico)
+        'beforeValidateHook',     // fnName
+        []                        // fnArgs
+      )
+  );
+   return new ValidationError
+   ('Errores de validación de negocio', validationItems);
+}

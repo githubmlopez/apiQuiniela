@@ -1,14 +1,6 @@
 import { ExecRawQueryById } from '../index.js';
 import { ejecFuncion, armaHeaderQuery } from '../../index.js';
 const kErrorSistema = 2;
-/*
-{
-idProceso : number,
-cveAplicacion : string,
-model : string,
-data : KeyValueObject
-}
-*/
 export async function ctrlExecQuery(req, res) {
     console.log('✅ ExecQuery', req.datosUsuario);
     const infToken = req.datosUsuario;
@@ -19,6 +11,7 @@ export async function ctrlExecQuery(req, res) {
     const campos = infReq.campos;
     const where = infReq.where;
     const idQuery = infReq.idQuery;
+    const modelo = infReq.modelo;
     const orderBy = infReq.orderBy;
     const numReg = infReq.numReg;
     const skip = infReq.skip;

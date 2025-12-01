@@ -27,12 +27,20 @@ export const authenticateToken = (req, res, next) => {
     }
     catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
-            res.status(401).json({ estatus: kErrorAut, data: null, errorUs: 'Token expirado', errorNeg: null });
+            return res.status(401).json({
+                estatus: kErrorAut,
+                data: null,
+                errorUs: 'Token expirado',
+                errorNeg: null
+            });
         }
         if (error instanceof jwt.JsonWebTokenError) {
-            res.status(401).json({ estatus: kErrorAut, data: null, errorUs: 'Token inválido', errorNeg: null });
+            return res.status(401).json({
+                estatus: kErrorAut,
+                data: null,
+                errorUs: 'Token inválido',
+                errorNeg: null
+            });
         }
-        console.error('Error al verificar el token:', error);
-        res.status(500).json({ estatus: kErrorAut, data: null, errorUs: 'Token inválido', errorNeg: null });
     }
 };

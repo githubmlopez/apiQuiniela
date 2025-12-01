@@ -7,8 +7,8 @@ import queryCrud from './Rutas/rutCrud.js';
 import { authenticateToken } from '../index.js';
 import { obtCorsOpt } from '../Middle/index.js';
 export const app = express();
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'https://quiniela-frontend-next.vercel.app',
-    'https://a1b4d2619486.ngrok-free.app', 'https://a2ebaec67254.ngrok-free.app'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'http://192.168.0.10:3000',
+    'https://fb635c365516.ngrok-free.app'];
 const corsOptions = obtCorsOpt(allowedOrigins);
 // Middlewares
 app.use(helmet());

@@ -53,8 +53,8 @@ export function constPredicado(sql : string, where:  string[] | null | undefined
     let whereClausula = "";
 
     if (sql.includes("{P}")) {
-        const condiciones: string[] = where?.map((where, index) => {
-            return `(${where} = $${index + 1} OR ${where} IS NULL)`;
+        const condiciones: string[] = where?.map((campo, index) => {
+            return `${campo}  $${index + 1} `;
         }) ?? [];
 
         if (condiciones.length > 0) {
@@ -69,9 +69,32 @@ export function constPredicado(sql : string, where:  string[] | null | undefined
     return sql; 
 } 
 
+// Define los operadores que no deben ir entre comillas
+const specialOperators = ['>', '<', 'LIKE', 'IN', '=', 'BETWEEN'];
+
+// Función de utilidad para verificar si el valor contiene un operador especial
+function containsSpecialOperator(val: string): boolean {
+    // 1. Verificar si incluye el separador de BETWEEN
+    if (val.includes('|')) {
+        return true;
+    }
+    
+    // 2. Convertir a mayúsculas y verificar si comienza con otro operador
+    const upperVal = val.toUpperCase().trim();
+    
+    for (const op of specialOperators) {
+        if (upperVal.startsWith(op)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 export function formatRepPar(query: string, repParameters: KeyValueObject) : string {
       const kNumero: string = 'number';
       const kstring: string = 'string';
+      const kmodelo: string = '$99';
       console.log('✅ Parametros Formateado', repParameters);
       let formattedQuery = query;
     
@@ -79,24 +102,31 @@ export function formatRepPar(query: string, repParameters: KeyValueObject) : str
         if (repParameters.hasOwnProperty(key)) {
           console.log('✅ Condicion cumplida ', key);
           const value: string | number = repParameters[key];
-          console.log('✅ Value ', value);
           
           const placeholder = key;
-          
+          console.log('voy regex ');
           // Crear una nueva expresión regular con el flag 'g' para reemplazar todas las coincidencias
           // Se escapa el '$' ya que tiene un significado especial en expresiones regulares
           const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-    
-          if (typeof value === kNumero) {
-            formattedQuery = formattedQuery.replace(regex, String(value));
+//    
+          if (typeof value === kNumero || key === kmodelo) {
+              formattedQuery = formattedQuery.replace(regex, String(value));
           } else if (typeof value === kstring) {
-            formattedQuery = formattedQuery.replace(regex, `'${value}'`);
+    // === LÓGICA DE EXCEPCIÓN AÑADIDA AQUÍ ===
+          if (containsSpecialOperator(String(value))) {
+        // No encierra en comillas si contiene un operador especial
+              formattedQuery = formattedQuery.replace(regex, String(value));
           } else {
-            formattedQuery = formattedQuery.replace(regex, `'${value}'`); // Or handle other types
+        // Encierra en comillas si es una cadena normal
+              formattedQuery = formattedQuery.replace(regex, `'${value}'`);
+          }
+          } else {
+    // Por defecto, encierra otros tipos entre comillas
+          formattedQuery = formattedQuery.replace(regex, `'${value}'`); 
           }
         }
       }
-    
+//    
       // 2. Handle missing values (replace with ""):
       const placeholders = query.match(/\$\d+/g); // Find all placeholders like $1, $2, etc.
     
@@ -177,7 +207,7 @@ skip? : number) : string {
     sqlFmt = formatRepPar(queryNext, parmRemp);
     console.log('fmt ' + sqlFmt);
   } else {
-    sqlFmt = query;  
+    sqlFmt = querypred;  
   }
 
   return sqlFmt;

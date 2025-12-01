@@ -6,7 +6,7 @@ import { CustomJwtPayload } from '../index.js';
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 const kErrorAut = 4;
 
-export const authenticateToken = (req : Request, res : Response, next : NextFunction) : void => {
+export const authenticateToken = (req : Request, res : Response, next : NextFunction) : any => {
   console.log('✅Entro a Autenticacion');
   const authHeader = req.headers.authorization;
 
@@ -37,16 +37,22 @@ export const authenticateToken = (req : Request, res : Response, next : NextFunc
 
     next(); // Permite que la solicitud continúe a la siguiente función (tu controlador)
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-    res.status(401).json
-    ({estatus: kErrorAut, data :null, errorUs: 'Token expirado', errorNeg : null});      
-    }
-    if (error instanceof jwt.JsonWebTokenError) {
-    res.status(401).json
-    ({estatus: kErrorAut, data :null, errorUs: 'Token inválido', errorNeg : null});       
-    }
-    console.error('Error al verificar el token:', error);
-    res.status(500).json
-    ({estatus: kErrorAut, data :null, errorUs: 'Token inválido', errorNeg : null});    
+  if (error instanceof jwt.TokenExpiredError) {
+    return res.status(401).json({
+      estatus: kErrorAut,
+      data: null,
+      errorUs: 'Token expirado',
+      errorNeg: null
+    });
+  }
+
+  if (error instanceof jwt.JsonWebTokenError) {
+    return res.status(401).json({
+      estatus: kErrorAut,
+      data: null,
+      errorUs: 'Token inválido',
+      errorNeg: null
+    });
+  }   
   }
 };

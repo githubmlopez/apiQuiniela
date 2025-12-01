@@ -5,6 +5,7 @@ import { def_FC_FOLIO } from '../index.js';
 import { def_FC_SEG_USUARIO, def_Q_QUIN_PARTICIPANTE } from '../index.js';
 import { getInstancia } from '../index.js';
 import { def_Q_USUARIO } from '../index.js';
+import { def_IN_PRUEBA } from '../index.js';
 
 export async function cargaModelos () : Promise<void> {
 
@@ -18,4 +19,5 @@ export async function cargaModelos () : Promise<void> {
     await def_Q_USUARIO(sequelize);
     await def_Q_SURVIVOR(sequelize);
     await def_Q_PARTIDO(sequelize);
+    await def_IN_PRUEBA(sequelize);
  }

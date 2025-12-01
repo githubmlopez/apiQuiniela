@@ -1,4 +1,3 @@
-import { AConfig } from '../index.js';
 import { envConfig } from './index.js';
 import { Sequelize, Options} from 'sequelize';
 

@@ -11,14 +11,14 @@ import { obtCorsOpt } from '../Middle/index.js';
 
 export const app = express();
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'https://quiniela-frontend-next.vercel.app',
-'https://a1b4d2619486.ngrok-free.app', 'https://a2ebaec67254.ngrok-free.app'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'http://192.168.0.10:3000',
+'https://fb635c365516.ngrok-free.app'];
 const corsOptions = obtCorsOpt(allowedOrigins);
 
 // Middlewares
 app.use(helmet());
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json());    
 // Le dice a Express que cualquier solicitud que comience con /api/login 
 // debe ser manejada por el router que le estás pasando (que es rutLogin).
 app.use('/api/Login', loginRouter);

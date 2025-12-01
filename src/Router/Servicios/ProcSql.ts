@@ -83,7 +83,7 @@ query  : string
   
   console.log('✅resultado Orig ', resultado);
 
-  // Lllamado a funcion que determina y construye el response   
+  // Llamado a funcion que determina y construye el response   
 
   const resRquest : I_InfResponse = prepResponse(query, resultado, tipo) as I_InfResponse;
   console.log ('✅ Query ', query);

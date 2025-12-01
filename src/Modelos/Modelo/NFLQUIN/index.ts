@@ -7,3 +7,4 @@ export * from './Q_QUIN_PARTICIPANTE.js';
 export * from './Q_USUARIO.js';
 export * from './Q_SURVIVOR.js';
 export * from './Q_PARTIDO.js';
+export * from './IN_PRUEBA.js';
