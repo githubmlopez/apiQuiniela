@@ -43,7 +43,8 @@ export function prepResponse(query, resultado, tipo) {
                     return { estatus: kErrorNeg, data: null, errorUs: objetoTipado.errUs, errorNeg: JSON.parse(objetoTipado.errNeg) };
                 }
                 else {
-                    throw ('No fue posible extraer informacion 1');
+                    //            throw('No fue posible extraer informacion 1');
+                    return { estatus: kCorrecto, data: null, errorUs: null, errorNeg: null };
                 }
             }
         }

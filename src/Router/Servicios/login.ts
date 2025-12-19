@@ -1,9 +1,10 @@
 import { envConfig } from '../../index.js';
 import { getInstancia } from '../../index.js';
-import { Sequelize} from 'sequelize';
+import { Sequelize, Model} from 'sequelize';
 import { hash, verify } from 'argon2';
 import jwt from 'jsonwebtoken';
-import { createRecord, findOneByPrimaryKey } from '../../index.js';
+import { createRecord} from '../../index.js';
+import { findOneByKeyService} from '../Servicios/index.js';
 import { ejecFuncion, creaHeadEsq, ExecRawQueryById} from '../../index.js'
 import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '../../index.js';
 
@@ -24,8 +25,22 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    const nomModelo = 'FC_SEG_USUARIO';
    const contexto = 'Proceso login';
    const model : any = sequelize.models[nomModelo];
-   const resData : I_FC_SEG_USUARIO = await ejecFuncion
-   (buscaByKey, header, contexto, model, data);
+
+   type FindUserFunction = (...args: any[]) => Promise<I_FC_SEG_USUARIO | null>;
+
+   const resData : I_FC_SEG_USUARIO | null = await ejecFuncion<FindUserFunction>
+    (
+        // Función a ejecutar
+        findOneByKeyService, 
+        // Parámetros de ejecFuncion
+        header, 
+        contexto, 
+        // Parámetros de findOneByKeyService (model, data, header, options...)
+        model, 
+        data, 
+        header
+    );
+   console.log('✅ resData **', resData);
    let objRes: I_InfResponse;
    if (resData !== null) {
 // Logica para usuario existente 
@@ -119,18 +134,6 @@ export async function creaUsuario(header : I_Header, data : any) {
    (createRecord, header, contexto, model, infUsuario) 
    
    return resData;
-}
-
-async function buscaByKey (
-   model : any,
-   data : any) {
-   console.log('✅ Model', model);
-   const existingRecord : I_InfResponse = await findOneByPrimaryKey(model, data); 
-   if (existingRecord && existingRecord.data && existingRecord.data.length > 0 && existingRecord.data[0]?.dataValues) {
-    return existingRecord.data[0].dataValues;
-   } else {
-    return null;
-   }
 }
 
 function creaUsuarioDummy (cveUsuario : string) {

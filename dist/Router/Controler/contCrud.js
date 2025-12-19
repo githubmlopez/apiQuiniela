@@ -1,14 +1,12 @@
-import { createRecord, updateRecord, DeleteRecord, bulkCreateRecords, bulkUpdateRecords, findOneByPrimaryKey } from '../index.js';
 import { getInstancia } from '../../index.js';
-import { ejecFuncion, armaHeaderQuery } from '../../index.js';
+import { createRecordService, updateRecordService, deleteRecordService, bulkCreateRecordService, bulkUpdateRecordService, findOneByKeyService } from '../Servicios/CRUD/index.js';
 const kErrorSistema = 2;
 const sequelize = await getInstancia();
 export async function ctrCrudCreate(req, res) {
     console.log('✅ Crud Create', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
-    const contexto = 'Ejecucion Crud/Create';
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     try {
-        const resData = await ejecFuncion(createRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const resData = await createRecordService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar procedimiento');
     }
@@ -18,11 +16,9 @@ export async function ctrCrudCreate(req, res) {
 }
 export async function ctrCrudUpdate(req, res) {
     console.log('✅ Crud Update', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
-    console.log('✅ objCrud', objCrud);
-    const contexto = 'Ejecucion Crud/Update';
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     try {
-        const resData = await ejecFuncion(updateRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const resData = await updateRecordService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar Uddate');
     }
@@ -32,10 +28,10 @@ export async function ctrCrudUpdate(req, res) {
 }
 export async function ctrCrudDelete(req, res) {
     console.log('✅ Crud Delete', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
-    const contexto = 'Ejecucion Crud/Delete';
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     try {
-        const resData = await ejecFuncion(DeleteRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const kCaller = 'R';
+        const resData = await deleteRecordService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar Delete');
     }
@@ -45,10 +41,9 @@ export async function ctrCrudDelete(req, res) {
 }
 export async function ctrCrudBulkC(req, res) {
     console.log('✅ Bulk Insert', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
-    const contexto = 'Ejecucion Crud/Bulk Insert';
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     try {
-        const resData = await ejecFuncion(bulkCreateRecords, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const resData = await bulkCreateRecordService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar Bulk Insert');
     }
@@ -58,11 +53,9 @@ export async function ctrCrudBulkC(req, res) {
 }
 export async function ctrCrudBulkU(req, res) {
     console.log('✅ Bulk Update', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
-    console.log('✅ objCrud', objCrud);
-    const contexto = 'Ejecucion Crud/Bulk Update';
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     try {
-        const resData = await ejecFuncion(bulkUpdateRecords, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const resData = await bulkUpdateRecordService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar Modify');
     }
@@ -72,13 +65,13 @@ export async function ctrCrudBulkU(req, res) {
 }
 export async function ctrFindByKey(req, res) {
     console.log('✅ Crud Find By Key', req.datosUsuario);
-    const objCrud = creaObjCrud(req);
+    const { model, data } = creaObjCrud(req.datosUsuario, req.body);
     const contexto = 'Ejecucion Find By Key';
     try {
-        if (!objCrud.data || Array.isArray(objCrud.data)) {
+        if (!data || Array.isArray(data)) {
             throw ('Datos de búsqueda inválidos o ausentes.');
         }
-        const resData = await ejecFuncion(findOneByPrimaryKey, objCrud.header, contexto, objCrud.model, objCrud.data);
+        const resData = await findOneByKeyService(model, data);
         res.status(200).json(resData);
         console.log('✅ Regreso de ejecutar Uddate');
     }
@@ -86,15 +79,12 @@ export async function ctrFindByKey(req, res) {
         res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: error, errorNeg: null });
     }
 }
-function creaObjCrud(req) {
-    console.log('✅ Creando ObjCrud ', req.datosUsuario, req.body);
-    const infToken = req.datosUsuario;
-    const infReq = req.body;
+export function creaObjCrud(infToken, infReq) {
+    console.log('✅ Creando ObjCrud ', infToken, infReq);
     const modelo = infReq.model;
-    console.log('✅ ModeloName ', modelo);
     const data = infReq.data;
+    // Assuming 'sequelize' is available globally or imported here
     const model = sequelize.models[modelo];
-    console.log('✅ Model ', model);
-    const header = armaHeaderQuery(infToken, infReq.idProceso);
-    return { infToken, model, data, header };
+    //    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);
+    return { model, data };
 }

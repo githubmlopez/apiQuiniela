@@ -2,7 +2,8 @@ import { envConfig } from '../../index.js';
 import { getInstancia } from '../../index.js';
 import { hash, verify } from 'argon2';
 import jwt from 'jsonwebtoken';
-import { createRecord, findOneByPrimaryKey } from '../../index.js';
+import { createRecord } from '../../index.js';
+import { findOneByKeyService } from '../Servicios/index.js';
 import { ejecFuncion, creaHeadEsq, ExecRawQueryById } from '../../index.js';
 const kCorrecto = 1;
 const kErrorAut = 4;
@@ -20,7 +21,14 @@ export async function login(idProceso, cveAplicacion, cveUsuario, password) {
     const nomModelo = 'FC_SEG_USUARIO';
     const contexto = 'Proceso login';
     const model = sequelize.models[nomModelo];
-    const resData = await ejecFuncion(buscaByKey, header, contexto, model, data);
+    const resData = await ejecFuncion(
+    // Función a ejecutar
+    findOneByKeyService, 
+    // Parámetros de ejecFuncion
+    header, contexto, 
+    // Parámetros de findOneByKeyService (model, data, header, options...)
+    model, data, header);
+    console.log('✅ resData **', resData);
     let objRes;
     if (resData !== null) {
         // Logica para usuario existente 
@@ -104,16 +112,6 @@ export async function creaUsuario(header, data) {
     const model = sequelize.models[nomModelo];
     const resData = await ejecFuncion(createRecord, header, contexto, model, infUsuario);
     return resData;
-}
-async function buscaByKey(model, data) {
-    console.log('✅ Model', model);
-    const existingRecord = await findOneByPrimaryKey(model, data);
-    if (existingRecord && existingRecord.data && existingRecord.data.length > 0 && existingRecord.data[0]?.dataValues) {
-        return existingRecord.data[0].dataValues;
-    }
-    else {
-        return null;
-    }
 }
 function creaUsuarioDummy(cveUsuario) {
     const kActivo = 'A';

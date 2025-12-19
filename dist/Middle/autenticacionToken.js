@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../index.js';
+import { AsyncLocalStorage } from 'async_hooks';
+export const userContext = new AsyncLocalStorage();
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 const kErrorAut = 4;
 export const authenticateToken = (req, res, next) => {
@@ -21,9 +23,22 @@ export const authenticateToken = (req, res, next) => {
         // Verifica el token
         const decoded = jwt.verify(token, palabraSegura);
         console.log('✅Ejecuto verify', decoded);
-        req.datosUsuario = decoded; // Puedes usar 'req.usuario', 'req.authData', etc.
+        const { idProceso } = req.body;
+        // Formamos el objeto completo
+        const header = {
+            idProceso: idProceso ?? null,
+            cveAplicacion: decoded.cveAplicacion,
+            cveUsuario: decoded.cveUsuario,
+            cveIdioma: decoded.cveIdioma,
+            cvePerfil: decoded.cvePerfil
+        };
+        // 🌟 GUARDAMOS EL HEADER COMPLETO EN EL CONTEXTO
+        return userContext.run(header, () => {
+            req.datosUsuario = decoded; // Lo dejamos en req solo por si acaso
+            next();
+        });
         console.log('✅Actualizo request ');
-        next(); // Permite que la solicitud continúe a la siguiente función (tu controlador)
+        //    next(); // Permite que la solicitud continúe a la siguiente función (tu controlador)
     }
     catch (error) {
         if (error instanceof jwt.TokenExpiredError) {

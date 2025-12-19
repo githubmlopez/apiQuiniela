@@ -1,12 +1,11 @@
   import { Request, Response } from 'express';
-  import
-  {createRecord, updateRecord, DeleteRecord, bulkCreateRecords,
-   bulkUpdateRecords, findOneByPrimaryKey }
-    from '../index.js';
   import {getInstancia}  from '../../index.js';
   import { I_Header, I_InfReqCrud} from '../../index.js';
   import { CustomJwtPayload } from '../../index.js';
   import { ejecFuncion, armaHeaderQuery} from '../../index.js';
+  import {createRecordService, updateRecordService, deleteRecordService,
+  bulkCreateRecordService, bulkUpdateRecordService,  findOneByKeyService}
+  from '../Servicios/CRUD/index.js'
 
   const kErrorSistema = 2;
 
@@ -21,12 +20,11 @@
 
   export async function ctrCrudCreate(req : Request, res : Response) {
   console.log( '✅ Crud Create', req.datosUsuario);
-  const objCrud : I_ObjCrud = creaObjCrud(req)
-  const contexto = 'Ejecucion Crud/Create';
+  const { model, data} = creaObjCrud(req.datosUsuario, req.body);
+
   try {
-    const resData = await ejecFuncion
-   (createRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
-      res.status(200).json (resData);
+    const resData = await createRecordService(model, data);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar procedimiento'); 
     } catch (error) {
     res.status(422).json
@@ -34,15 +32,12 @@
     }
  }
 
-
  export async function ctrCrudUpdate(req : Request, res : Response) {
   console.log( '✅ Crud Update', req.datosUsuario);
-  const objCrud : I_ObjCrud = creaObjCrud(req)
-  console.log( '✅ objCrud', objCrud);
-  const contexto = 'Ejecucion Crud/Update';
+  const { model, data } = creaObjCrud(req.datosUsuario, req.body);
+
   try {
-    const resData = await ejecFuncion
-   (updateRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
+    const resData = await updateRecordService(model, data);
       res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Uddate'); 
     } catch (error) {
@@ -53,12 +48,12 @@
 
  export async function ctrCrudDelete(req : Request, res : Response) {
   console.log( '✅ Crud Delete', req.datosUsuario);
-  const objCrud : I_ObjCrud= creaObjCrud(req)
-  const contexto = 'Ejecucion Crud/Delete';
+  const { model, data } = creaObjCrud(req.datosUsuario, req.body);
+
   try {
-    const resData = await ejecFuncion
-   (DeleteRecord, objCrud.header, contexto, objCrud.model, objCrud.data);
-      res.status(200).json (resData);
+    const kCaller : string = 'R';
+    const resData = await deleteRecordService(model, data);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Delete'); 
     } catch (error) {
     res.status(422).json
@@ -68,12 +63,12 @@
 
 export async function ctrCrudBulkC(req : Request, res : Response) {
   console.log( '✅ Bulk Insert', req.datosUsuario);
-  const objCrud : I_ObjCrud = creaObjCrud(req)
-  const contexto = 'Ejecucion Crud/Bulk Insert';
+  const { model, data } = creaObjCrud(req.datosUsuario, req.body);
+
   try {
-    const resData = await ejecFuncion
-   (bulkCreateRecords, objCrud.header, contexto, objCrud.model, objCrud.data);
-      res.status(200).json (resData);
+
+    const resData = await bulkCreateRecordService(model, data);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Bulk Insert'); 
     } catch (error) {
     res.status(422).json
@@ -83,13 +78,12 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
 
  export async function ctrCrudBulkU(req : Request, res : Response) {
   console.log( '✅ Bulk Update', req.datosUsuario);
-  const objCrud : I_ObjCrud = creaObjCrud(req)
-  console.log( '✅ objCrud', objCrud);
-  const contexto = 'Ejecucion Crud/Bulk Update';
+  const { model, data } = creaObjCrud(req.datosUsuario, req.body);
+
   try {
-    const resData = await ejecFuncion
-   (bulkUpdateRecords , objCrud.header, contexto, objCrud.model, objCrud.data);
-      res.status(200).json (resData);
+
+    const resData = await bulkUpdateRecordService(model, data);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Modify'); 
     } catch (error) {
     res.status(422).json
@@ -99,32 +93,33 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
 
  export async function ctrFindByKey(req : Request, res : Response) {
   console.log( '✅ Crud Find By Key', req.datosUsuario);
-  const objCrud : I_ObjCrud = creaObjCrud(req)
+  const { model, data } = creaObjCrud(req.datosUsuario, req.body);
   const contexto = 'Ejecucion Find By Key';
   try {
-    if (!objCrud.data || Array.isArray(objCrud.data)) {
+
+    if (!data || Array.isArray(data)) {
         throw ('Datos de búsqueda inválidos o ausentes.');
     }
-    const resData = await ejecFuncion
-   (findOneByPrimaryKey, objCrud.header, contexto, objCrud.model, objCrud.data);
-      res.status(200).json (resData);
+    const resData = await findOneByKeyService(model, data);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Uddate'); 
     } catch (error) {
     res.status(422).json
     ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
     }
  }
-
- function creaObjCrud(req : Request) : I_ObjCrud {
-  console.log( '✅ Creando ObjCrud ', req.datosUsuario, req.body);
-  const infToken : CustomJwtPayload= req.datosUsuario;
-  const infReq : I_InfReqCrud = req.body;
-  const modelo = infReq.model;
-  console.log( '✅ ModeloName ', modelo);
-  const data : Record<string, any> | Record<string, any>[] | null = infReq.data;
-  const model = sequelize.models[modelo] 
-    console.log( '✅ Model ', model);
-  const header :I_Header = armaHeaderQuery(infToken, infReq.idProceso);
-  return {infToken, model, data, header}
- }
+ 
+export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): { model: any, data: any} {
+    console.log( '✅ Creando ObjCrud ', infToken, infReq);
+    
+    const modelo = infReq.model;
+    const data: Record<string, any> | Record<string, any>[] | null = infReq.data;
+    
+    // Assuming 'sequelize' is available globally or imported here
+    const model = sequelize.models[modelo]; 
+    
+//    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);
+    
+    return { model, data};
+}
 
