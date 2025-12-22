@@ -51,7 +51,7 @@ export async function def_FC_SEG_USUARIO(sequelize) {
         tableName: 'FC_SEG_USUARIO',
         schema: 'dbo',
         timestamps: false,
-        hasTriggers: false, // 🌟 PROPIEDAD PERSONALIZADA: No afecta a Sequelize
+        hasTriggers: true, // 🌟 PROPIEDAD PERSONALIZADA: No afecta a Sequelize
         indexes: [{
                 name: 'PK_CF_SEG_USUARIO',
                 unique: true,

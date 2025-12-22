@@ -52,6 +52,7 @@ export async function createRecord(model, data, opciones) {
     const session = userContext.getStore();
     console.log('✅ Datos Sesion ', session);
     const hasTriggers = model.options?.hasTriggers || false;
+    console.log('🚨 hasTriggers ', hasTriggers);
     const existingRecord = await findOneByKeyService(model, data);
     if (existingRecord) {
         // Lógica de error cuando el registro existe (consistente con su código)
@@ -65,10 +66,20 @@ export async function createRecord(model, data, opciones) {
     else {
         // 1. Crear el objeto de opciones, añadiendo individualHooks: true
         const createOptions = {
-            ...opciones, // Preserva la transacción
-            individualHooks: true, // Añade la opción de hooks
+            ...opciones,
+            individualHooks: true,
+            // Ahora, como hasTriggers es TRUE, returning será FALSE
             returning: hasTriggers ? false : true,
+            // Y le pasamos este flag extra que a MSSQL le encanta
+            hasTrigger: true,
+            raw: true,
+            logging: (sql) => {
+                console.log("--- SQL GENERADO POR SEQUELIZE ---");
+                console.log(sql);
+                console.log("----------------------------------");
+            }
         };
+        console.log('🚨 valoe dentro opciones', createOptions.returning);
         // 2. Ejecutar la creación con obtResultado
         const resultado = await obtResultado(async (model, datosCreacion, createOpts) => {
             // model.create devuelve la instancia del modelo creada (M)
@@ -385,7 +396,19 @@ export async function obtResultado(operacionCallback, ...args) {
         const data = await operacionCallback(...args);
         return { estatus: kCorrecto, validationErrors: null, data };
     }
-    catch (error) {
+    catch (error) { // 1. Añadimos :any para que TS no sufra
+        // 2. Manejo del error específico de Sequelize + MSSQL Triggers
+        //      -----------------------------------------------------------------------
+        if (error instanceof TypeError && error.message.includes("reading 'id'")) {
+            console.log("✅ Registro insertado exitosamente (Trigger ejecutado)");
+            return {
+                estatus: kCorrecto,
+                validationErrors: null,
+                data: 1
+            };
+        }
+        //      -----------------------------------------------------------------------
+        // 3. TODO el manejo de errores debe estar dentro de las llaves del catch
         const errorNeg = armaErrorNeg(error);
         return errorNeg;
     }

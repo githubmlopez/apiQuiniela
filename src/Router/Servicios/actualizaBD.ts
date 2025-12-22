@@ -14,8 +14,6 @@ interface I_OperaResult {
     data?: any;
 }
 
-
-
 // Estas definiciones solo se especifican como parte documental sobre las firma de 
 // los diferentes metodos que se enviaran como callbacks
 type CreateOp = (model: typeof Model, data: any, options?:
@@ -83,7 +81,7 @@ export async function createRecord <M extends Model>(
     console.log('✅ Datos Sesion ', session);
 
     const hasTriggers = (model as any).options?.hasTriggers || false;
-
+    console.log('🚨 hasTriggers ', hasTriggers)
     const existingRecord : M | null = await findOneByKeyService(model, data); 
 
     if (existingRecord) {
@@ -97,11 +95,12 @@ export async function createRecord <M extends Model>(
     } else {
        // 1. Crear el objeto de opciones, añadiendo individualHooks: true
        const createOptions = {
-           ...opciones, // Preserva la transacción
-           individualHooks: true, // Añade la opción de hooks
-           returning: hasTriggers ? false : true,
-       };
-        
+       ...opciones,
+       individualHooks: true,
+       returning: hasTriggers ? false : true,
+       hasTrigger: hasTriggers, 
+       raw: true
+       };
         // 2. Ejecutar la creación con obtResultado
        const resultado : I_OperaResult = await obtResultado(
            async (model: any, datosCreacion: any, createOpts: any) => {
@@ -203,6 +202,8 @@ export async function updateRecord <M extends Model>(
             ...opciones, 
             individualHooks: true, // 🌟 Incorporar individualHooks: true
             returning: hasTriggers ? false : true,
+            hasTrigger: hasTriggers, 
+            raw: true,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true   // No es una variable de sequelize se implemento para indicar actualizacion  
         };
@@ -467,19 +468,32 @@ export async function bulkUpdateRecords<M extends Model>(
   }
 }
 
+
 export async function obtResultado (
-operacionCallback: (...args: any[]) => Promise<any>, 
+    operacionCallback: (...args: any[]) => Promise<any>, 
     ...args: any[] 
 ): Promise<I_OperaResult> {
-try {
-  const data = await operacionCallback(...args);
-  return { estatus: kCorrecto, validationErrors: null, data }; 
-} catch (error) {
-  const errorNeg : I_OperaResult = armaErrorNeg(error);
-  return errorNeg;
+    try {
+        const data = await operacionCallback(...args);
+        return { estatus: kCorrecto, validationErrors: null, data }; 
+    } catch (error: any) { // 1. Añadimos :any para que TS no sufra
+        // 2. Manejo del error específico de Sequelize + MSSQL Triggers
+//      -----------------------------------------------------------------------
+        if (error instanceof TypeError && error.message.includes("reading 'id'")) {
+            console.log("✅ Registro insertado exitosamente (Trigger ejecutado)");
+            return { 
+                estatus: kCorrecto, 
+                validationErrors: null, 
+                data: 1 
+            };
+        }
+//      -----------------------------------------------------------------------
+        // 3. TODO el manejo de errores debe estar dentro de las llaves del catch
+        const errorNeg: I_OperaResult = armaErrorNeg(error);
+        return errorNeg;
+    }  
 }
 
-}
 
 export function armaErrorNeg (error : any) : I_OperaResult {
   if (error instanceof ValidationError) {

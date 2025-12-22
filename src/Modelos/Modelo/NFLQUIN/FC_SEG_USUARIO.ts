@@ -1,11 +1,11 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes } from 'sequelize'
 import {construirErroresValidacion} from 
   '../../../Router/Servicios/index.js';
 import {validators, } from 
   '../../../Util/index.js';
-  import {runValidationEngine, } from 
+import {runValidationEngine, } from 
   '../../../Util/index.js';
-  import { hash, verify } from 'argon2';
+import { hash } from 'argon2';
  
 export async function def_FC_SEG_USUARIO(sequelize: any) {
    const FC_SEG_USUARIO = sequelize.define(
@@ -58,7 +58,7 @@ export async function def_FC_SEG_USUARIO(sequelize: any) {
       tableName: 'FC_SEG_USUARIO',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: false, // 🌟 PROPIEDAD PERSONALIZADA: No afecta a Sequelize
+      hasTriggers: true, // 🌟 PROPIEDAD PERSONALIZADA: No afecta a Sequelize
       indexes: [ {
          name : 'PK_CF_SEG_USUARIO',
          unique : true,
