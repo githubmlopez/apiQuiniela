@@ -33,8 +33,13 @@ export interface AEnvConfig {
   DB_PORT: string;
   SEL_QUERY: string;
   SEL_ERROR: string; 
-  SEL_PROC: string
-  PASS_SEC: string
+  SEL_PROC: string;
+  PASS_SEC: string;
+  SMTP_HOST: string;
+  SMTP_PORT: string;
+  SMTP_USER: string;
+  SMTP_PASS: string;
+  SMTP_FROM: string;
 }
 
 export interface I_CreaObjetoEvento extends Partial<I_FC_TAREA_EVENTO> {
@@ -135,3 +140,8 @@ export interface CustomJwtPayload extends OriginalJwtPayload {
   cvePerfil : string | null
 }
 
+export interface I_EmailOptions {
+  to: string;
+  subject: string;
+  token: string;
+}

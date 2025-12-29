@@ -5,6 +5,7 @@ import loginRouter from './Rutas/rutLogin.js';
 import queryRouter from './Rutas/rutQuery.js';
 import queryCrud from './Rutas/rutCrud.js';
 import { authenticateToken } from '../index.js';
+import { emailRouter } from './Rutas/index.js';
 import { obtCorsOpt } from '../Middle/index.js';
 export const app = express();
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3010', 'http://192.168.0.10:3000',
@@ -19,3 +20,4 @@ app.use(express.json());
 app.use('/api/Login', loginRouter);
 app.use('/api/Query', authenticateToken, queryRouter);
 app.use('/api/Crud', authenticateToken, queryCrud);
+app.use('/api/Email', emailRouter);

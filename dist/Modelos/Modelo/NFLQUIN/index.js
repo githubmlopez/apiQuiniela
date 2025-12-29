@@ -8,3 +8,4 @@ export * from './Q_USUARIO.js';
 export * from './Q_SURVIVOR.js';
 export * from './Q_PARTIDO.js';
 export * from './IN_PRUEBA.js';
+export * from './FC_SEG_PASS_RESET.js';

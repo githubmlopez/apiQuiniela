@@ -77,9 +77,6 @@ export async function createRecord <M extends Model>(
   ): Promise<I_InfResponse> {
     console.log(data);
     console.log(model.primaryKeyAttributes);
-    const session = userContext.getStore();
-    console.log('✅ Datos Sesion ', session);
-
     const hasTriggers = (model as any).options?.hasTriggers || false;
     console.log('🚨 hasTriggers ', hasTriggers)
     const existingRecord : M | null = await findOneByKeyService(model, data); 
@@ -99,7 +96,7 @@ export async function createRecord <M extends Model>(
        individualHooks: true,
        returning: hasTriggers ? false : true,
        hasTrigger: hasTriggers, 
-       raw: true
+       raw: hasTriggers ? true : false
        };
         // 2. Ejecutar la creación con obtResultado
        const resultado : I_OperaResult = await obtResultado(
@@ -203,7 +200,7 @@ export async function updateRecord <M extends Model>(
             individualHooks: true, // 🌟 Incorporar individualHooks: true
             returning: hasTriggers ? false : true,
             hasTrigger: hasTriggers, 
-            raw: true,
+            raw: hasTriggers ? true : false,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true   // No es una variable de sequelize se implemento para indicar actualizacion  
         };

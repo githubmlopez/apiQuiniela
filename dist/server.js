@@ -3,7 +3,8 @@ import { ejecFuncion, setupGlobalError } from './index.js';
 import { creaHeadEsq } from './index.js';
 import { envConfig } from './index.js';
 import { app } from './index.js';
-const header = creaHeadEsq();
+const cveAplicacion = 'setGlobalE';
+const header = creaHeadEsq(cveAplicacion);
 // Estas funciones tienen su porpio manejo de errores internamente 
 await setupGlobalError();
 console.log('✅ setupGlobalError');

@@ -45,13 +45,13 @@ export async function obtResDataEscalar(objeto) {
         return objeto.data[0].ESCALAR;
     }
 }
-export function creaHeadEsq() {
+export function creaHeadEsq(cveAplicacion) {
     const header = {
         idProceso: 9999,
-        cveAplicacion: 'dummy',
-        cveUsuario: 'admin',
+        cveAplicacion: cveAplicacion,
+        cveUsuario: 'guest',
         cveIdioma: 'ES',
-        cvePerfil: 'dummy'
+        cvePerfil: 'guest'
     };
     return header;
 }

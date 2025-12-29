@@ -61,13 +61,13 @@ export async function obtResDataEscalar (objeto : I_InfResponse) {
 }
 }
 
-export function creaHeadEsq() {
+export function creaHeadEsq(cveAplicacion : string) {
     const header : I_Header = {
     idProceso  : 9999,
-    cveAplicacion : 'dummy',
-    cveUsuario : 'admin',
+    cveAplicacion : cveAplicacion,
+    cveUsuario : 'guest',
     cveIdioma  : 'ES',
-    cvePerfil  : 'dummy'
+    cvePerfil  : 'guest'
     
   }
   return header;

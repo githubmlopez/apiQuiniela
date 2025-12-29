@@ -7,7 +7,7 @@ export async function ctrlLogin(req, res) {
     const cveAplicacion = requestBody.cveAplicacion;
     const cveUsuario = requestBody.cveUsuario;
     const password = requestBody.password;
-    const header = creaHeadEsq();
+    const header = creaHeadEsq(cveAplicacion);
     header.idProceso = idProceso;
     header.cveUsuario = cveUsuario;
     header.cveAplicacion = cveAplicacion;
@@ -30,8 +30,9 @@ export async function ctrlLogin(req, res) {
     }
 }
 export async function ctrlUsuario(req, res) {
+    const cveAplicacion = 'AltaUs';
     const requestBody = req.body;
-    const header = creaHeadEsq();
+    const header = creaHeadEsq(cveAplicacion);
     header.idProceso = requestBody.idProceso;
     //  const header : I_Header = requestBody.header;
     const data = requestBody.data;

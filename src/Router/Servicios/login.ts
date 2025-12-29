@@ -17,7 +17,7 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    console.log('✅ Login', idProceso, cveUsuario, password);
    const sequelize : Sequelize = await getInstancia();
    const _sign = jwt.sign;
-   const header : I_Header = creaHeadEsq();
+   const header : I_Header = creaHeadEsq(cveAplicacion);
    header.idProceso = idProceso;
    header.cveAplicacion = cveAplicacion;
    header.cveUsuario = cveUsuario;

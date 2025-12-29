@@ -3,7 +3,8 @@ import { logger } from './index.js';
 import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '../index.js';
 // Utilizado para manejo de Promesas (asincrono) con error
 const kFolioEvento = 'EVENT';
-const header = creaHeadEsq();
+const cveAplicacion = 'globalE';
+const header = creaHeadEsq(cveAplicacion);
 export async function setupGlobalError() {
     const sequelize = await getInstancia();
     process.on('unhandledRejection', async (reason, promise) => {

@@ -1,15 +1,22 @@
 import { I_Header} from '../../../Modelos/Interface/index.js';
-import { ejecFuncion} from '../../../Util/index.js';
 import {createRecord} from '../index.js';
 import { userContext} from '../../../Middle/index.js'
+import { ejecFuncion, creaHeadEsq} from '../../../Util/index.js';
 
 export async function createRecordService(
     model: any, 
     data: Record<string, any> | Record<string, any>[] | null
 ) {
-    const header   =  userContext.getStore() as I_Header;
     const contexto = 'Crud/Create (Service)';
-    console.log( '✅ Header ', header); 
+    let header   =  userContext.getStore() as I_Header;
+
+    if(!header) {
+        const cveAplicacion = 'CreateRec';
+        header   =  creaHeadEsq (cveAplicacion) 
+    }
+
+    console.log( '✅ Header 1', header); 
+    console.log( '✅ data', data); 
     
     // The core logic extracted from the try block
     const resData = await ejecFuncion(

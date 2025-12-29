@@ -1,7 +1,6 @@
 import { ValidationError, ValidationErrorItem } from 'sequelize';
 import { getInstancia } from '../../index.js';
 import { findOneByKeyService, buildPKWhereClause } from '../Servicios/CRUD/index.js';
-import { userContext } from '../../Middle/index.js';
 const kCorrecto = 1;
 const kErrorNeg = 3;
 // Function to generate the where clause for findOne based on primary keys
@@ -49,8 +48,6 @@ const kErrorNeg = 3;
 export async function createRecord(model, data, opciones) {
     console.log(data);
     console.log(model.primaryKeyAttributes);
-    const session = userContext.getStore();
-    console.log('✅ Datos Sesion ', session);
     const hasTriggers = model.options?.hasTriggers || false;
     console.log('🚨 hasTriggers ', hasTriggers);
     const existingRecord = await findOneByKeyService(model, data);
@@ -68,18 +65,10 @@ export async function createRecord(model, data, opciones) {
         const createOptions = {
             ...opciones,
             individualHooks: true,
-            // Ahora, como hasTriggers es TRUE, returning será FALSE
             returning: hasTriggers ? false : true,
-            // Y le pasamos este flag extra que a MSSQL le encanta
-            hasTrigger: true,
-            raw: true,
-            logging: (sql) => {
-                console.log("--- SQL GENERADO POR SEQUELIZE ---");
-                console.log(sql);
-                console.log("----------------------------------");
-            }
+            hasTrigger: hasTriggers,
+            raw: true
         };
-        console.log('🚨 valoe dentro opciones', createOptions.returning);
         // 2. Ejecutar la creación con obtResultado
         const resultado = await obtResultado(async (model, datosCreacion, createOpts) => {
             // model.create devuelve la instancia del modelo creada (M)
@@ -168,6 +157,8 @@ opciones // Aseguramos que la transacción esté disponible
             ...opciones,
             individualHooks: true, // 🌟 Incorporar individualHooks: true
             returning: hasTriggers ? false : true,
+            hasTrigger: hasTriggers,
+            raw: true,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true // No es una variable de sequelize se implemento para indicar actualizacion  
         };

@@ -26,7 +26,12 @@ export const envConfig : AEnvConfig = {
   SEL_QUERY: process.env.SEL_QUERY as string,
   SEL_ERROR: process.env.SEL_ERROR as string,
   SEL_PROC: process.env.SEL_PROC as string,
-  PASS_SEC: process.env.PASS_SEC as string
+  PASS_SEC: process.env.PASS_SEC as string,
+  SMTP_HOST: process.env.SMTP_HOST  as string,
+  SMTP_PORT: process.env.SMTP_PORT as string,
+  SMTP_USER: process.env.SMTP_USER  as string,
+  SMTP_PASS: process.env.SMTP_PASS  as string,
+  SMTP_FROM: process.env.SMTP_FROM  as string
 }
 
 

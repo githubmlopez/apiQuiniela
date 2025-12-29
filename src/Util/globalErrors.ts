@@ -8,7 +8,9 @@ import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '../
 // Utilizado para manejo de Promesas (asincrono) con error
 
 const kFolioEvento : string = 'EVENT';
-const header = creaHeadEsq();
+
+const cveAplicacion = 'globalE'
+const header = creaHeadEsq(cveAplicacion);
 
 export async function setupGlobalError(): Promise<void> {
   const sequelize : Sequelize = await getInstancia();

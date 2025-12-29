@@ -5,8 +5,8 @@ import { I_Header } from './index.js';
 import { envConfig } from './index.js';
 import { app } from './index.js';
 
-
-const header : I_Header = creaHeadEsq();
+const cveAplicacion = 'setGlobalE'
+const header : I_Header = creaHeadEsq(cveAplicacion);
 
 // Estas funciones tienen su porpio manejo de errores internamente 
 await setupGlobalError();

@@ -2,7 +2,6 @@
   import {getInstancia}  from '../../index.js';
   import { I_Header, I_InfReqCrud} from '../../index.js';
   import { CustomJwtPayload } from '../../index.js';
-  import { ejecFuncion, armaHeaderQuery} from '../../index.js';
   import {createRecordService, updateRecordService, deleteRecordService,
   bulkCreateRecordService, bulkUpdateRecordService,  findOneByKeyService}
   from '../Servicios/CRUD/index.js'

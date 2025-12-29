@@ -8,7 +8,7 @@ export async function findOneByKeyService<M extends Model, T = Partial<M>>(
     options?: { transaction?: Transaction }
 ): Promise<T | null> // <- ¡Promete devolver T (objeto plano) o null!
 {
-    const header   =  userContext.getStore() as I_Header;
+//    const header   =  userContext.getStore() as I_Header;
     const whereClause = buildPKWhereClause(model, data);
     console.log('WHERE ** ' + JSON.stringify(whereClause));
     
@@ -27,7 +27,6 @@ export async function findOneByKeyService<M extends Model, T = Partial<M>>(
 }
 
 export function buildPKWhereClause<T extends object>(model: any, data: T): any {
-  console.log('✅ Model', model)
   const primaryKeyAttributes = model.primaryKeyAttributes;
   console.log('✅ pk ** ' + JSON.stringify(primaryKeyAttributes), data);
   const whereClause: any = {};
