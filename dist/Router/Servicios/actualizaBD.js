@@ -67,7 +67,7 @@ export async function createRecord(model, data, opciones) {
             individualHooks: true,
             returning: hasTriggers ? false : true,
             hasTrigger: hasTriggers,
-            raw: true
+            raw: hasTriggers ? true : false
         };
         // 2. Ejecutar la creación con obtResultado
         const resultado = await obtResultado(async (model, datosCreacion, createOpts) => {
@@ -158,7 +158,7 @@ opciones // Aseguramos que la transacción esté disponible
             individualHooks: true, // 🌟 Incorporar individualHooks: true
             returning: hasTriggers ? false : true,
             hasTrigger: hasTriggers,
-            raw: true,
+            raw: hasTriggers ? true : false,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true // No es una variable de sequelize se implemento para indicar actualizacion  
         };

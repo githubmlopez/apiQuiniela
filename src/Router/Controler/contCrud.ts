@@ -6,7 +6,9 @@
   bulkCreateRecordService, bulkUpdateRecordService,  findOneByKeyService}
   from '../Servicios/CRUD/index.js'
 
+  const kCorrecto     = 1;
   const kErrorSistema = 2;
+  const kErrorNegocio = 3;
 
   export interface I_ObjCrud {
   infToken : CustomJwtPayload, 
@@ -50,7 +52,6 @@
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
 
   try {
-    const kCaller : string = 'R';
     const resData = await deleteRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Delete'); 
@@ -91,7 +92,6 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
  }
 
  export async function ctrFindByKey(req : Request, res : Response) {
-  console.log( '✅ Crud Find By Key', req.datosUsuario);
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
   const contexto = 'Ejecucion Find By Key';
   try {
@@ -100,8 +100,18 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
         throw ('Datos de búsqueda inválidos o ausentes.');
     }
     const resData = await findOneByKeyService(model, data);
-    res.status(200).json (resData);
-    console.log( '✅ Regreso de ejecutar Uddate'); 
+
+    if(resData) {
+    const safeData = { 
+        ...resData, 
+        PASSWORD: '**********' 
+    };
+    res.status(200).json 
+    ({estatus: kCorrecto, data :[safeData], errorUs: null, errorNeg : null});
+    } else {
+    res.status(200).json 
+    ({estatus: kErrorNegocio, data :null, errorUs: null, errorNeg : ['No existe la información Solicitada']}); 
+    }
     } catch (error) {
     res.status(422).json
     ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
@@ -109,7 +119,6 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
  }
  
 export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): { model: any, data: any} {
-    console.log( '✅ Creando ObjCrud ', infToken, infReq);
     
     const modelo = infReq.model;
     const data: Record<string, any> | Record<string, any>[] | null = infReq.data;
