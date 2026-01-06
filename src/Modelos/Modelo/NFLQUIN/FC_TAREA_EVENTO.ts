@@ -1,0 +1,89 @@
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
+ 
+export async function def_FC_TAREA_EVENTO(sequelize: any) {
+   // La constante se define porque es necesaria en HOOKS
+   const FC_TAREA_EVENTO = sequelize.define(
+   'FC_TAREA_EVENTO',
+   {
+      ID_PROCESO : {
+         type: DataTypes.INTEGER  ,
+         allowNull: false,
+         primaryKey: true
+      },
+      F_EVENTO : {
+         type: DataTypes.DATEONLY  ,
+         allowNull: false,
+         primaryKey: true
+      },
+      ID_EVENTO : {
+         type: DataTypes.INTEGER  ,
+         allowNull: false,
+         primaryKey: true
+      },
+      CVE_TIPO_EVENTO : {
+         type: DataTypes.STRING (1),
+         allowNull: false,
+      },
+      CVE_APLICACION : {
+         type: DataTypes.STRING (10),
+         allowNull: false,
+      },
+      CVE_USUARIO : {
+         type: DataTypes.STRING (100),
+         allowNull: false,
+      },
+      DESC_ERROR : {
+         type: DataTypes.STRING (80),
+         allowNull: false,
+      },
+      MSG_ERROR : {
+         type: DataTypes.STRING (-1),
+         allowNull: true,
+      },
+      ERROR_NUMBER_D : {
+         type: DataTypes.INTEGER  ,
+         allowNull: true,
+      },
+      ERROR_SEVERITY_D : {
+         type: DataTypes.INTEGER  ,
+         allowNull: true,
+      },
+      ERROR_STATE_D : {
+         type: DataTypes.INTEGER  ,
+         allowNull: true,
+      },
+      ERROR_PROCEDURE_D : {
+         type: DataTypes.STRING (128),
+         allowNull: true,
+      },
+      ERROR_LINE_D : {
+         type: DataTypes.INTEGER  ,
+         allowNull: true,
+      },
+      ERROR_MESSAGE_D : {
+         type: DataTypes.STRING (-1),
+         allowNull: true,
+      },
+   },
+   {
+      modelName: 'FC_TAREA_EVENTO',
+      tableName: 'FC_TAREA_EVENTO',
+      schema: 'dbo',
+      timestamps: false,
+      indexes: [ {
+         name : 'PK_FC_TAREA_EVENTO',
+         unique : true,
+         fields : [
+                'F_EVENTO',
+                'ID_EVENTO',
+                'ID_PROCESO',
+         ]
+      }
+      ]
+   }
+   )
+   // Se retorna valor para usos especificos de esta función
+   return sequelize.models.FC_TAREA_EVENTO
+}
+// ----------------------------------------------
