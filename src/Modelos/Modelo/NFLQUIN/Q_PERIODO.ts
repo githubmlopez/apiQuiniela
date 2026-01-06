@@ -1,7 +1,9 @@
-import { DataTypes, Sequelize } from 'sequelize'
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
  
 export async function def_Q_PERIODO(sequelize: any) {
-   sequelize.define(
+   // La constante se define porque es necesaria en HOOKS
+   const Q_PERIODO = sequelize.define(
    'Q_PERIODO',
    {
       ID_QUINIELA : {
@@ -23,11 +25,11 @@ export async function def_Q_PERIODO(sequelize: any) {
          allowNull: true,
       },
       B_ABIERTO : {
-         type: DataTypes.BOOLEAN,
+         type: DataTypes.BOOLEAN  ,
          allowNull: true,
       },
       B_RES_SURV : {
-         type: DataTypes.BOOLEAN,
+         type: DataTypes.BOOLEAN  ,
          allowNull: true,
       },
       F_LIMITE : {
@@ -39,11 +41,11 @@ export async function def_Q_PERIODO(sequelize: any) {
          allowNull: true,
       },
       B_INICIO_DIA : {
-         type: DataTypes.BOOLEAN ,
+         type: DataTypes.BOOLEAN  ,
          allowNull: false,
       },
       B_CIERRE_PER : {
-         type: DataTypes.BOOLEAN,
+         type: DataTypes.BOOLEAN  ,
          allowNull: false,
       },
       IMP_PREMIO : {
@@ -67,5 +69,7 @@ export async function def_Q_PERIODO(sequelize: any) {
       ]
    }
    )
+   // Se retorna valor para usos especificos de esta función
    return sequelize.models.Q_PERIODO
 }
+// ----------------------------------------------

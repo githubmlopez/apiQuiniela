@@ -1,6 +1,8 @@
+// --- Codigo generado de manera automatica -----
 import { DataTypes } from 'sequelize';
 export async function def_Q_PERIODO(sequelize) {
-    sequelize.define('Q_PERIODO', {
+    // La constante se define porque es necesaria en HOOKS
+    const Q_PERIODO = sequelize.define('Q_PERIODO', {
         ID_QUINIELA: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -62,5 +64,7 @@ export async function def_Q_PERIODO(sequelize) {
             }
         ]
     });
+    // Se retorna valor para usos especificos de esta función
     return sequelize.models.Q_PERIODO;
 }
+// ----------------------------------------------

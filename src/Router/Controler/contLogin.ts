@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import {login, creaUsuario}  from '../index.js';
-import { I_Autentica, I_Header, I_InfUsuario, I_InfResponse, I_FC_SEG_USUARIO} from '../../index.js';
+import {login}  from '../index.js';
+import { I_Autentica, I_Header, I_InfResponse} from '../../index.js';
 import { ejecFuncion, creaHeadEsq} from '../../index.js';
 
+const kCorrecto = 1;
 const kErrorSistema = 2;
 
 export async function ctrlLogin(req : Request, res : Response) {
@@ -22,7 +23,27 @@ export async function ctrlLogin(req : Request, res : Response) {
 
   try {
   const result : I_InfResponse = await ejecFuncion(login, header, contexto, idProceso, cveAplicacion, cveUsuario, password)
-  if (!result.errorUs) {
+  if (!result.errorUs && result.data && result.data.length > 0) {
+    const usuarioInfo = result.data[0];
+
+    if (usuarioInfo.token) {
+      // 3. Extraemos el token para la cookie
+      const tokenParaCookie = usuarioInfo.token;
+
+      // 4. CONFIGURAMOS LA COOKIE EN EL RESPONSE (res)
+      res.cookie('auth_token', tokenParaCookie, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 12 * 60 * 60 * 1000, // 12 horas
+        path: '/',
+      });
+
+      // 5. LIMPIEZA: Eliminamos el token de la información del usuario
+      // Al ser un Record<string, any>, delete funciona perfectamente.
+      delete usuarioInfo.token; 
+    }
+
     res.status(200).json (result);
    } else {
     console.log('❌ Error en usuario o Password');
@@ -36,22 +57,46 @@ export async function ctrlLogin(req : Request, res : Response) {
   }
 }
 
-export async function ctrlUsuario(req : Request, res : Response) {
+export async function ctrlLogout(req: Request, res: Response) {
+  try { 
+    // 1. Instrucción para que el navegador borre la cookie
+    res.clearCookie('auth_token', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      // secure: true // Actívalo solo cuando tengas HTTPS (Producción)
+    });
 
-  const cveAplicacion = 'AltaUs';
-  const requestBody : I_InfUsuario = req.body;
-  const header : I_Header = creaHeadEsq(cveAplicacion);
-  header.idProceso = requestBody.idProceso;
-//  const header : I_Header = requestBody.header;
-  const data : I_FC_SEG_USUARIO | null = requestBody.data;
-  const contexto = 'Error en Creacion de Usuario';
+    // 2. Respuesta informativa para el Frontend
+      res.status(200).json({ 
+      estatus: kCorrecto, 
+      data: null, 
+      errorUs: null,
+      errorNeg: null
+    });
 
-  try {
-  const result = await ejecFuncion(creaUsuario, header, contexto, header, data);
-  res.status(200).json(result);
-  console.log('✅ Respuesta correcta Crea Usuario');
   } catch (error) {
-    res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});;
+      res.status(500).json({ 
+      estatus: kErrorSistema, 
+      data: null, 
+      errorUs: 'Error al cerrar sesión',
+      errorNeg: null 
+    });
+  }  
+}
+
+
+export async function ctrlGetMe(req : Request, res : Response) {
+  // El middleware 'authenticateToken' ya hizo el trabajo sucio.
+  // Solo devolvemos los datos que el middleware extrajo del token.
+  
+  if (req.datosUsuario) {
+      res.status(200).json({
+      estatus: 1,
+      data: [req.datosUsuario], 
+      errorUs: null
+    });
   }
+
+  res.status(401).json({ estatus: 2, errorUs: 'No autorizado' });
 }

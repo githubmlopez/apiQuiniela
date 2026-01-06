@@ -1,6 +1,8 @@
+// --- Codigo generado de manera automatica -----
 import { DataTypes } from 'sequelize';
 export async function def_Q_SURVIVOR(sequelize) {
-    sequelize.define('Q_SURVIVOR', {
+    // La constante se define porque es necesaria en HOOKS
+    const Q_SURVIVOR = sequelize.define('Q_SURVIVOR', {
         ID_QUINIELA: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -52,5 +54,7 @@ export async function def_Q_SURVIVOR(sequelize) {
             }
         ]
     });
+    // Se retorna valor para usos especificos de esta función
     return sequelize.models.Q_SURVIVOR;
 }
+// ----------------------------------------------

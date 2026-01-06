@@ -1,6 +1,8 @@
+// --- Codigo generado de manera automatica -----
 import { DataTypes } from 'sequelize';
 export async function def_Q_PARTIDO(sequelize) {
-    sequelize.define('Q_PARTIDO', {
+    // La constante se define porque es necesaria en HOOKS
+    const Q_PARTIDO = sequelize.define('Q_PARTIDO', {
         ID_PERIODO: {
             type: DataTypes.STRING(2),
             allowNull: false,
@@ -13,11 +15,11 @@ export async function def_Q_PARTIDO(sequelize) {
         },
         ID_EQUIPO_1: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: true,
         },
         ID_EQUIPO_2: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: true,
         },
         ID_SCORE_E1: {
             type: DataTypes.INTEGER,
@@ -47,11 +49,16 @@ export async function def_Q_PARTIDO(sequelize) {
             type: DataTypes.STRING(2),
             allowNull: true,
         },
+        B_MARCADOR: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+        },
     }, {
         modelName: 'Q_PARTIDO',
         tableName: 'Q_PARTIDO',
         schema: 'dbo',
         timestamps: false,
+        hasTriggers: true, // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
         indexes: [{
                 name: 'PK_Q_PARTIDO',
                 unique: true,
@@ -62,5 +69,7 @@ export async function def_Q_PARTIDO(sequelize) {
             }
         ]
     });
+    // Se retorna valor para usos especificos de esta función
     return sequelize.models.Q_PARTIDO;
 }
+// ----------------------------------------------

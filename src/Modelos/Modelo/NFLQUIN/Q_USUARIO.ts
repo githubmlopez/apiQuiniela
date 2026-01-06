@@ -1,7 +1,9 @@
-import { DataTypes, Sequelize } from 'sequelize'
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
  
 export async function def_Q_USUARIO(sequelize: any) {
-   sequelize.define(
+   // La constante se define porque es necesaria en HOOKS
+   const Q_USUARIO = sequelize.define(
    'Q_USUARIO',
    {
       CVE_USUARIO : {
@@ -11,11 +13,11 @@ export async function def_Q_USUARIO(sequelize: any) {
       },
       ID_QUINIELA : {
          type: DataTypes.INTEGER  ,
-         allowNull: true
+         allowNull: true,
       },
       ID_PARTICIPANTE : {
          type: DataTypes.INTEGER  ,
-         allowNull: true
+         allowNull: true,
       },
    },
    {
@@ -33,5 +35,7 @@ export async function def_Q_USUARIO(sequelize: any) {
       ]
    }
    )
+   // Se retorna valor para usos especificos de esta función
    return sequelize.models.Q_USUARIO
 }
+// ----------------------------------------------  

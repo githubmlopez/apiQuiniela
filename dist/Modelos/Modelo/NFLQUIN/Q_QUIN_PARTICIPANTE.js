@@ -1,6 +1,8 @@
+// --- Codigo generado de manera automatica -----
 import { DataTypes } from 'sequelize';
 export async function def_Q_QUIN_PARTICIPANTE(sequelize) {
-    sequelize.define('Q_QUIN_PARTICIPANTE', {
+    // La constante se define porque es necesaria en HOOKS
+    const Q_QUIN_PARTICIPANTE = sequelize.define('Q_QUIN_PARTICIPANTE', {
         ID_QUINIELA: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -58,5 +60,7 @@ export async function def_Q_QUIN_PARTICIPANTE(sequelize) {
             }
         ]
     });
+    // Se retorna valor para usos especificos de esta función
     return sequelize.models.Q_QUIN_PARTICIPANTE;
 }
+// ----------------------------------------------

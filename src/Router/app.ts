@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 
 import  loginRouter  from './Rutas/rutLogin.js';
 import  queryRouter  from './Rutas/rutQuery.js';
@@ -20,6 +21,7 @@ const corsOptions = obtCorsOpt(allowedOrigins);
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json());    
+app.use(cookieParser());
 // Le dice a Express que cualquier solicitud que comience con /api/login 
 // debe ser manejada por el router que le estás pasando (que es rutLogin).
 app.use('/api/Login', loginRouter);

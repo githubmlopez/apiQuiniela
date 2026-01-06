@@ -1,7 +1,9 @@
-import { DataTypes, Sequelize } from 'sequelize'
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
  
 export async function def_FC_FOLIO(sequelize: any) {
-   sequelize.define(
+   // La constante se define porque es necesaria en HOOKS
+   const FC_FOLIO = sequelize.define(
    'FC_FOLIO',
    {
       CVE_FOLIO : {
@@ -33,5 +35,7 @@ export async function def_FC_FOLIO(sequelize: any) {
       ]
    }
    )
+   // Se retorna valor para usos especificos de esta función
    return sequelize.models.FC_FOLIO
 }
+// ----------------------------------------------

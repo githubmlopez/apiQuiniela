@@ -1,8 +1,7 @@
 import { envConfig } from '../../index.js';
 import { getInstancia } from '../../index.js';
-import { hash, verify } from 'argon2';
+import { verify } from 'argon2';
 import jwt from 'jsonwebtoken';
-import { createRecord } from '../../index.js';
 import { findOneByKeyService } from '../Servicios/index.js';
 import { ejecFuncion, creaHeadEsq, ExecRawQueryById } from '../../index.js';
 const kCorrecto = 1;
@@ -17,7 +16,9 @@ export async function login(idProceso, cveAplicacion, cveUsuario, password) {
     header.idProceso = idProceso;
     header.cveAplicacion = cveAplicacion;
     header.cveUsuario = cveUsuario;
-    const data = creaUsuarioDummy(cveUsuario);
+    const data = {
+        CVE_USUARIO: cveUsuario
+    };
     const nomModelo = 'FC_SEG_USUARIO';
     const contexto = 'Proceso login';
     const model = sequelize.models[nomModelo];
@@ -99,33 +100,4 @@ export async function login(idProceso, cveAplicacion, cveUsuario, password) {
         objRes = { estatus: kErrorAut, data: null, errorUs: 'Error en usuario o Password', errorNeg: null };
     }
     return objRes;
-}
-export async function creaUsuario(header, data) {
-    console.log('✅ Header ', header);
-    console.log('✅ data ', data);
-    const sequelize = await getInstancia();
-    const infUsuario = data;
-    const passEnc = await hash(infUsuario.PASSWORD);
-    infUsuario.PASSWORD = passEnc;
-    const contexto = 'Registro de Usuario';
-    const nomModelo = 'FC_SEG_USUARIO';
-    const model = sequelize.models[nomModelo];
-    const resData = await ejecFuncion(createRecord, header, contexto, model, infUsuario);
-    return resData;
-}
-function creaUsuarioDummy(cveUsuario) {
-    const kActivo = 'A';
-    const kEspanol = 'ES';
-    const usuario = {
-        CVE_USUARIO: cveUsuario,
-        APELLIDO_PATERNO: ' ',
-        APELLIDO_MATERNO: ' ',
-        NOMBRE: ' ',
-        PASSWORD: ' ',
-        B_BLOQUEADO: false,
-        SIT_USUARIO: kActivo,
-        CVE_IDIOMA: kEspanol,
-        CVE_PERFIL: 'administrador'
-    };
-    return usuario;
 }

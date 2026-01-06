@@ -1,7 +1,9 @@
-import { DataTypes, Sequelize } from 'sequelize'
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
  
 export async function def_FC_TAREA_EVENTO(sequelize: any) {
-   sequelize.define(
+   // La constante se define porque es necesaria en HOOKS
+   const FC_TAREA_EVENTO = sequelize.define(
    'FC_TAREA_EVENTO',
    {
       ID_PROCESO : {
@@ -36,7 +38,7 @@ export async function def_FC_TAREA_EVENTO(sequelize: any) {
          allowNull: false,
       },
       MSG_ERROR : {
-         type: DataTypes.STRING (400),
+         type: DataTypes.STRING (-1),
          allowNull: true,
       },
       ERROR_NUMBER_D : {
@@ -60,7 +62,7 @@ export async function def_FC_TAREA_EVENTO(sequelize: any) {
          allowNull: true,
       },
       ERROR_MESSAGE_D : {
-         type: DataTypes.STRING (4000),
+         type: DataTypes.STRING (-1),
          allowNull: true,
       },
    },
@@ -81,5 +83,7 @@ export async function def_FC_TAREA_EVENTO(sequelize: any) {
       ]
    }
    )
+   // Se retorna valor para usos especificos de esta función
    return sequelize.models.FC_TAREA_EVENTO
 }
+// ----------------------------------------------

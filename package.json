@@ -5,12 +5,13 @@
   "main": "./dist/index.js",
   "type": "module",
   "scripts": {
-    "test": "Set NODE_ENV=desarrollo & node ./dist/server.js",
-    "prod": "/bin/bash ./run_prod.bash"
+    "dev": "cross-env NODE_ENV=development node ./dist/server.js",
+    "start": "cross-env NODE_ENV=production node ./dist/server.js"
   },
   "author": "Mario Lopez",
   "license": "ISC",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
     "@types/helmet": "^0.0.48",
@@ -31,7 +32,9 @@
     "@types/argon2": "^0.14.1",
     "@types/jsonwebtoken": "^9.0.9",
     "argon2": "^0.43.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "helmet": "^8.1.0",

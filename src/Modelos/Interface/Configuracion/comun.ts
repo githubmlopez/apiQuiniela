@@ -26,11 +26,13 @@ export interface AConfig {
 }
 
 export interface AEnvConfig {
+  SV_PORT: number,
   SERVER_URI: string;
   DB_NAME: string;
   DB_USER: string;
   DB_PWD: string;
-  DB_PORT: string;
+  DB_PORT: number;
+  DB_LOGGING: boolean;
   SEL_QUERY: string;
   SEL_ERROR: string; 
   SEL_PROC: string;

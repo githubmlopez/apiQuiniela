@@ -17,8 +17,8 @@ console.log('✅ cargaCache');
 const contModel = 'Carga inf a Memoria';
 await ejecFuncion (cargaModelos, header, contModel);
 
-const PORT = envConfig.DB_PORT || 3010;
-const env = process.env.NODE_ENV || 'desarrollo';
+const PORT = envConfig.SV_PORT || 3010;
+const env = process.env.NODE_ENV || 'development';
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`, env);
 });

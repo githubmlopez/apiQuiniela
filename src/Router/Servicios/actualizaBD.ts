@@ -2,8 +2,6 @@ import { Sequelize, Model, Transaction, ValidationError, ValidationErrorItem} fr
 import { I_InfResponse } from '../../index.js';
 import { getInstancia } from '../../index.js';
 import {findOneByKeyService, buildPKWhereClause} from '../Servicios/CRUD/index.js';
-import { userContext} from '../../Middle/index.js'
-
 
 const kCorrecto = 1;
 const kErrorNeg = 3;
@@ -79,7 +77,9 @@ export async function createRecord <M extends Model>(
     console.log(model.primaryKeyAttributes);
     const hasTriggers = (model as any).options?.hasTriggers || false;
     console.log('🚨 hasTriggers ', hasTriggers)
-    const existingRecord : M | null = await findOneByKeyService(model, data); 
+    const existingRecord = await findOneByKeyService(model, data, { 
+    transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción); 
+    });
 
     if (existingRecord) {
        // Lógica de error cuando el registro existe (consistente con su código)
@@ -94,9 +94,10 @@ export async function createRecord <M extends Model>(
        const createOptions = {
        ...opciones,
        individualHooks: true,
+       hooks: true,
        returning: hasTriggers ? false : true,
-       hasTrigger: hasTriggers, 
-       raw: hasTriggers ? true : false
+       hasTriggers: hasTriggers, 
+       raw: false
        };
         // 2. Ejecutar la creación con obtResultado
        const resultado : I_OperaResult = await obtResultado(
@@ -178,14 +179,15 @@ export async function updateRecord <M extends Model>(
   data: any, // Los datos de entrada contienen los campos a actualizar y las PKs
   opciones?: { transaction?: Transaction } // Aseguramos que la transacción esté disponible
   ): Promise<I_InfResponse> {
-  console.log('✅ Update Data', data);
+  console.log('✅ Update Data   **** ', data);
 
     // 1. Verificar la existencia del registro (usando la PK de 'data')
   
   const hasTriggers = (model as any).options?.hasTriggers || false;
 
-  const existingRecord = await findOneByKeyService(model, data); 
-
+  const existingRecord = await findOneByKeyService(model, data, { 
+    transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción); 
+    });
   if (existingRecord) {
         // Si existe, construimos la cláusula WHERE usando las claves primarias (PKs)
         const whereClause = buildPKWhereClause(model, data);
@@ -200,7 +202,7 @@ export async function updateRecord <M extends Model>(
             individualHooks: true, // 🌟 Incorporar individualHooks: true
             returning: hasTriggers ? false : true,
             hasTrigger: hasTriggers, 
-            raw: hasTriggers ? true : false,
+            raw: false,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true   // No es una variable de sequelize se implemento para indicar actualizacion  
         };
@@ -210,7 +212,9 @@ export async function updateRecord <M extends Model>(
             async (model: any, datosActualizacion: any, updateOpts: any) => {
                 // model.update devuelve un array [número_de_filas_afectadas, instancias_actualizadas]
                 // Si la actualización es exitosa, el primer elemento es > 0.
+                  console.log('✅ Update Data COMMAND   **** ', data);
                 const updateResult = await model.update(datosActualizacion, updateOpts); 
+                                  console.log('✅ Sale de Update Data COMMAND   **** ', data);
                 
                 // Sequelize devuelve [filasAfectadas, instancias], aquí solo regresamos filasAfectadas
                 return updateResult[0]; 
@@ -302,7 +306,9 @@ export async function deleteRecord <M extends Model>(
     const hasTriggers = (model as any).options?.hasTriggers || false;
 
     // 1. Verificar la existencia del registro (usando la PK de 'data')
-   const existingRecord : M | null = await findOneByKeyService(model, data); 
+    const existingRecord = await findOneByKeyService(model, data, { 
+    transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción); 
+    });
 
    if (existingRecord) {
        const whereClause = buildPKWhereClause (model, data);
@@ -373,42 +379,65 @@ export async function deleteRecord <M extends Model>(
 
 export async function bulkCreateRecords<M extends Model>(
   model: typeof Model & (new () => M),
-  data: any,
-  opciones?: { transaction?: Transaction }
+  dataArray: any
 ): Promise<I_InfResponse> {
-  const sequelize: Sequelize = await getInstancia();
+  let filasCreadas: number = 0;
+  
+  if (!Array.isArray(dataArray) || dataArray.length === 0) {
+    throw ('No existen datos a crear');
+  }
 
-  // 1. Usamos una transacción gestionada (Managed Transaction)
-  // Si algo falla adentro, Sequelize hace Rollback automáticamente.
-  return await sequelize.transaction(async (t) => {
-    
-    const resultado: I_OperaResult = await obtResultado(
-      async (model, data, trans) => {
-        // 🌟 IMPORTANTE: Pasamos la transacción 'trans' (o 't')
-      const instances = await model.bulkCreate(data, { 
-      transaction: t,
-      individualHooks: true, // ✅ Necesario para ejecutar el beforeSave (hashing)
-      validate: false,        // 🚀 PERFORMANCE: Salta el motor de validación (beforeValidate)
-      hooks: true            // Asegura que los hooks se disparen
+  const sequelizeInstance: Sequelize = await getInstancia();
+  let errorNegocio: string[] = [];
+
+  try {
+    // 1. Iniciamos la transacción gestionada
+    return await sequelizeInstance.transaction(async (t: Transaction) => {
+      
+      // 2. Iteramos cada elemento igual que en tu bulkUpdate
+      for (const elemento of dataArray) {
+        // Llamamos a tu createRecord pasándole la transacción actual
+        const resultado: I_InfResponse = await createRecord(model, elemento, { transaction: t });
+
+        if (resultado.errorNeg && resultado.errorNeg.length > 0) {
+          // Si hay errores de negocio, los acumulamos
+          errorNegocio = [...errorNegocio, ...resultado.errorNeg];
+        } else {
+          // Si fue exitoso, sumamos al contador
+          filasCreadas++;
+        }
+      }
+
+      // 3. 🚨 EVALUACIÓN DE ERRORES ACUMULADOS
+      // Si hubo algún error en cualquiera de los registros, forzamos ROLLBACK
+      if (errorNegocio.length > 0) {
+        const errNegocioObj = new Error('BUSINESS_ERRORS');
+        (errNegocioObj as any).isBusiness = true;
+        (errNegocioObj as any).detalles = errorNegocio;
+        throw errNegocioObj; // Sequelize hace Rollback de TODO automáticamente
+      }
+
+      // 4. Si todo salió bien, devolvemos éxito y Sequelize hace COMMIT
+      return {
+        estatus: kCorrecto,
+        data: [{ contador: filasCreadas }],
+        errorUs: null,
+        errorNeg: null
+      };
     });
-    return instances.length;
-    },
-    model,
-    data,
-    t // Le pasamos la 't' de la transacción a obtResultado
-    );
-
-    const filasInsertadas = resultado.data as number;
-
-    // 2. Si llegamos aquí, todo salió bien. 
-    // Sequelize hará el COMMIT automáticamente al salir de este bloque.
-    return {
-      estatus: kCorrecto,
-      data: [{ contador: filasInsertadas }],
-      errorUs: null,
-      errorNeg: resultado.validationErrors as string[] | null
-    };
-  });
+  } catch (error: any) {
+    // 🛡️ CAPTURA DE ERRORES (Misma lógica que tu Update)
+    if (error.isBusiness) {
+      return {
+        estatus: kErrorNeg,
+        data: [{ contador: 0 }],
+        errorUs: null,
+        errorNeg: error.detalles
+      };
+    }
+    // Si es un error de sistema (SQL crash), lo relanzamos
+    throw error;
+  }
 }
 
 export async function bulkUpdateRecords<M extends Model>(

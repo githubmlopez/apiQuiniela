@@ -1,9 +1,8 @@
 import { envConfig } from '../../index.js';
 import { getInstancia } from '../../index.js';
-import { Sequelize, Model} from 'sequelize';
-import { hash, verify } from 'argon2';
+import { Sequelize} from 'sequelize';
+import { verify } from 'argon2';
 import jwt from 'jsonwebtoken';
-import { createRecord} from '../../index.js';
 import { findOneByKeyService} from '../Servicios/index.js';
 import { ejecFuncion, creaHeadEsq, ExecRawQueryById} from '../../index.js'
 import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '../../index.js';
@@ -21,7 +20,11 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    header.idProceso = idProceso;
    header.cveAplicacion = cveAplicacion;
    header.cveUsuario = cveUsuario;
-   const data : I_FC_SEG_USUARIO = creaUsuarioDummy(cveUsuario);
+   const data = 
+   {
+      CVE_USUARIO      : cveUsuario
+   };
+
    const nomModelo = 'FC_SEG_USUARIO';
    const contexto = 'Proceso login';
    const model : any = sequelize.models[nomModelo];
@@ -120,40 +123,7 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    return objRes;
 }
 
-export async function creaUsuario(header : I_Header, data : any) {
-   console.log('✅ Header ', header);
-   console.log('✅ data ', data);
-   const sequelize : Sequelize = await getInstancia();
-   const infUsuario : I_FC_SEG_USUARIO = data as I_FC_SEG_USUARIO;
-   const passEnc : string = await hash(infUsuario.PASSWORD) as string;
-   infUsuario.PASSWORD = passEnc;
-   const contexto = 'Registro de Usuario'
-   const nomModelo = 'FC_SEG_USUARIO';
-   const model  = sequelize.models[nomModelo];
-   const resData : I_InfResponse = await ejecFuncion
-   (createRecord, header, contexto, model, infUsuario) 
-   
-   return resData;
-}
 
-function creaUsuarioDummy (cveUsuario : string) {
-   const kActivo = 'A';
-   const kEspanol = 'ES';
-   const usuario : I_FC_SEG_USUARIO = 
-   {
-      CVE_USUARIO      : cveUsuario,
-      APELLIDO_PATERNO : ' ',
-      APELLIDO_MATERNO : ' ',
-      NOMBRE           : ' ',
-      PASSWORD         : ' ',
-      B_BLOQUEADO      : false,
-      SIT_USUARIO      : kActivo,
-
-      CVE_IDIOMA       : kEspanol,
-      CVE_PERFIL       : 'administrador'
-   }   
-   return usuario;
-}
 
 
 

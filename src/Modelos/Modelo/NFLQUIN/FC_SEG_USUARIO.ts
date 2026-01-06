@@ -1,4 +1,3 @@
-import { DataTypes } from 'sequelize'
 import {construirErroresValidacion} from 
   '../../../Router/Servicios/index.js';
 import {validators, } from 
@@ -7,7 +6,11 @@ import {runValidationEngine, } from
   '../../../Util/index.js';
 import { hash } from 'argon2';
  
+// --- Codigo generado de manera automatica -----
+import { DataTypes } from 'sequelize'
+ 
 export async function def_FC_SEG_USUARIO(sequelize: any) {
+   // La constante se define porque es necesaria en HOOKS
    const FC_SEG_USUARIO = sequelize.define(
    'FC_SEG_USUARIO',
    {
@@ -58,7 +61,7 @@ export async function def_FC_SEG_USUARIO(sequelize: any) {
       tableName: 'FC_SEG_USUARIO',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: true, // 🌟 PROPIEDAD PERSONALIZADA: No afecta a Sequelize
+      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
       indexes: [ {
          name : 'PK_CF_SEG_USUARIO',
          unique : true,
@@ -68,7 +71,9 @@ export async function def_FC_SEG_USUARIO(sequelize: any) {
       }
       ]
    }
-   )
+   );
+
+// ----------------------------------------------
 // ============================================
 // 🧩 Hook BEFORE VALIDATE para FC_SEG_USUARIO
 // ============================================

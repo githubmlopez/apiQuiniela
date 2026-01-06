@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { envConfig } from '../index.js';
 import { I_Header} from '../index.js';
 import { Request, Response, NextFunction } from 'express';
@@ -10,68 +10,64 @@ export const userContext = new AsyncLocalStorage<I_Header>();
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 const kErrorAut = 4;
 
-export const authenticateToken = (req : Request, res : Response, next : NextFunction) : any => {
-  console.log('✅Entro a Autenticacion');
-  const authHeader = req.headers.authorization;
+export const authenticateToken = (req: Request, res: Response, next: NextFunction): any => {
+  console.log('✅ Entro a Autenticacion');
+  
+  // 1. Extraemos el token de la cookie
+  const token = req.cookies?.auth_token;
 
-  if (!authHeader) {
-    res.status(401).json
-    ({estatus: kErrorAut, data :null, errorUs: 'Acceso denegado. No se proporcionó token',
-      errorNeg : null});
-    return; // Detiene la ejecución del middleware
+  // 2. Validación inmediata: Si no hay token, no perdemos tiempo verificando
+  if (!token) {
+    console.log('❌ No se encontró el token en las cookies');
+    return res.status(401).json({
+      estatus: kErrorAut,
+      data: null,
+      errorUs: 'Acceso denegado. No se encontró una sesión activa.',
+      errorNeg: null
+    });
   }
 
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    res.status(401).json
-    ({estatus: kErrorAut, data :null, errorUs: 'Formato de token inválido. Se esperaba "Bearer <token>',
-      errorNeg : null});
-    return;
-  }
+  try {
+    // 3. Verificamos el token
+    const decoded = jwt.verify(token, palabraSegura) as CustomJwtPayload;
+    console.log('✅ Token verificado para:', decoded.cveUsuario);
 
-  const token = parts[1];
- 
-    try {
-      // Verifica el token
-      const decoded = jwt.verify(token, palabraSegura) as CustomJwtPayload;
-      console.log('✅Ejecuto verify', decoded);
-      const { idProceso } = req.body;
+    // Extraemos idProceso (del body o de donde lo esperes)
+    const { idProceso } = req.body;
 
-// Formamos el objeto completo
-      const header: I_Header = {
+    // Formamos el objeto de contexto
+    const header: I_Header = {
       idProceso: idProceso ?? null,
       cveAplicacion: decoded.cveAplicacion,
       cveUsuario: decoded.cveUsuario,
       cveIdioma: decoded.cveIdioma,
       cvePerfil: decoded.cvePerfil
-      };
+    };
 
-// 🌟 GUARDAMOS EL HEADER COMPLETO EN EL CONTEXTO
-      return userContext.run(header, () => {
-      req.datosUsuario = decoded; // Lo dejamos en req solo por si acaso
-      next();
+    // 4. Ejecutamos dentro del contexto de AsyncLocalStorage
+    return userContext.run(header, () => {
+      req.datosUsuario = decoded; 
+      next(); // Importante: next() debe ir dentro del run para mantener el contexto vivo
+    });
+
+  } catch (error) {
+    console.error('❌ Error en autenticación:', error);
+
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({
+        estatus: kErrorAut,
+        data: null,
+        errorUs: 'Tu sesión ha expirado. Por favor, ingresa de nuevo.',
+        errorNeg: null
       });
+    }
 
-      console.log('✅Actualizo request ');
-
-  //    next(); // Permite que la solicitud continúe a la siguiente función (tu controlador)
-    } catch (error) {
-  if (error instanceof jwt.TokenExpiredError) {
+    // Cualquier otro error de JWT (mal formado, firma inválida, etc.)
     return res.status(401).json({
       estatus: kErrorAut,
       data: null,
-      errorUs: 'Token expirado',
+      errorUs: 'Token inválido o corrupto.',
       errorNeg: null
     });
-  }
-
-  if (error instanceof jwt.JsonWebTokenError) {
-    return res.status(401).json({
-      estatus: kErrorAut,
-      data: null,
-      errorUs: 'Token inválido',
-      errorNeg: null
-    });
-  }   
   }
 };
