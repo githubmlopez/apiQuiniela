@@ -1,23 +1,39 @@
-import { I_Header, KeyValueObject} from '../../../Modelos/Interface/index.js';
+import { I_Header, KeyValueObject, I_InfResponse} from '../../../Modelos/Interface/index.js';
 import { ejecFuncion} from '../../../Util/index.js';
 import {ExecRawQueryById} from '../index.js';
 import { userContext} from '../../../Middle/index.js'
+import { envConfig} from '../../../Configuracion/index.js';
+import { verificarCacheDinamico, guardarCacheDinamico} from './index.js';
 
 export async function QueryByIdService(
-    idQuery : string,
-    parmRemp : KeyValueObject,
-    campos : string[],
-    where : string[],
-    orderBy : string[],
-    numReg : number,
-    skip : number) {
-
-    const header   =  userContext.getStore() as I_Header;
+    idQuery: string,
+    parmRemp: KeyValueObject,
+    campos: string[],
+    where: string[],
+    orderBy: string[],
+    numReg: number,
+    skip: number
+) {
+    const header = userContext.getStore() as I_Header;
     const contexto = 'Query/By Id (Service)';
-    console.log( '✅ Header ', header); 
     
-    // The core logic extracted from the try block
-    const resData = await ejecFuncion(
+    // 1. Interruptor Maestro (Variable de Ambiente)
+    // Asumimos que envConfig ya trae el valor de MEM_CACHE
+    const usarCache = envConfig.MEM_CACHE;
+
+    // 2. Intento de recuperación de memoria (SOLO si el interruptor está ON)
+    if (usarCache) {
+        console.log('✅ Se buscara en memoria cache ');
+        const resCached = verificarCacheDinamico('DS', idQuery, parmRemp);
+        if (resCached) {
+            console.log('✅ Respondiendo con Memoria cache ');
+            return resCached;
+        }   
+    }
+
+    // 3. Ejecución normal (DB)
+    // Esta parte siempre se ejecuta si la caché está apagada o si no se encontró el dato
+    const resData: I_InfResponse = await ejecFuncion(
         ExecRawQueryById, 
         header, 
         contexto,
@@ -28,9 +44,14 @@ export async function QueryByIdService(
         orderBy,
         numReg,
         skip
-    
     );
 
-    console.log( '✅ Consulta ejecutada con éxito'); 
+    // 4. Intento de guardado en memoria (SOLO si el interruptor está ON)
+    if (usarCache) {
+        console.log('✅ Guardando cache en memoria ');
+        guardarCacheDinamico('DS', idQuery, parmRemp, resData);
+    }
+
+    console.log(`✅ Consulta ejecutada con éxito (${usarCache ? 'Cache/DB' : 'DB Directo'})`); 
     return resData;
 }

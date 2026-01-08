@@ -1,6 +1,6 @@
 import { Sequelize, QueryTypes } from 'sequelize';
 import { KeyValueObject } from '../../index.js';
-import { ObtMemoCache } from '../../index.js';
+import { ObtMemoCache } from '../../Util/MemoCache.js';
 import { I_InfResponse, I_Header} from '../../index.js';
 import { getInstancia } from '../../index.js';
 import { prepResponse, formatQuery, formatRepPar, IncHeader } from '../../index.js';
@@ -22,7 +22,8 @@ skip? : number
 // Obtener query de memoria cache
 
   const kSql = 'S';
-  const query : any = ObtMemoCache(kSql, idQuery);
+  const memCache : any = ObtMemoCache(kSql, idQuery);
+  const query : string = memCache.sql;
   console.log('✅ Query', idQuery, query)
 
 // Construir sentencia SELECT a partir de los parametros proporcionados
@@ -51,7 +52,8 @@ export async function ExecProcedure(
   header : I_Header
   )  : Promise<I_InfResponse>{
       const kProcedure = 'P';
-      const query : any = ObtMemoCache(kProcedure, idProcedure); 
+      const memCache : any = ObtMemoCache(kProcedure, idProcedure); 
+      const query : string = memCache.sql;
       console.log(query);
       let sqlFmt = ' '
       if (parmRemp !== null)  {
@@ -81,13 +83,13 @@ query  : string
   type: QueryTypes.SELECT,
   raw: true}) 
   
-  console.log('✅resultado Orig ', resultado);
+  //console.log('✅resultado Orig ', resultado);
 
   // Llamado a funcion que determina y construye el response   
 
   const resRquest : I_InfResponse = prepResponse(query, resultado, tipo) as I_InfResponse;
   console.log ('✅ Query ', query);
-  console.log ('✅ prepResponse ok', resRquest);
+ // console.log ('✅ prepResponse ok', resRquest);
 
   return resRquest;
 

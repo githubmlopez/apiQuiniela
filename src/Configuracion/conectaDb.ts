@@ -1,7 +1,9 @@
 import { envConfig } from './index.js';
 import { Sequelize, Options} from 'sequelize';
 
-const kProduccion = 'produccion';
+const kNomLocal : string = 'localhost';
+const kIpLocal : string = '127.0.0.1';
+
 
 export const getInstancia: () => Promise<Sequelize> = (() => {
   let instQuiniela: Sequelize | null = null;
@@ -46,8 +48,8 @@ const dbConfig: Options = {
 };  
 
 if (envConfig.SERVER_URI && 
-    envConfig.SERVER_URI !== 'localhost' && 
-    envConfig.SERVER_URI !== '127.0.0.1') {
+    envConfig.SERVER_URI !== kNomLocal && 
+    envConfig.SERVER_URI !== kIpLocal) {
     
     dbConfig.host = envConfig.SERVER_URI;
     dbConfig.port = Number(envConfig.DB_PORT) || 1433;

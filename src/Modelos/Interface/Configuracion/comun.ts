@@ -42,6 +42,7 @@ export interface AEnvConfig {
   SMTP_USER: string;
   SMTP_PASS: string;
   SMTP_FROM: string;
+  MEM_CACHE: boolean
 }
 
 export interface I_CreaObjetoEvento extends Partial<I_FC_TAREA_EVENTO> {

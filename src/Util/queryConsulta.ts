@@ -16,7 +16,7 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
       } else {
         resFormat = resultado
       }
-      console.log('✅resultado Format ', resFormat);
+     // console.log('✅resultado Format ', resFormat);
       if (tipo === kSql) {
         if (resFormat.length === 0) {
           return {estatus: kCorrecto, data : null, errorUs: null, errorNeg : null};
