@@ -36,6 +36,7 @@ export interface AEnvConfig {
   SEL_QUERY: string;
   SEL_ERROR: string; 
   SEL_PROC: string;
+  SEL_PATRON: string;
   PASS_SEC: string;
   SMTP_HOST: string;
   SMTP_PORT: string;

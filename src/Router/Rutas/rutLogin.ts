@@ -8,7 +8,6 @@ export const router = Router();
 //  rutas específicas para /api/login.
 router.post('/Autentica', ctrlLogin);
 router.post('/Logout', ctrlLogout);
-router.post('/GetMe',  ctrlGetMe);
 export default router;
 
 

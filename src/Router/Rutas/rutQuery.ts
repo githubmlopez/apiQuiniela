@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ctrlExecQuery, ctrlExecProcedure} from '../Controler/index.js';
+import { ctrlExecQuery, ctrlExecProcedure, ctrlGetMe} from '../Controler/index.js';
 
 export const router = Router();
 
@@ -7,6 +7,7 @@ export const router = Router();
 //  rutas específicas para /api/login.
 router.post('/Consulta', ctrlExecQuery);
 router.post('/Procedure', ctrlExecProcedure);
+router.post('/GetMe',  ctrlGetMe);
 
 export default router;
 

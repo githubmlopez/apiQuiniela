@@ -61,3 +61,4 @@ export function guardarCacheDinamico(
         putCacheData(tipo, llaveData, resData.data, meta.timeCache || 60);
     }
 }
+

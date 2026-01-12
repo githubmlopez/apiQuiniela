@@ -3,7 +3,8 @@ import { ejecFuncion } from '../../../Util/index.js';
 import { ExecProcedure } from '../index.js';
 import { userContext } from '../../../Middle/index.js';
 import { envConfig } from '../../../Configuracion/index.js'; // Importamos config
-import { verificarCacheDinamico, guardarCacheDinamico } from './index.js'; // Importamos utilerías de caché
+import { verificarCacheDinamico, guardarCacheDinamico} from './index.js'; // Importamos utilerías de caché
+import { BorraCache} from '../../../Util/index.js';
 
 export async function execProcedureService(
     idProcedure: string,
@@ -17,6 +18,10 @@ export async function execProcedureService(
 
     // 2. Intento de recuperación de memoria (Usamos 'DP' para procedimientos)
     if (usarCache) {
+        const kProcedure = 'P';
+// Solo Borrará Cache si es un proceso de Actualización
+        await BorraCache (kProcedure, String(idProcedure));
+// ----------------------------------------------------
         console.log(`🔍 [${idProcedure}] Buscando procedimiento en caché...`);
         const resCached = verificarCacheDinamico('DP', idProcedure, parmRemp);
         if (resCached) {

@@ -23,7 +23,7 @@ export async function ctrlLogin(req : Request, res : Response) {
 
   try {
   const result : I_InfResponse = await ejecFuncion(login, header, contexto, idProceso, cveAplicacion, cveUsuario, password)
-  if (!result.errorUs && result.data && result.data.length > 0) {
+  if (result.estatus === kCorrecto && result.data?.[0] != null) {
     const usuarioInfo = result.data[0];
 
     if (usuarioInfo.token) {
@@ -41,10 +41,10 @@ export async function ctrlLogin(req : Request, res : Response) {
 
       // 5. LIMPIEZA: Eliminamos el token de la información del usuario
       // Al ser un Record<string, any>, delete funciona perfectamente.
-      delete usuarioInfo.token; 
+      result.data = null; 
     }
 
-    res.status(200).json (result);
+    res.status(200).json(result);
    } else {
     console.log('❌ Error en usuario o Password');
     res.status(422).json
@@ -86,17 +86,3 @@ export async function ctrlLogout(req: Request, res: Response) {
 }
 
 
-export async function ctrlGetMe(req : Request, res : Response) {
-  // El middleware 'authenticateToken' ya hizo el trabajo sucio.
-  // Solo devolvemos los datos que el middleware extrajo del token.
-  
-  if (req.datosUsuario) {
-      res.status(200).json({
-      estatus: 1,
-      data: [req.datosUsuario], 
-      errorUs: null
-    });
-  }
-
-  res.status(401).json({ estatus: 2, errorUs: 'No autorizado' });
-}
