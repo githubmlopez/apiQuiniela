@@ -1,7 +1,7 @@
-import { I_Header} from '../../../Modelos/Interface/index.js';
-import {createRecord} from '../index.js';
-import { userContext} from '../../../Middle/index.js'
-import { ejecFuncion, creaHeadEsq} from '../../../Util/index.js';
+import { I_Header} from '@modelos/index.js';
+import {createRecord} from '@router/index.js';
+import { userContext} from '@middle/index.js'
+import { ejecFuncion, creaHeadEsq} from '@util/index.js';
 
 export async function createRecordService(
     model: any, 

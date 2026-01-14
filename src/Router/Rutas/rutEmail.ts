@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import
 { ctrlForgotPassword }
-from '../Controler/index.js';
+from '@router/index.js';
 export const router = Router();
 
 // rutLogin.js (o rutLogin.ts) contiene la lógica para definir las

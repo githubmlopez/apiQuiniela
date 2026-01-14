@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ctrlExecQuery, ctrlExecProcedure, ctrlGetMe} from '../Controler/index.js';
+import { ctrlExecQuery, ctrlExecProcedure, ctrlGetMe} from '@router/index.js';
 
 export const router = Router();
 

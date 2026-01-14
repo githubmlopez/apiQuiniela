@@ -1,9 +1,9 @@
 import { Sequelize, Error,  } from 'sequelize';
 import { UniqueConstraintError, ForeignKeyConstraintError, DatabaseError, ValidationError} from 'sequelize';
-import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '../index.js';
+import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '@modelos/index.js';
 import { Logger} from 'winston';
 
-import { I_ObjError } from '../index.js';
+import { I_ObjError } from '@modelos/index.js';
 
 interface SequelizeValidationError extends Error {
     name: 'SequelizeValidationError' | 'SequelizeUniqueConstraintError';

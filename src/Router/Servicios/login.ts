@@ -1,11 +1,11 @@
-import { envConfig } from '../../index.js';
-import { getInstancia } from '../../index.js';
+import { envConfig } from '@config/index.js';
+import { getInstancia } from '@config/index.js';
 import { Sequelize} from 'sequelize';
 import { verify } from 'argon2';
 import jwt from 'jsonwebtoken';
-import { findOneByKeyService} from '../Servicios/index.js';
-import { ejecFuncion, creaHeadEsq} from '../../index.js'
-import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '../../index.js';
+import { findOneByKeyService} from '@router/index.js';
+import { ejecFuncion, creaHeadEsq} from '@util/index.js'
+import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '@modelos/index.js';
 
 const kCorrecto = 1;
 const kErrorAut = 4;

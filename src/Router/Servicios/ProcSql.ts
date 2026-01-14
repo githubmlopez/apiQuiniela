@@ -1,9 +1,9 @@
 import { Sequelize, QueryTypes } from 'sequelize';
-import { KeyValueObject } from '../../index.js';
-import { ObtMemoCache } from '../../Util/MemoCache.js';
-import { I_InfResponse, I_Header} from '../../index.js';
-import { getInstancia } from '../../index.js';
-import { prepResponse, formatQuery, formatRepPar, IncHeader } from '../../index.js';
+import { KeyValueObject } from '@modelos/index.js';
+import { ObtMemoCache } from '@util/MemoCache.js';
+import { I_InfResponse, I_Header} from '@modelos/index.js';
+import { getInstancia } from '@config/index.js';
+import { prepResponse, formatQuery, formatRepPar, IncHeader } from '@util/index.js';
 
 interface SqlQueryResultRow {
     [key: string]: string; // La clave es el nombre de la columna generada, el valor es una parte del string JSON

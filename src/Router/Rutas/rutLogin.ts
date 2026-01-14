@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { ctrlLogin, ctrlLogout, ctrlGetMe} from '../Controler/index.js';
+import { ctrlLogin, ctrlLogout} from '@router/index.js';
 
 export const router = Router();
 

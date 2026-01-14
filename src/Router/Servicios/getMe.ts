@@ -1,7 +1,9 @@
-import { getInstancia } from '../../index.js';
+import { getInstancia } from '@config/index.js';
 import { Sequelize} from 'sequelize';
-import { findOneByKeyService} from '../Servicios/index.js';
-import { ejecFuncion, creaHeadEsq, ExecRawQueryById} from '../../index.js'
+import { findOneByKeyService} from '@router/index.js';
+import { ejecFuncion, creaHeadEsq} from '@util/index.js';
+import { ExecRawQueryById} from '@router/index.js'
+
 import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '../../index.js';
 
 const kCorrecto = 1;

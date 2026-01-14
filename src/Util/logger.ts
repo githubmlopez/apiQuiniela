@@ -1,6 +1,5 @@
 import winston, { Logger, format, transports } from 'winston';
-import { Logform } from 'winston';
-import { I_FC_TAREA_EVENTO } from '../index.js';
+import { I_FC_TAREA_EVENTO } from '@modelos/index.js';
 
 console.log('** entre a logger')
 const logFormat = format.combine(

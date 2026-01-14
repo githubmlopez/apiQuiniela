@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { I_InfReqProc, KeyValueObject} from '../../index.js';
-import { execProcedureService } from '../Servicios/QueryProc/execProcedureService.js';
+import { I_InfReqProc, KeyValueObject} from '@modelos/index.js';
+import { execProcedureService } from '@router/index.js';
 
 const kErrorSistema = 2;
 

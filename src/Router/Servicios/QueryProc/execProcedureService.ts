@@ -1,8 +1,8 @@
-import { I_Header, KeyValueObject, I_InfResponse } from '../../../Modelos/Interface/index.js';
-import { ejecFuncion } from '../../../Util/index.js';
-import { ExecProcedure } from '../index.js';
-import { userContext } from '../../../Middle/index.js';
-import { envConfig } from '../../../Configuracion/index.js'; // Importamos config
+import { I_Header, KeyValueObject, I_InfResponse } from '@modelos/index.js';
+import { ejecFuncion } from '@util/index.js';
+import { ExecProcedure } from '@router/index.js';
+import { userContext } from '@middle/index.js';
+import { envConfig } from '@config/index.js'; // Importamos config
 import { verificarCacheDinamico, guardarCacheDinamico} from './index.js'; // Importamos utilerías de caché
 import { BorraCache} from '../../../Util/index.js';
 

@@ -1,7 +1,7 @@
-import { I_Header} from '../../../Modelos/Interface/index.js';
-import { ejecFuncion} from '../../../Util/index.js';
-import {updateRecord} from '../index.js';
-import { userContext} from '../../../Middle/index.js'
+import { I_Header} from '@modelos/index.js';
+import { ejecFuncion} from '@util/index.js';
+import {updateRecord} from '@router/index.js';
+import { userContext} from '@middle/index.js'
 
 export async function updateRecordService(
     model: any, 

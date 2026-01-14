@@ -1,6 +1,4 @@
 import { Model, Transaction} from 'sequelize';
-import { I_Header} from '../../../Modelos/Interface/index.js';
-import { userContext} from '../../../Middle/index.js'
 
 export async function findOneByKeyService<M extends Model, T = Partial<M>>(
     model: typeof Model & (new () => M), 

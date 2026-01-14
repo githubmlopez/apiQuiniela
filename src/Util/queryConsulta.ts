@@ -1,6 +1,6 @@
 
-import { I_ResProcedure, I_InfResponse, I_Header  } from '../index.js';
-import { KeyValueObject } from '../index.js';
+import { I_ResProcedure, I_InfResponse, I_Header  } from '@modelos/index.js';
+import { KeyValueObject } from '@modelos/index.js';
 
 export function prepResponse(query : string, resultado : any, tipo : string) : I_InfResponse {
     const kCorrecto = 1;

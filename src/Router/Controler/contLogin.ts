@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import {login}  from '../index.js';
-import { I_Autentica, I_Header, I_InfResponse} from '../../index.js';
-import { ejecFuncion, creaHeadEsq} from '../../index.js';
+import {login}  from '@router/index.js';
+import { I_Autentica, I_Header, I_InfResponse} from '@modelos/index.js';
+import { ejecFuncion, creaHeadEsq} from '@util/index.js';
 
 const kCorrecto = 1;
 const kErrorSistema = 2;

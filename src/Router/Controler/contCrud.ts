@@ -1,10 +1,10 @@
   import { Request, Response } from 'express';
-  import {getInstancia}  from '../../index.js';
-  import { I_Header, I_InfReqCrud} from '../../index.js';
-  import { CustomJwtPayload } from '../../index.js';
+  import {getInstancia}  from '@config/index.js';
+  import { I_Header, I_InfReqCrud} from '@modelos/index.js';
+  import { CustomJwtPayload } from '@modelos/index.js';
   import {createRecordService, updateRecordService, deleteRecordService,
   bulkCreateRecordService, bulkUpdateRecordService,  findOneByKeyService}
-  from '../Servicios/CRUD/index.js'
+  from '@router/index.js'
 
   const kCorrecto     = 1;
   const kErrorSistema = 2;

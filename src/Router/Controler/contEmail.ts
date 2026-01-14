@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { emailService } from '../Servicios/Email/emailService.js';
-import {getInstancia}  from '../../index.js';
+import { emailService } from '@router/index.js';
+import {getInstancia}  from '@config/index.js';
 // import { createPasswordResetToken } from './services/auth.service';
 
 const kErrorSistema = 2;

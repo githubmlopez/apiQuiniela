@@ -1,7 +1,7 @@
-import { ejecFuncion, creaHeadEsq} from '../../../Util/index.js';
-import { sendResetPasswordEmail } from '../../Servicios/Email/index.js'; 
-import { I_EmailOptions, I_Header } from '../../../Modelos/Interface/Configuracion/index.js';
-import { createRecordService } from '../../Servicios/CRUD/index.js';
+import { ejecFuncion, creaHeadEsq} from '@util/index.js';
+import { sendResetPasswordEmail } from '@router/index.js'; 
+import { I_EmailOptions, I_Header } from '@modelos/index.js';
+import { createRecordService } from '@router/index.js';
 import crypto from 'crypto';
 
 

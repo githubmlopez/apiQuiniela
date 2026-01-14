@@ -1,4 +1,4 @@
-import { envConfig } from './index.js'; 
+import { envConfig } from '@config/index.js'; 
 import nodemailer from 'nodemailer';
 
 export const getTransporter = () => {

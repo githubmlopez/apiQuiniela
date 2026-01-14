@@ -1,7 +1,7 @@
 import { Dialect} from 'sequelize';
 import { JwtPayload as OriginalJwtPayload } from 'jsonwebtoken';
-import { I_FC_TAREA_EVENTO} from '../NFLQUIN/I_FC_TAREA_EVENTO.js';
-import { I_FC_SEG_USUARIO } from '../NFLQUIN/I_FC_SEG_USUARIO.js';
+import { I_FC_TAREA_EVENTO} from '@modelos/index'; 
+import { I_FC_SEG_USUARIO } from '@modelos/index'; 
 
 // Interfaces para configuracion de Bases de Datos
 export interface AConfig {

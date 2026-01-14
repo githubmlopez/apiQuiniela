@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { I_InfReqQuery, KeyValueObject} from '../../index.js';
-import { QueryByIdService } from '../Servicios/QueryProc/QueryByIdService.js';
-import { I_Header, I_InfResponse} from '../../index.js';
-import { ejecFuncion, creaHeadEsq} from '../../index.js';
+import { I_InfReqQuery, KeyValueObject} from '@modelos/index.js';
+import { QueryByIdService } from '@router/index.js';
+import { I_Header, I_InfResponse} from '@modelos/index.js';
+import { ejecFuncion, creaHeadEsq} from '@util/index.js';
 import {getMe}  from '../index.js';
 
 const kErrorSistema = 2;

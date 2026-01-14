@@ -1,7 +1,7 @@
-import { envConfig } from '../index.js';
+import { envConfig } from '@config/index.js';
 import { Cache } from '@ebenezerdon/ts-node-cache';
-import { ExecRawQuery} from '../index.js';
-import { I_InfResponse } from '../index.js';
+import { ExecRawQuery} from '@router/index.js';
+import { I_InfResponse } from '@modelos/index.js';
 
 const cacheSql      = creaInstCache();
 const cacheError    = creaInstCache();

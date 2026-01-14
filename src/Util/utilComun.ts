@@ -1,9 +1,9 @@
-import { logger } from './index.js';
+import { logger } from '@util/index.js';
 import { Sequelize} from 'sequelize';
-import { getInstancia } from '../index.js';
-import { I_InfResponse, I_FC_TAREA_EVENTO, I_Header } from '../index.js';
-import { crearObjetoEvento, createExcepcion } from '../index.js';
-import { I_CreaObjetoEvento, ExecProcedure} from '../index.js';
+import { getInstancia } from '@config/index.js';
+import { I_InfResponse, I_FC_TAREA_EVENTO, I_Header, I_CreaObjetoEvento } from '@modelos/index.js';
+import { crearObjetoEvento, createExcepcion } from '@util/index.js';
+import {ExecProcedure} from '@router/index.js';
 
 const kErrorSistema = 3;
 const kDesarrollo = 'D';

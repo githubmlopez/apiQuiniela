@@ -1,5 +1,5 @@
-import { I_Header } from '../index.js';
-import { CustomJwtPayload, I_InfReqCrud} from '../index.js';
+import { I_Header } from '@modelos/index.js';
+import { CustomJwtPayload } from '@modelos/index.js';
 
 
 export function armaHeaderQuery(infToken : CustomJwtPayload, idProceso : number) : 

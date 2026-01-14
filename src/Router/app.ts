@@ -3,11 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 
+//import  loginRouter  from '@router/index.js';
 import  loginRouter  from './Rutas/rutLogin.js';
 import  queryRouter  from './Rutas/rutQuery.js';
-import  queryCrud  from './Rutas/rutCrud.js';
-import { authenticateToken } from '../index.js';
+import  crudRouter  from './Rutas/rutCrud.js';
 import { emailRouter } from './Rutas/index.js';
+import { authenticateToken } from '../index.js';
+
 
 import { obtCorsOpt } from '../Middle/index.js';
 
@@ -26,7 +28,7 @@ app.use(cookieParser());
 // debe ser manejada por el router que le estás pasando (que es rutLogin).
 app.use('/api/Login', loginRouter);
 app.use('/api/Query', authenticateToken, queryRouter);
-app.use('/api/Crud', authenticateToken, queryCrud);
+app.use('/api/Crud', authenticateToken, crudRouter);
 app.use('/api/Email', emailRouter);
 
 

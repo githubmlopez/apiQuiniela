@@ -1,9 +1,9 @@
 import {construirErroresValidacion} from 
-  '../../../Router/Servicios/index.js';
-import {validators, } from 
-  '../../../Util/index.js';
+'@router/index.js';
+import {validators } from 
+  '@util/index.js';
 import {runValidationEngine, } from 
-  '../../../Util/index.js';
+  '@util/index.js';
 import { hash } from 'argon2';
  
 // --- Codigo generado de manera automatica -----

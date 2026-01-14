@@ -1,4 +1,4 @@
-import { envConfig } from './index.js';
+import { envConfig } from '@config/index.js';
 import { Sequelize, Options} from 'sequelize';
 
 const kNomLocal : string = 'localhost';

@@ -3,3 +3,5 @@ export * from './login.js';
 export * from './getMe.js';
 export * from './ProcSql.js';
 export * from './CRUD/index.js';
+export * from './Email/index.js';
+export * from './QueryProc/index.js';

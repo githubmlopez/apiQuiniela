@@ -1,6 +1,6 @@
 import { Sequelize} from 'sequelize';
 import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '../index.js';
-import { getInstancia } from '../index.js';
+import { getInstancia } from '@config/index.js';
 import { logger } from './index.js';
 import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '../index.js';
 

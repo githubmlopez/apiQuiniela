@@ -1,6 +1,6 @@
 import { DataTypes,  ValidationError, ValidationErrorItem } from 'sequelize';
 import {construirErroresValidacion} from 
-  '../../../Router/Servicios/index.js';
+  '@router/index.js';
 
  
 export async function def_IN_PRUEBA(sequelize: any) {

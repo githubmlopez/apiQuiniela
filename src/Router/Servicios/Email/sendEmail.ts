@@ -1,5 +1,5 @@
-import { getTransporter } from '../../../Configuracion/index.js';
-import { I_EmailOptions, I_InfResponse } from '../../../Modelos/Interface/Configuracion/index.js'
+import { getTransporter } from '@config/index.js';
+import { I_EmailOptions, I_InfResponse } from '@modelos/index.js'
 
 /**
  * Función encargada del envío por SMTP

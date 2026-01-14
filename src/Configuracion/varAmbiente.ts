@@ -2,8 +2,8 @@ import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path  from 'path';
 import {
-  AEnvConfig,
-} from '../Modelos/Interface/Configuracion/comun.js';
+  AEnvConfig
+} from '@modelos/index.js';
 
 const kProduccion : string = 'production'; 
 const kdesarrollo : string = 'development'; 

@@ -1,7 +1,7 @@
-import { I_InfResponse } from '../../../Modelos/Interface/Configuracion/index.js';
-import { ObtMemoCache } from '../../../Util/MemoCache.js';
-import { KeyValueObject} from '../.././../Modelos/Interface/Configuracion/index.js';
-import { putCacheData} from '../.././../index.js';
+import { I_InfResponse } from '@modelos/index.js';
+import { ObtMemoCache } from '@util/MemoCache.js';
+import { KeyValueObject} from '@modelos/index.js';
+import { putCacheData} from '@util/index.js';
 
 export function verificarCacheDinamico(
     tipo: 'DS' | 'DP', 

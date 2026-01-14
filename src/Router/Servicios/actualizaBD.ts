@@ -1,7 +1,7 @@
 import { Sequelize, Model, Transaction, ValidationError, ValidationErrorItem} from 'sequelize';
-import { I_InfResponse } from '../../index.js';
-import { getInstancia } from '../../index.js';
-import {findOneByKeyService, buildPKWhereClause} from '../Servicios/CRUD/index.js';
+import { I_InfResponse } from '@modelos/index.js';
+import { getInstancia } from '@config/index.js';
+import {findOneByKeyService, buildPKWhereClause} from '@router/index.js';
 
 const kCorrecto = 1;
 const kErrorNeg = 3;
