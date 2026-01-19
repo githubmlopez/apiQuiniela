@@ -3,7 +3,7 @@ import { ejecFuncion, setupGlobalError} from '@util/index.js'
 import { creaHeadEsq } from '@util/index.js'
 import { I_Header } from '@modelos/index.js';
 import { envConfig } from '@config/index.js';
-import { app } from '@router/index.js';
+import { app } from './Router/app.js';
 
 const cveAplicacion = 'setGlobalE'
 const header : I_Header = creaHeadEsq(cveAplicacion);
