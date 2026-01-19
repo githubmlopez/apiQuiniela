@@ -3,15 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 
-//import  loginRouter  from '@router/index.js';
-import  loginRouter  from './Rutas/rutLogin.js';
-import  queryRouter  from './Rutas/rutQuery.js';
-import  crudRouter  from './Rutas/rutCrud.js';
-import { emailRouter } from './Rutas/index.js';
-import { authenticateToken } from '../index.js';
-
-
-import { obtCorsOpt } from '../Middle/index.js';
+import  {
+loginRouter,
+queryRouter,
+crudRouter,
+emailRouter } from '@router/index.js';
+import { authenticateToken, obtCorsOpt } from '@middle/index.js';
 
 export const app = express();
 

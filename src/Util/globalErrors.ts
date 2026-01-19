@@ -1,8 +1,8 @@
 import { Sequelize} from 'sequelize';
-import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '../index.js';
+import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '@modelos/index.js';
 import { getInstancia } from '@config/index.js';
-import { logger } from './index.js';
-import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '../index.js';
+import { logger } from '@util/index.js';
+import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '@util/index.js';
 
 
 // Utilizado para manejo de Promesas (asincrono) con error

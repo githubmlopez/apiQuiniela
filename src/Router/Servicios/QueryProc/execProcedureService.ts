@@ -3,8 +3,8 @@ import { ejecFuncion } from '@util/index.js';
 import { ExecProcedure } from '@router/index.js';
 import { userContext } from '@middle/index.js';
 import { envConfig } from '@config/index.js'; // Importamos config
-import { verificarCacheDinamico, guardarCacheDinamico} from './index.js'; // Importamos utilerías de caché
-import { BorraCache} from '../../../Util/index.js';
+import { verificarCacheDinamico, guardarCacheDinamico} from '@router/index.js'; // Importamos utilerías de caché
+import { BorraCache} from '@util/index.js';
 
 export async function execProcedureService(
     idProcedure: string,

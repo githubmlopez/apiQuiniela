@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { envConfig } from '../index.js';
-import { I_Header} from '../index.js';
+import { envConfig } from '@config/index.js';
+import { I_Header} from '@modelos/index.js';
 import { Request, Response, NextFunction } from 'express';
-import { CustomJwtPayload } from '../index.js'; 
+import { CustomJwtPayload } from '@modelos/index.js'; 
 import { AsyncLocalStorage } from 'async_hooks';
 
 export const userContext = new AsyncLocalStorage<I_Header>();
@@ -37,7 +37,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     // Formamos el objeto de contexto
     const header: I_Header = {
-      idProceso: idProceso ?? null,
+      idProceso: idProceso ?? 9999,
       cveAplicacion: decoded.cveAplicacion,
       cveUsuario: decoded.cveUsuario,
       cveIdioma: decoded.cveIdioma,

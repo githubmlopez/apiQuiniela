@@ -5,7 +5,6 @@ import { execProcedureService } from '@router/index.js';
 const kErrorSistema = 2;
 
 export async function ctrlExecProcedure(req : Request, res : Response) : Promise<void> {
-  console.log( '✅ Procedure', req.datosUsuario);
   const infReq : I_InfReqProc = req.body;
   const contexto = 'Ejecucion de Procedimiento';
   const parmRemp : KeyValueObject = infReq.parmRemp;

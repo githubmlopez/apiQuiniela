@@ -21,6 +21,7 @@ export async function def_FC_FOLIO(sequelize: any) {
       },
    },
    {
+      
       modelName: 'FC_FOLIO',
       tableName: 'FC_FOLIO',
       schema: 'dbo',

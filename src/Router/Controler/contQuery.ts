@@ -3,12 +3,12 @@ import { I_InfReqQuery, KeyValueObject} from '@modelos/index.js';
 import { QueryByIdService } from '@router/index.js';
 import { I_Header, I_InfResponse} from '@modelos/index.js';
 import { ejecFuncion, creaHeadEsq} from '@util/index.js';
-import {getMe}  from '../index.js';
+import {getMe}  from '@router/index.js';
 
 const kErrorSistema = 2;
 
 export async function ctrlExecQuery(req : Request, res : Response): Promise<void> {
-  console.log( '✅ ExecQuery', req.datosUsuario);
+  //console.log( '✅ ExecQuery', req.datosUsuario);
   const infReq : I_InfReqQuery = req.body;
   const contexto = 'Ejecucion de Query'
   const parmRemp : KeyValueObject = infReq.parmRemp;
@@ -32,12 +32,20 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
   }
 }
 
-export async function ctrlGetMe(req : Request, res : Response) {
+export async function ctrlGetMe(req : Request, res : Response) : Promise<void> {
   const requestBody  = req.body;
   const idProceso = requestBody.idProceso;
   const cveAplicacion = req.datosUsuario.cveAplicacion;
   const cveUsuario = req.datosUsuario.cveUsuario;
-  const header : I_Header = creaHeadEsq(cveAplicacion);
+  if (!cveAplicacion || !cveUsuario) {
+    return void res.status(422).json({ 
+        estatus: kErrorSistema, 
+        data: null, 
+        errorUs: 'No existen datos del usuario', 
+        errorNeg: null 
+    });
+}
+  const header : I_Header = creaHeadEsq(cveAplicacion ?? 'No Id');
   header.idProceso = idProceso;
   header.cveUsuario = cveUsuario;
   header.cveAplicacion = cveAplicacion;
@@ -48,15 +56,15 @@ export async function ctrlGetMe(req : Request, res : Response) {
   try {
   const result : I_InfResponse = await ejecFuncion(getMe, header, contexto, idProceso, cveAplicacion, cveUsuario)
   if (!result.errorUs && result.data && result.data.length > 0) {
-    res.status(200).json (result);
+    return void res.status(200).json (result);
    } else {
     console.log('❌ Error en proceso getMe');
-    res.status(422).json
+    return void res.status(422).json
     ({estatus: kErrorSistema, data :null, errorUs: 'No se obtuvieron Datos', errorNeg : null});
   }
   } catch (error) { 
     console.log('❌ Error en proceso getMe');
-    res.status(422).json
+    return void res.status(422).json
     ({estatus: kErrorSistema, data :null, errorUs: 'Error proceso getMe', errorNeg : null});
   }
 }

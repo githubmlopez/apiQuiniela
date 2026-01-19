@@ -48,7 +48,7 @@ skip? : number
 
 export async function ExecProcedure(
   idProcedure  : string,
-  parmRemp : KeyValueObject,
+  parmRemp : KeyValueObject | null,
   header : I_Header
   )  : Promise<I_InfResponse>{
       const kProcedure = 'P';

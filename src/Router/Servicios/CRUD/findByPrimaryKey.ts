@@ -6,7 +6,6 @@ export async function findOneByKeyService<M extends Model, T = Partial<M>>(
     options?: { transaction?: Transaction }
 ): Promise<T | null> // <- ¡Promete devolver T (objeto plano) o null!
 {
-//    const header   =  userContext.getStore() as I_Header;
     console.log( '✅ En servicio FindOne', model, data); 
     const whereClause = buildPKWhereClause(model, data);
     console.log('WHERE ** ' + JSON.stringify(whereClause));

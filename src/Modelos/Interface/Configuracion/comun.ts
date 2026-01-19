@@ -138,10 +138,10 @@ export interface I_Autentica {
 
 
 export interface CustomJwtPayload extends OriginalJwtPayload {
-  cveAplicacion : string | null,
-  cveUsuario : string | null,
-  cveIdioma  : string | null,
-  cvePerfil : string | null
+  cveAplicacion : string | null;
+  cveUsuario : string | null;
+  cveIdioma  : string | null;
+  cvePerfil : string | null;
 }
 
 export interface I_EmailOptions {
@@ -149,3 +149,17 @@ export interface I_EmailOptions {
   subject: string;
   token: string;
 }
+
+/*
+export interface I_GetMe {
+  cveUsuario : string;
+  idQuiniela: number;
+  idParticipante: number;
+  idPeriodo: number;
+  bResSurv: boolean;       
+  bSurvivor: boolean;      
+  fLimite: FileSystemWriteChunkType;
+  horaLimite: string;      
+  titQuiniela: string;     
+}
+*/
