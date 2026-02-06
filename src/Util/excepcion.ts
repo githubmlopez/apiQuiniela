@@ -2,6 +2,7 @@ import { Sequelize, Error,  } from 'sequelize';
 import { UniqueConstraintError, ForeignKeyConstraintError, DatabaseError, ValidationError} from 'sequelize';
 import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '@modelos/index.js';
 import { Logger} from 'winston';
+import * as jwt from 'jsonwebtoken';
 
 import { I_ObjError } from '@modelos/index.js';
 
@@ -30,7 +31,7 @@ export async function createExcepcion(
     logger.error('Error al insertar registro Excepcion', data);
   }
 }
-
+/*
 export function crearObjError (error: any, contexto : string) : I_ObjError {
     let msgErrorUs: string = 'Ha ocurrido un error inesperado.';
     let msgErrorSis: string = `Error en el contexto '${contexto}': No se pudo determinar el tipo de error.`;
@@ -95,7 +96,83 @@ export function crearObjError (error: any, contexto : string) : I_ObjError {
   return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack : errorStack, errNeg : null }
 
 }
+*/
 
+export function crearObjError(error: any, contexto: string): I_ObjError {
+    let msgErrorUs: string = 'Ha ocurrido un error inesperado.';
+    let msgErrorSis: string = `Error en el contexto '${contexto}': No se pudo determinar el tipo de error.`;
+    let errorStack: string | undefined = undefined;
+
+    // Logs de consola para depuración técnica
+    console.error('❌ Error capturado por la rutina de excepciones (crearObjError):', error?.constructor?.name || 'Unknown Constructor');
+    console.error('❌ Tipo de error (crearObjError):', Object.prototype.toString.call(error));
+    console.error('❌ Objeto de error completo (crearObjError):', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+
+    // Obtener el stack trace si existe
+    if (error && typeof error.stack === 'string') {
+        errorStack = error.stack;
+    }
+
+    // --- 1. Manejo de Errores de Sequelize ---
+    if (error instanceof UniqueConstraintError) {
+        const fields = error.fields ? Object.keys(error.fields).join(', ') : 'desconocido';
+        msgErrorSis = `UniqueConstraintError en ${contexto}. Campos duplicados: '${fields}'. Mensaje original de DB: '${error.message}'.`;
+        msgErrorUs = 'Un registro con la información proporcionada ya existe. Por favor, verifique sus datos.';
+    } 
+    else if (error instanceof ForeignKeyConstraintError) {
+        msgErrorSis = `ForeignKeyConstraintError en ${contexto}. Detalles: ${error.message}. Referencia: ${error.fields ? JSON.stringify(error.fields) : 'N/A'}.`;
+    } 
+    else if (error instanceof DatabaseError) {
+        msgErrorSis = `DatabaseError en ${contexto}. Mensaje de Sequelize: '${error.message}'. Mensaje original de DB: '${error.parent?.message || 'N/A'}'. SQL: '${error.sql || 'N/A'}'`;
+    } 
+    else if (error instanceof ValidationError) {
+        const validationDetails = error.errors.map(err => {
+            const itemMsg = err.message || err.validatorKey || 'Detalle no especificado';
+            return `${err.path || 'N/A'}: '${itemMsg}' (Tipo: '${err.type}', Validador: '${err.validatorKey}')`;
+        }).join('; ');
+        msgErrorSis = `ValidationError (Inesperado/Técnico) en ${contexto}. Detalles: ${validationDetails}. Mensaje general: '${error.message}'.`;
+    }
+
+    // --- 2. Manejo de Errores de JWT (Autenticación) ---
+    else if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {
+        const esExpirado = error instanceof jwt.TokenExpiredError;
+        
+        // El sistema guarda el nombre técnico (TokenExpiredError / JsonWebTokenError)
+        msgErrorSis = `${error.name} en ${contexto}: '${error.message}'.`;
+        
+        // El usuario recibe el mensaje amigable solicitado
+        msgErrorUs = esExpirado ? 'Tu sesión ha expirado.' : 'Sesión inválida.';
+        
+        return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack: errorStack, errNeg: null };
+    }
+
+    // --- 3. Manejo de Errores Estándar de JavaScript ---
+    else if (error instanceof Error) {
+        msgErrorSis = `${error.name || 'Error'} en ${contexto}: '${error.message}'.`;
+
+        if (error.name === 'AggregateError' && (error as any).errors && Array.isArray((error as any).errors)) {
+            const aggregatedMessages = (error as any).errors.map((e: any) => e.message || 'Error interno sin mensaje').join('; ');
+            msgErrorSis += ` Errores agregados: '${aggregatedMessages}'.`;
+        }
+    }
+
+    // --- 4. Manejo de Errores de tipo string ---
+    else if (typeof error === 'string') {
+        msgErrorUs = error;
+        msgErrorSis = `Error de tipo string en ${contexto}: '${error}'.`;
+    } 
+
+    // --- 5. Manejo de errores desconocidos o no serializables ---
+    else {
+        try {
+            msgErrorSis = `Error desconocido en ${contexto}: ${JSON.stringify(error)}.`;
+        } catch (e) {
+            msgErrorSis = `Error desconocido en ${contexto}: No se pudo serializar el objeto. Tipo: ${typeof error}.`;
+        }
+    }
+
+    return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack: errorStack, errNeg: null };
+}
 
 export async function crearObjetoEvento( error : any, opciones: I_CreaObjetoEvento, contexto : string)
 : Promise<I_FC_TAREA_EVENTO> {

@@ -24,8 +24,6 @@ export async function emailService(model : any, email : string) {
     
     console.log( '✅ Creando Registro');
           
-    const modelo = 'FC_SEG_PASS_RESET';
-    
     const fecha = new Date();
     const fechaExpiracion = new Date(fecha.getTime() + 30 * 60000);
     
@@ -36,7 +34,7 @@ export async function emailService(model : any, email : string) {
         "F_EXPIRACION" : fechaExpiracion.toLocaleString('sv-SE').replace(',', ''),
         "F_CREACION"   : new Date().toLocaleString('sv-SE').replace(',', ''),
     }
-
+    console.log('✅ Enviado Vreate Record Service ');
     const resData = await ejecFuncion(
               createRecordService, 
               header, 

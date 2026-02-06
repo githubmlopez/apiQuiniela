@@ -14,7 +14,7 @@ export async function sendResetPasswordEmail(options: I_EmailOptions): Promise<I
   const { to, subject, token } = options;
   
   // URL que el usuario verá en su correo
-  const resetUrl = `https://tu-frontend.com/reset-password?token=${token}`;
+  const resetUrl = `http://localhost:3010/api/changePassword?token=$token`;
 
   const mailOptions = {
     from: process.env.SMTP_FROM,

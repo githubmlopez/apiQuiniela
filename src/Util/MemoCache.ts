@@ -4,11 +4,11 @@ import { ExecRawQuery} from '@router/index.js';
 import { I_InfResponse } from '@modelos/index.js';
 
 const cacheSql      = creaInstCache();
-const cacheError    = creaInstCache();
 const cacheProc     = creaInstCache();
 const cacheDataSql  = creaInstCache();
 const cacheDataProc = creaInstCache();
 const cachePatron   = creaInstCache();
+const cacheLnegra   = creaInstCache();
 
 export async function cargaCache (
 ) : Promise<void> {
@@ -18,16 +18,12 @@ export async function cargaCache (
   const kProc  = 'P';
   
   const qSql   = envConfig.SEL_QUERY  as string;
-  const qError = envConfig.SEL_ERROR  as string;
   const qProc  = envConfig.SEL_PROC   as string;
   const qPat   = envConfig.SEL_PATRON as string;
 
   const resSql: I_InfResponse= await ExecRawQuery(qSql);
   const objDataS = resSql.data;
   putCache(kSql, cacheSql, objDataS);
-  const resError : I_InfResponse = await ExecRawQuery(qError)
-  const objDataE = resError.data;
-  putCache(kError, cacheError, objDataE);
   const resProc : I_InfResponse = await ExecRawQuery(qProc)
   const objDataP = resProc.data;
   putCache(kProc, cacheProc, objDataP);  
@@ -35,39 +31,13 @@ export async function cargaCache (
   const objDataT = resPatron.data;
   putCache(kProc, cachePatron, objDataT);
   
-  if (cacheSql.length === 0 || cacheError.length === 0 || cacheProc.length === 0 || cachePatron.length === 0)  {
+  if (cacheSql.length === 0 || cacheProc.length === 0 || cachePatron.length === 0)  {
     console.log('❌ Error al cargar la memoria');
     throw ('Error al cargar memoria, Array vacio');
   } 
 }
-/*
-function putCache(infCache: string, cacheMem: any, resultado: Array<Record<string, any>> | null) {
-  
-  if (!(cacheMem instanceof Cache)) {
-    throw('Error al cargar Memoria Cache');
-  }
 
-  if (resultado) {
-    resultado.forEach((item) => {
-      // Si el item tiene 'sql', asumimos que es una configuración de Query o Proc
-      if (item.sql !== undefined) {
-        cacheMem.put(item.llave, {
-          sql:          item.sql,
-          bCacheable:   item.bCacheable,
-          llaveConfig:  item.llaveConfig,
-          timeCache:    item.timeCache
-        });
-      } else {
-        // Si no, es un caso simple como el de Errores (llave/valor)
-        cacheMem.put(item.llave, item.valor);
-      }
-    });
-    console.log(`✅ Memoria [${infCache}] cargada: ${resultado.length} registros.`);
-  }
-}
-*/
-
-function putCache(infCache: string, cacheMem: any, resultado: Array<Record<string, any>> | null) {
+export function putCache(infCache: string, cacheMem: any, resultado: Array<Record<string, any>> | null) {
   
   if (!(cacheMem instanceof Cache)) {
     throw new Error('Error al cargar Memoria Cache: Instancia inválida');
@@ -89,12 +59,13 @@ function putCache(infCache: string, cacheMem: any, resultado: Array<Record<strin
         sql:         item.sql,
         bCacheable:   item.bCacheable,
         llaveConfig:  item.llaveConfig,
-        timeCache:    item.timeCache
+        timeCache:    item.timeCache,
+        bPublico:     item.bPublico
       });
     } 
     // CASO B: Simple Llave/Valor (Tablas maestras, Errores, etc.)
     else if (item.hasOwnProperty('valor')) {
-      console.log(' *** guardando llave **', item.llave, item.valor)
+      console.log('✅ *** guardando llave/valor**', item.llave, item.valor);
       cacheMem.put(item.llave, item.valor);
     }
   });
@@ -107,68 +78,42 @@ function creaInstCache() : any {
   return memCache;
 }
 
-export function
-ObtMemoCache(tipo: string, key : string) : any | null  {
-  const kSql    = 'S';
-  const kError  = 'E';
-  const kProc   = 'P';
-  const kDataS  = 'DS';
-  const kDataP  = 'DP';
-  const kDataT  = 'DT';
-
-console.log('✅ Buscando con tipo', tipo,key);
-switch (tipo) {
-    case kSql:
-      return cacheSql.get(key);
-      
-    case kError:
-      return cacheError.get(key);
-      
-    case kProc:
-      return cacheProc.get(key);
-      
-    case kDataS:
-      return cacheDataSql.get(key);
-      
-    case kDataP:
-      return cacheDataProc.get(key);
-
-    case kDataT:
-      return cachePatron.get(key);
-      
-    default:
-      console.warn(`⚠️ Tipo de caché no reconocido: ${tipo}`);
-      return null;
-  }
-}
 
 // Nueva función para guardar resultados dinámicamente
 export function putCacheData(
   tipo: 'DS' | 'DP', 
   key: string, 
   valor: any, 
-  ttl: number = 60
+  ttl: number
 ): void {
-   console.log('Datos put : ', tipo,key, valor,ttl);
-  
-  const ttlMilisegundos = (Number(ttl) || 300) * 1000;
 
-  switch (tipo) {
+const ttlMilisegundos = ttl;
+const esInfinito = !ttlMilisegundos || ttlMilisegundos <= 0;
+
+console.log(' *************** milisegundos ', ttlMilisegundos);
+console.log(' 🕒 ¿Es infinito?:', esInfinito);
+
+switch (tipo) {
     case 'DS':
-      cacheDataSql.put(key, valor, ttlMilisegundos);
-      break;
+        if (esInfinito) {
+            cacheDataSql.put(key, valor); // Versión sobrecargada (Infinito)
+        } else {
+            cacheDataSql.put(key, valor, ttlMilisegundos); // Versión con tiempo
+        }
+        break;
 
     case 'DP':
-      cacheDataProc.put(key, valor, ttlMilisegundos);
-      break;
+        if (esInfinito) {
+            cacheDataProc.put(key, valor);
+        } else {
+            cacheDataProc.put(key, valor, ttlMilisegundos);
+        }
+        break;
 
     default:
-      console.error(`❌ Intento de guardado en tipo de caché inválido: ${tipo}`);
-  }
-  console.log(`📊 Total de llaves en cacheDataSql: ${cacheDataSql.keys().length}`);
-  console.log(`🔑 Llaves actuales:`, cacheDataSql.keys());
+        console.error(`❌ Intento de guardado en tipo de caché inválido: ${tipo}`);
 }
-
+}
 
 export async function BorrarCachePatron(tipo: 'DS' | 'DP', patronesInput: string) : Promise<void> {
   const kCacheSql = 'DS';
@@ -200,19 +145,67 @@ export async function BorrarCachePatron(tipo: 'DS' | 'DP', patronesInput: string
   }
 }
 
-export async function BorraCache(tipo : 'M' | 'P',id: string) : Promise<void> {
+export async function BorraCache(tipo: 'M' | 'P', id: string): Promise<void> {
     const kPatron = 'DT';
+    const kSql    = 'DS';
+    const kProc   = 'DP';
+    const kBorraTodo = 'BORRA';
 
-    const llavePatron = tipo + id.replace(/\s+/g, '');
-    const kSql        = 'DS';
-    const kProc       = 'DP';
+    const llavePatron = `${tipo.trim()}_${id.trim()}`;
+    const instCache = GetCache(kPatron);
+    const meta: any = instCache.get(llavePatron);
 
-    const meta: any = ObtMemoCache(kPatron, llavePatron);
-    console.warn('⚠️ Solicitando Borrado de informacion', llavePatron, meta);
-
-    if (meta) {
-      await BorrarCachePatron (kSql, meta);
-      await BorrarCachePatron (kProc, meta);
+    // 1. SI NO EXISTE META, NO HACEMOS NADA
+    if (!meta) {
+        // Simplemente salimos. No hace falta retornar nada por ser Promise<void>
+        return; 
     }
+
+    // 2. CASO ESPECIAL: BORRADO TOTAL
+    if (meta === kBorraTodo) {
+        console.warn('⚠️⚠️⚠️ Ejecutando borrado TOTAL de caché');
+        GetCache(kSql).clear();
+        GetCache(kProc).clear();
+        return; 
+    }
+
+    // 3. FLUJO NORMAL: Si llegamos aquí, sabemos que meta existe y no es "CLEAR"
+    console.warn('⚠️ Solicitando Borrado de información específica:', meta, llavePatron);
+
+    await BorrarCachePatron(kSql, meta);
+    await BorrarCachePatron(kProc, meta);
 }
 
+export function GetCache(tipo: string) : any | null  {
+  const kSql    = 'S';
+  const kProc   = 'P';
+  const kDataS  = 'DS';
+  const kDataP  = 'DP';
+  const kDataT  = 'DT';
+  const kLnegra = 'L';
+
+console.log('✅ Buscando instancia con tipo', tipo);
+switch (tipo) {
+    case kSql:
+      return cacheSql;
+     
+    case kProc:
+      return cacheProc;
+      
+    case kDataS:
+      return cacheDataSql;
+      
+    case kDataP:
+      return cacheDataProc;
+
+    case kDataT:
+      return cachePatron;
+
+    case kLnegra:
+      return cacheLnegra;
+      
+    default:
+      console.warn(`⚠️ Tipo de caché no reconocido: ${tipo}`);
+      return null;
+  }
+}

@@ -8,7 +8,7 @@ loginRouter,
 queryRouter,
 crudRouter,
 emailRouter } from '@router/index.js';
-import { authenticateToken, obtCorsOpt } from '@middle/index.js';
+import { obtCorsOpt } from '@middle/index.js';
 
 export const app = express();
 
@@ -24,8 +24,8 @@ app.use(cookieParser());
 // Le dice a Express que cualquier solicitud que comience con /api/login 
 // debe ser manejada por el router que le estás pasando (que es rutLogin).
 app.use('/api/Login', loginRouter);
-app.use('/api/Query', authenticateToken, queryRouter);
-app.use('/api/Crud', authenticateToken, crudRouter);
+app.use('/api/Query', queryRouter);
+app.use('/api/Crud',  crudRouter);
 app.use('/api/Email', emailRouter);
 
 

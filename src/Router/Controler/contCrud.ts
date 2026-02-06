@@ -27,9 +27,9 @@
     const resData = await createRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar procedimiento'); 
-    } catch (error) {
+    } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
     }
  }
 
@@ -39,11 +39,11 @@
 
   try {
     const resData = await updateRecordService(model, data);
-      res.status(200).json (resData);
+    res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Uddate'); 
-    } catch (error) {
+    } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
     }
  }
 
@@ -55,9 +55,9 @@
     const resData = await deleteRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Delete'); 
-    } catch (error) {
+    } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
     }
  }
 
@@ -70,9 +70,9 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
     const resData = await bulkCreateRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Bulk Insert'); 
-    } catch (error) {
+    } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
     }
  }
 
@@ -102,19 +102,15 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
     const resData = await findOneByKeyService(model, data);
 
     if(resData) {
-    const safeData = { 
-        ...resData, 
-        PASSWORD: '**********' 
-    };
     res.status(200).json 
-    ({estatus: kCorrecto, data :[safeData], errorUs: null, errorNeg : null});
+    ({estatus: kCorrecto, data :resData, errorUs: null, errorNeg : null});
     } else {
     res.status(200).json 
     ({estatus: kErrorNegocio, data :null, errorUs: null, errorNeg : ['No existe la información Solicitada']}); 
     }
-    } catch (error) {
+    } catch (error :any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
     }
  }
  

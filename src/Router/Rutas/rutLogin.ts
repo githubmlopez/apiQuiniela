@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { ctrlLogin, ctrlLogout} from '@router/index.js';
+import { ctrlLogin, ctrlLogout, ctrlRefresh} from '@router/index.js';
 
 export const router = Router();
 
@@ -8,6 +8,7 @@ export const router = Router();
 //  rutas específicas para /api/login.
 router.post('/Autentica', ctrlLogin);
 router.post('/Logout', ctrlLogout);
+router.post('/Refresh', ctrlRefresh);
 export default router;
 
 

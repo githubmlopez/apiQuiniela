@@ -16,6 +16,7 @@ export async function QueryByIdService(
 ) {
     const header = userContext.getStore() as I_Header;
     const contexto = 'Query/By Id (Service)';
+    const infQuery = 'DS';
     
     // 1. Interruptor Maestro (Variable de Ambiente)
     // Asumimos que envConfig ya trae el valor de MEM_CACHE
@@ -24,7 +25,7 @@ export async function QueryByIdService(
     // 2. Intento de recuperación de memoria (SOLO si el interruptor está ON)
     if (usarCache) {
         console.log('✅ Se buscara en memoria cache ');
-        const resCached = verificarCacheDinamico('DS', idQuery, parmRemp);
+        const resCached = verificarCacheDinamico(infQuery, idQuery, parmRemp);
         if (resCached) {
             console.log('✅ Respondiendo con Memoria cache ');
             return resCached;
@@ -49,9 +50,11 @@ export async function QueryByIdService(
     // 4. Intento de guardado en memoria (SOLO si el interruptor está ON)
     if (usarCache) {
         console.log('✅ Guardando cache en memoria ');
-        guardarCacheDinamico('DS', idQuery, parmRemp, resData);
+        guardarCacheDinamico(infQuery, idQuery, parmRemp, resData);
     }
 
     console.log(`✅ Consulta ejecutada con éxito (${usarCache ? 'Cache/DB' : 'DB Directo'})`); 
+
     return resData;
-}
+
+} 

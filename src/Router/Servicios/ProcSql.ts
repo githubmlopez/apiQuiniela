@@ -1,6 +1,6 @@
 import { Sequelize, QueryTypes } from 'sequelize';
 import { KeyValueObject } from '@modelos/index.js';
-import { ObtMemoCache } from '@util/MemoCache.js';
+import { GetCache } from '@util/MemoCache.js';
 import { I_InfResponse, I_Header} from '@modelos/index.js';
 import { getInstancia } from '@config/index.js';
 import { prepResponse, formatQuery, formatRepPar, IncHeader } from '@util/index.js';
@@ -22,8 +22,11 @@ skip? : number
 // Obtener query de memoria cache
 
   const kSql = 'S';
-  const memCache : any = ObtMemoCache(kSql, idQuery);
-  const query : string = memCache.sql;
+
+  const instCache = GetCache(kSql);
+  const meta: any = instCache.get(idQuery);
+
+  const query : string = meta.sql;
   console.log('✅ Query', idQuery, query)
 
 // Construir sentencia SELECT a partir de los parametros proporcionados
@@ -52,8 +55,11 @@ export async function ExecProcedure(
   header : I_Header
   )  : Promise<I_InfResponse>{
       const kProcedure = 'P';
-      const memCache : any = ObtMemoCache(kProcedure, idProcedure); 
-      const query : string = memCache.sql;
+
+      const instCache = GetCache(kProcedure);
+      const meta: any = instCache.get(idProcedure);
+
+      const query : string = meta.sql;
       console.log(query);
       let sqlFmt = ' '
       if (parmRemp !== null)  {

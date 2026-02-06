@@ -26,47 +26,6 @@ type BulkUpdateOp = (model: typeof Model, dataArray: any[], options?:
 { transaction?: Transaction }) => Promise<I_InfResponse>;
 
 // Function to generate the where clause for findOne based on primary keys
-/*
-  export async function createRecord <M extends Model>(
-    model: typeof Model & (new () => M),
-    data: any,
-    opciones?: { transaction?: Transaction } 
-  ): Promise<I_InfResponse> {
-    console.log(data);
-    console.log(model.primaryKeyAttributes);
-    const existingRecord : M | null = await findOneByKeyService(model, data); 
-
-    if (existingRecord) {
-      // throw ('Registro ya existe ' + model.name);
-      return {
-      estatus: kErrorNeg,
-      data: null,
-      errorUs: null,
-      errorNeg: ['Registro ya existe']
-      }
-      } else {
-      const createOptions = {
-            ...opciones, // Mantiene la transacción u otras opciones
-            individualHooks: true 
-        }  
-      const resultado : I_OperaResult = await obtResultado(
-      async (model: any, data: any, createOpts: any) => {
-      const instance = await model.create(data, createOpts);
-      return instance; 
-      },
-      model, 
-      data,  
-      opciones,
-      createOptions
-    );
-    const resData : any  = obtContadorReg (resultado.validationErrors);
-    return {estatus : resultado.estatus,
-    data : resData,
-    errorUs: null,
-    errorNeg : resultado.validationErrors as string[] | null};
-    }
-  }
-*/
 
 export async function createRecord <M extends Model>(
     model: typeof Model & (new () => M),
@@ -135,51 +94,12 @@ export async function createRecord <M extends Model>(
     }
 }
 
-
-/*
-export async function updateRecord <M extends Model> (
-  model: typeof Model & (new () => M),
-  data: any,
-  opciones?: { transaction?: Transaction } 
-): Promise<I_InfResponse> {
-  console.log('✅ Procesando elemento U ', model, data);
-  console.log(model.primaryKeyAttributes);
-  const existingRecord : M | null = await findOneByKeyService(model, data); 
-  if (existingRecord) {
-    const whereClause = buildPKWhereClause (model, data);
-    const resultado : I_OperaResult = await obtResultado (
-    async (model: any, data: any, opciones?: { transaction?: Transaction }) => {
-    const instance = await model.update(data, {
-    where: whereClause,
-    individualHooks: true,   // 🔥 activa validaciones y hooks
-    ...opciones // se usa spreed operator porque necesitas "mezclar" las opciones recibidas (como la transacción)
-    //  con opciones locales obligatorias (como el where del update).
-    });
-    return instance; 
-    },
-    model, 
-    data,  
-    opciones 
-  );
-  const resData : any  = obtContadorReg (resultado.validationErrors);
-  return {estatus : kCorrecto, data : resData, errorUs: null, errorNeg : resultado.validationErrors as string[] | null};
-  } else { 
-    return {
-    estatus: kErrorNeg,
-    data: null,
-    errorUs: null,
-    errorNeg: ['Registro a actualizar no existe']
-    }
-  } 
-}
-*/
-
 export async function updateRecord <M extends Model>(
   model: typeof Model & (new () => M),
   data: any, // Los datos de entrada contienen los campos a actualizar y las PKs
   opciones?: { transaction?: Transaction } // Aseguramos que la transacción esté disponible
   ): Promise<I_InfResponse> {
-  console.log('✅ Update Data   **** ', data);
+  console.log('✅ Update Data   **** ', data, model);
 
     // 1. Verificar la existencia del registro (usando la PK de 'data')
   
@@ -255,42 +175,6 @@ export async function updateRecord <M extends Model>(
      };
    }
 }
-
-/*
-export async function deleteRecord <M extends Model>(
-  model: typeof Model & (new () => M),
-  data: any,
-  opciones?: { transaction?: Transaction } 
-): Promise<I_InfResponse> {
-  console.log(data);
-  console.log(model.primaryKeyAttributes);
-    const existingRecord : M | null = await findOneByKeyService(model, data); 
-  if (existingRecord) {
-    const whereClause = buildPKWhereClause (model, data);
-    const resultado : I_OperaResult = await obtResultado(
-    async (opciones?: { transaction?: Transaction }) => {
-      const instance = await model.destroy({
-      where: whereClause,
-      ...opciones
-      });
-      return instance; 
-    },
-    existingRecord,  
-    opciones 
-  );
-
-  const resData : any  = obtContadorReg (resultado.validationErrors);
-  return {estatus : kCorrecto, data : resData, errorUs: null, errorNeg : resultado.validationErrors as string[] | null};
-  } else {
-  return {
-    estatus: kErrorNeg,
-    data: null,
-    errorUs: null,
-    errorNeg: ['Registro a borrar no existe']
-    }
-}
-}
-*/
 
 export async function deleteRecord <M extends Model>(
   model: typeof Model & (new () => M),
@@ -549,25 +433,6 @@ export function armaErrorNeg (error : any) : I_OperaResult {
     throw error; // Prpagación del error para rutina principal de excepciones
     }
 }
-// [{contador : contador}]
-/*
-export function obtContadorReg (valError : string[] | null | undefined, data? : any) : Record<string, number>[] | null {
-  let resData : Record<string, number>[] | null;
-  if (data) {
-    console.log('✅ Entre a dada lenght', data);
-    resData = [{contador : data.length}];
-  } else
-    resData = [{contador : 1}];;
-
-  if (valError) {
-    if (valError.length > 0) {
-      resData = null;
-    }
-  }
-  return resData;
-}
-*/
-
 /**
  * Convierte una lista de errores personalizados en una instancia de ValidationError de Sequelize.
  * 

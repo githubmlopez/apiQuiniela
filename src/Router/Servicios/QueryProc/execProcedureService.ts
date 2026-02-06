@@ -4,7 +4,6 @@ import { ExecProcedure } from '@router/index.js';
 import { userContext } from '@middle/index.js';
 import { envConfig } from '@config/index.js'; // Importamos config
 import { verificarCacheDinamico, guardarCacheDinamico} from '@router/index.js'; // Importamos utilerías de caché
-import { BorraCache} from '@util/index.js';
 
 export async function execProcedureService(
     idProcedure: string,
@@ -12,18 +11,16 @@ export async function execProcedureService(
 ) {
     const header = userContext.getStore() as I_Header;
     const contexto = 'Procedure / Exec (Service)';
+    const kinfProc = 'DP';
     
     // 1. Interruptor Maestro
     const usarCache = envConfig.MEM_CACHE;
 
     // 2. Intento de recuperación de memoria (Usamos 'DP' para procedimientos)
     if (usarCache) {
-        const kProcedure = 'P';
-// Solo Borrará Cache si es un proceso de Actualización
-        await BorraCache (kProcedure, String(idProcedure));
 // ----------------------------------------------------
         console.log(`🔍 [${idProcedure}] Buscando procedimiento en caché...`);
-        const resCached = verificarCacheDinamico('DP', idProcedure, parmRemp);
+        const resCached = verificarCacheDinamico(kinfProc, idProcedure, parmRemp);
         if (resCached) {
             console.log(`⚡ [${idProcedure}] Respondiendo desde memoria (Cache Hit)`);
             return resCached;
@@ -43,7 +40,7 @@ export async function execProcedureService(
     // 4. Intento de guardado en memoria (SOLO si el interruptor está ON)
     if (usarCache && resData) {
         console.log(`💾 [${idProcedure}] Guardando resultado del procedimiento en memoria`);
-        guardarCacheDinamico('DP', idProcedure, parmRemp, resData);
+        guardarCacheDinamico(kinfProc, idProcedure, parmRemp, resData);
     }
 
     console.log(`✅ Procedure ejecutado con éxito (${usarCache ? 'Cache/DB' : 'DB Directo'})`); 

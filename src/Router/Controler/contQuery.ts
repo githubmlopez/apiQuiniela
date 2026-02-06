@@ -11,7 +11,7 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
   //console.log( '✅ ExecQuery', req.datosUsuario);
   const infReq : I_InfReqQuery = req.body;
   const contexto = 'Ejecucion de Query'
-  const parmRemp : KeyValueObject = infReq.parmRemp;
+  const parmRemp : KeyValueObject = infReq.parmRemp ?? null;
   const campos   = infReq.campos ?? [];
   const where = infReq.where ?? [];
   const idQuery = infReq.idQuery;

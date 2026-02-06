@@ -49,41 +49,7 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    
    header.cveIdioma = resData.CVE_IDIOMA;
    header.cvePerfil = resData.CVE_PERFIL;
-/*
-   const idQuery = kInfUsuario;
-   const parmRemp = {$1 : cveUsuario}   
-   const resUsuario : I_InfResponse = await ejecFuncion
-   (ExecRawQueryById, header, contexto, idQuery, parmRemp);
-   console.log('✅ Inf Usuario ', resUsuario);
 
-   let idQuiniela : number;
-   let idParticipante : number;
-   let idPeriodo : number;
-   let bResSurv : boolean;
-   let fLimite : FileSystemWriteChunkType;
-   let horaLimite : string;
-   let titQuiniela : string;
-   let bSurvivor : boolean;
-
-   if (resUsuario && resUsuario.data && Array.isArray(resUsuario.data) && resUsuario.data.length > 0) {
-   const loginData = resUsuario.data[0];
-   const parsedInfUsuario = JSON.parse(loginData.infUsuario);
-   const parsedInfPeriodo = JSON.parse(loginData.infPeriodo); 
-   const parsedInfQuiniela = JSON.parse(loginData.InfQuiniela);
-   const parsedInfSurvivor = JSON.parse(loginData.infSurvivor);
-   idQuiniela = parsedInfUsuario.ID_QUINIELA;
-   idParticipante = parsedInfUsuario.ID_PARTICIPANTE;
-   idPeriodo = parsedInfPeriodo.ID_PERIODO;
-   bResSurv = parsedInfPeriodo.B_RES_SURV;
-   fLimite = parsedInfPeriodo.F_LIMITE;
-   horaLimite = parsedInfPeriodo.HORA_LIMITE;
-   titQuiniela = parsedInfQuiniela.TIT_QUINIELA;
-   bSurvivor = parsedInfSurvivor.B_SURVIVOR;
-
-   } else {
-   throw ('Datos de Usuario Inexistentes');    
-   }
-*/
    let token;
    if (resData && resData.PASSWORD) {
       console.log('✅ Hash ', resData.PASSWORD, password);
