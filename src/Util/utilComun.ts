@@ -26,7 +26,7 @@ export async function ejecFuncion<T extends (...args: any[]) => any>(
     const opciones : I_CreaObjetoEvento = {
     ID_PROCESO: header.idProceso ?? kProcComun,
     F_EVENTO: new Date(),
-    ID_EVENTO: await obtenFolio(kFolioEvento, sequelize, header) as number,
+    ID_EVENTO: await obtenFolio(kFolioEvento, header) as number,
     CVE_APLICACION : header.cveAplicacion ?? kAplicComun,
     CVE_USUARIO : header.cveUsuario ?? kUsuarioComun
     }
@@ -46,7 +46,7 @@ function neverReturns(): never {
   throw new Error("Internal error: ejecutarConContext debería haber lanzado una excepción.");
 }
 
-export async function obtenFolio(clave:string, sequelize : Sequelize, header : I_Header): Promise<number | string> {
+export async function obtenFolio(clave:string, header : I_Header): Promise<number | string> {
   const resProc: any = await ExecProcedure('1', 
   {'$1' : clave}, header);
   

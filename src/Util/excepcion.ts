@@ -1,10 +1,7 @@
-import { Sequelize, Error,  } from 'sequelize';
-import { UniqueConstraintError, ForeignKeyConstraintError, DatabaseError, ValidationError} from 'sequelize';
-import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '@modelos/index.js';
-import { Logger} from 'winston';
-import * as jwt from 'jsonwebtoken';
-
-import { I_ObjError } from '@modelos/index.js';
+import { Sequelize, Error } from 'sequelize';
+import { UniqueConstraintError, ForeignKeyConstraintError, DatabaseError, ValidationError } from 'sequelize';
+import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento, I_ObjError } from '@modelos/index.js';
+import { Logger } from 'winston';
 
 interface SequelizeValidationError extends Error {
     name: 'SequelizeValidationError' | 'SequelizeUniqueConstraintError';
@@ -99,79 +96,82 @@ export function crearObjError (error: any, contexto : string) : I_ObjError {
 */
 
 export function crearObjError(error: any, contexto: string): I_ObjError {
+    // 0. Guarda inicial por si el error es null/undefined
+    if (!error) {
+        return { 
+            errorUs: 'Error desconocido.', 
+            errorSis: `Se llamó a crearObjError con un objeto nulo en ${contexto}`, 
+            errorStack: undefined, 
+            errNeg: null 
+        };
+    }
+
     let msgErrorUs: string = 'Ha ocurrido un error inesperado.';
     let msgErrorSis: string = `Error en el contexto '${contexto}': No se pudo determinar el tipo de error.`;
-    let errorStack: string | undefined = undefined;
+    let errorStack: string | undefined = error.stack; // Simplificado
 
-    // Logs de consola para depuración técnica
-    console.error('❌ Error capturado por la rutina de excepciones (crearObjError):', error?.constructor?.name || 'Unknown Constructor');
-    console.error('❌ Tipo de error (crearObjError):', Object.prototype.toString.call(error));
-    console.error('❌ Objeto de error completo (crearObjError):', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    // 1. Log técnico (con seguridad sobre el nombre)
+    const nombreError = error.name || error.constructor?.name || 'Error';
+    console.error(`❌ Error en [${contexto}]: ${nombreError}`);
 
-    // Obtener el stack trace si existe
-    if (error && typeof error.stack === 'string') {
-        errorStack = error.stack;
-    }
+    // --- 2. Cascada de Validación ---
 
-    // --- 1. Manejo de Errores de Sequelize ---
+    // A. Sequelize: Unicidad (Duplicados)
     if (error instanceof UniqueConstraintError) {
-        const fields = error.fields ? Object.keys(error.fields).join(', ') : 'desconocido';
-        msgErrorSis = `UniqueConstraintError en ${contexto}. Campos duplicados: '${fields}'. Mensaje original de DB: '${error.message}'.`;
-        msgErrorUs = 'Un registro con la información proporcionada ya existe. Por favor, verifique sus datos.';
+        // Aseguramos que fields sea un objeto para Object.keys
+        const campos = error.fields && typeof error.fields === 'object' 
+            ? Object.keys(error.fields).join(', ') 
+            : 'desconocido';
+        msgErrorSis = `UniqueConstraintError en ${contexto}. Duplicado en: '${campos}'.`;
+        msgErrorUs = 'Ya existe un registro con esta información.';
     } 
+    // B. Sequelize: Llaves Foráneas
     else if (error instanceof ForeignKeyConstraintError) {
-        msgErrorSis = `ForeignKeyConstraintError en ${contexto}. Detalles: ${error.message}. Referencia: ${error.fields ? JSON.stringify(error.fields) : 'N/A'}.`;
+        msgErrorSis = `ForeignKeyConstraintError en ${contexto}. Índice: ${error.index || 'N/A'}. Tabla: ${error.table || 'N/A'}.`;
+        msgErrorUs = 'No se puede guardar porque un dato relacionado no existe o está en uso.';
     } 
-    else if (error instanceof DatabaseError) {
-        msgErrorSis = `DatabaseError en ${contexto}. Mensaje de Sequelize: '${error.message}'. Mensaje original de DB: '${error.parent?.message || 'N/A'}'. SQL: '${error.sql || 'N/A'}'`;
-    } 
+    // C. Sequelize: Validación de campos (AllowNull: false, etc)
     else if (error instanceof ValidationError) {
-        const validationDetails = error.errors.map(err => {
-            const itemMsg = err.message || err.validatorKey || 'Detalle no especificado';
-            return `${err.path || 'N/A'}: '${itemMsg}' (Tipo: '${err.type}', Validador: '${err.validatorKey}')`;
-        }).join('; ');
-        msgErrorSis = `ValidationError (Inesperado/Técnico) en ${contexto}. Detalles: ${validationDetails}. Mensaje general: '${error.message}'.`;
+        const validationDetails = error.errors?.map(err => `${err.path}: ${err.message}`).join('; ') || error.message;
+        msgErrorSis = `ValidationError en ${contexto}: ${validationDetails}`;
+        msgErrorUs = 'La información enviada tiene un formato incorrecto.';
     }
-
-    // --- 2. Manejo de Errores de JWT (Autenticación) ---
-    else if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {
-        const esExpirado = error instanceof jwt.TokenExpiredError;
-        
-        // El sistema guarda el nombre técnico (TokenExpiredError / JsonWebTokenError)
-        msgErrorSis = `${error.name} en ${contexto}: '${error.message}'.`;
-        
-        // El usuario recibe el mensaje amigable solicitado
-        msgErrorUs = esExpirado ? 'Tu sesión ha expirado.' : 'Sesión inválida.';
-        
-        return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack: errorStack, errNeg: null };
+    // D. Sequelize: Error General de DB (Sintaxis SQL, etc)
+    else if (error instanceof DatabaseError) {
+        msgErrorSis = `DatabaseError en ${contexto}: ${error.parent?.message || error.message}. SQL: ${error.sql}`;
     }
-
-    // --- 3. Manejo de Errores Estándar de JavaScript ---
+    // E. JWT: Sesiones (Seguro por nombre)
+    else if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
+        const esExpirado = error.name === 'TokenExpiredError';
+        msgErrorSis = `JWT Error [${error.name}] en ${contexto}: ${error.message}`;
+        msgErrorUs = esExpirado ? 'Tu sesión ha expirado.' : 'Sesión inválida. Por favor, ingresa de nuevo.';
+        // Retorno temprano porque es un error de seguridad
+        return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack, errNeg: null };
+    }
+    // F. Errores estándar de JS u otros
     else if (error instanceof Error) {
-        msgErrorSis = `${error.name || 'Error'} en ${contexto}: '${error.message}'.`;
-
-        if (error.name === 'AggregateError' && (error as any).errors && Array.isArray((error as any).errors)) {
-            const aggregatedMessages = (error as any).errors.map((e: any) => e.message || 'Error interno sin mensaje').join('; ');
-            msgErrorSis += ` Errores agregados: '${aggregatedMessages}'.`;
+        msgErrorSis = `${error.name} en ${contexto}: ${error.message}`;
+        
+        // Soporte para AggregateError
+        if (error.name === 'AggregateError' && (error as any).errors) {
+            const innerErrors = (error as any).errors.map((e: any) => e.message).join(' | ');
+            msgErrorSis += ` [Internos: ${innerErrors}]`;
         }
     }
-
-    // --- 4. Manejo de Errores de tipo string ---
+    // G. Fallback para strings o tipos primitivos
     else if (typeof error === 'string') {
         msgErrorUs = error;
-        msgErrorSis = `Error de tipo string en ${contexto}: '${error}'.`;
+        msgErrorSis = `Error (string) en ${contexto}: ${error}`;
     } 
-
-    // --- 5. Manejo de errores desconocidos o no serializables ---
     else {
         try {
-            msgErrorSis = `Error desconocido en ${contexto}: ${JSON.stringify(error)}.`;
-        } catch (e) {
-            msgErrorSis = `Error desconocido en ${contexto}: No se pudo serializar el objeto. Tipo: ${typeof error}.`;
+            msgErrorSis = `Error no clasificado en ${contexto}: ${JSON.stringify(error)}`;
+        } catch {
+            msgErrorSis = `Error no clasificado/serializable en ${contexto}. Tipo: ${typeof error}`;
         }
     }
 
-    return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack: errorStack, errNeg: null };
+    return { errorUs: msgErrorUs, errorSis: msgErrorSis, errorStack, errNeg: null };
 }
 
 export async function crearObjetoEvento( error : any, opciones: I_CreaObjetoEvento, contexto : string)

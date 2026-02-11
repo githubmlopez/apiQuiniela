@@ -50,7 +50,7 @@ export async function setupGlobalError(): Promise<void> {
     const opciones : I_CreaObjetoEvento = {
       ID_PROCESO: kProcComun,
       F_EVENTO: new Date(),
-      ID_EVENTO: await obtenFolio(kFolioEvento, sequelize, header) as number,
+      ID_EVENTO: await obtenFolio(kFolioEvento, header) as number,
       CVE_APLICACION : kAplicComun,
       CVE_USUARIO : kUsuarioComun
       }
