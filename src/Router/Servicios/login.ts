@@ -8,7 +8,7 @@ import { ejecFuncion, creaHeadEsq} from '@util/index.js'
 import { I_Header, I_InfResponse, I_FC_SEG_USUARIO} from '@modelos/index.js';
 
 const kCorrecto = 1;
-const kErrorAut = 4;
+const kErrorSistema = 2;
 const kActivo = 'A'; 
 
 export async function login(idProceso: number, cveAplicacion : string, cveUsuario : string, password : string) : Promise<any> {
@@ -71,17 +71,17 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
              objRes = {estatus: kCorrecto, data : resResp, errorUs: null, errorNeg : null};
 
         } else {
-           objRes = {estatus: kErrorAut, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
+           objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
         }
       } else {
       console.log('❌ Error usuario password');
-      objRes = {estatus: kErrorAut, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
+      objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
       }
    } else {
-     objRes = {estatus: kErrorAut, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};      
+     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};      
    }
    } else {
-     objRes = {estatus: kErrorAut, data : null, errorUs: 'Error en usuario o Password', errorNeg : null}; 
+     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null}; 
    } 
    return objRes;
 }

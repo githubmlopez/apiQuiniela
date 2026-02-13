@@ -21,14 +21,18 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
   
   if (idQuery) {  
     try {
-    const resData = await QueryByIdService ( idQuery, parmRemp, campos, where, orderBy, numReg, skip);
-      return void res.status(200).json (resData);
+    const resData : I_InfResponse = await QueryByIdService ( idQuery, parmRemp, campos, where, orderBy, numReg, skip);
+      if (resData.errorUs) {
+        return void res.status(422).json (resData);
+      } else {
+        return void res.status(200).json (resData);
+      }  
     } catch {
-    return void res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
+      return void res.status(422).json
+      ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
-  } else {
-    return void res.status(400).json({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});     
+    } else {
+      return void res.status(400).json({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});     
   }
 }
 

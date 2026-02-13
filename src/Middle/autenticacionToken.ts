@@ -102,11 +102,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     if (!token) {
         return res.status(401).json({
             estatus: 4,
+            data: null,
             errorUs: 'Acceso denegado. No se encontró una sesión activa.',
             errorNeg: null
         });
     }
-
+// Validación de Token en lista negra por cierre de sesion
     const instCache = GetCache('L');
     if (instCache.get(token)) {
         return res.status(401).json({

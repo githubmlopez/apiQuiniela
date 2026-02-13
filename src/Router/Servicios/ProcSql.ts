@@ -1,6 +1,6 @@
 import { Sequelize, QueryTypes } from 'sequelize';
 import { KeyValueObject } from '@modelos/index.js';
-import { GetCache } from '@util/MemoCache.js';
+import { GetCache, verificaResult} from '@util/index.js';
 import { I_InfResponse, I_Header} from '@modelos/index.js';
 import { getInstancia } from '@config/index.js';
 import { prepResponse, formatQuery, formatRepPar, IncHeader } from '@util/index.js';
@@ -27,12 +27,15 @@ skip? : number
   const meta: any = instCache.get(idQuery);
 
   const query : string = meta.sql;
-  console.log('✅ Query', idQuery, query)
+  const bNoDataError : boolean = meta.bNoDataError;
+  const msgNoData : string = meta.msgNoData;
+
+  console.log('✅ Query', idQuery, query, bNoDataError, msgNoData)
 
 // Construir sentencia SELECT a partir de los parametros proporcionados
 
   const sqlFmt = formatQuery (query, parmRemp, campos, where, orderBy, numReg, skip);
-  const resultado : I_InfResponse = await ExecQuery(kSql, sqlFmt);
+  const resultado : I_InfResponse = await ExecQuery(kSql, sqlFmt, bNoDataError, msgNoData);
   console.log('✅resultado ', resultado);
   return resultado;
   // return {data : resultado, errorUs: null, errorNeg : null};
@@ -43,7 +46,7 @@ skip? : number
   query  : string, 
   ) : Promise<I_InfResponse>{
   const kSql = 'S';
-  const resultado = await ExecQuery(kSql, query)
+  const resultado = await ExecQuery(kSql, query, false, ' ')
 
   return resultado as I_InfResponse;
 
@@ -60,6 +63,8 @@ export async function ExecProcedure(
       const meta: any = instCache.get(idProcedure);
 
       const query : string = meta.sql;
+      const bNoDataError : boolean = meta.bNoDataError;
+      const msgNoData : string = meta.msgNoData;
       console.log(query);
       let sqlFmt = ' '
       if (parmRemp !== null)  {
@@ -71,7 +76,7 @@ export async function ExecProcedure(
 
       const sqlFmtHeader = IncHeader (sqlFmt, header);
  
-      const resultado : I_InfResponse = await ExecQuery(kProcedure, sqlFmtHeader) as I_InfResponse;
+      const resultado : I_InfResponse = await ExecQuery(kProcedure, sqlFmtHeader, bNoDataError, msgNoData) as I_InfResponse;
 
       console.log('✅Res Procedure ', resultado); 
  
@@ -80,24 +85,42 @@ export async function ExecProcedure(
   } 
 
 async function ExecQuery(
-tipo : string,
-query  : string
+tipo         : string,
+query        : string,
+bNoDataError : boolean,
+msgNoData    : string
 ) : Promise<I_InfResponse>{
+  const kErrorUsuario = 2;
   const sequelize : Sequelize = await getInstancia();  
   console.log('✅ Ejecucion ExecQuery ', query); 
   const resultado = await sequelize.query(query, {
   type: QueryTypes.SELECT,
   raw: true}) 
   
-  //console.log('✅resultado Orig ', resultado);
+  console.log('✅resultado Orig ', resultado);
 
   // Llamado a funcion que determina y construye el response   
 
   const resRquest : I_InfResponse = prepResponse(query, resultado, tipo) as I_InfResponse;
-  console.log ('✅ Query ', query);
- // console.log ('✅ prepResponse ok', resRquest);
+  
+  console.log ('✅ prepResponse ok', resRquest);
+  const msgUsuario = verificaResult(resRquest, bNoDataError, msgNoData)
 
-  return resRquest;
+  let nuevoResponse : I_InfResponse= resRquest
+  
+  if (msgUsuario) {
+    nuevoResponse = {
+    ...resRquest,
+    estatus: kErrorUsuario,
+    errorUs: msgNoData
+  };
+
+  }
+
+  console.log ('✅ Query ', query);
+
+
+  return nuevoResponse;
 
 }
 

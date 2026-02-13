@@ -60,7 +60,9 @@ export function putCache(infCache: string, cacheMem: any, resultado: Array<Recor
         bCacheable:   item.bCacheable,
         llaveConfig:  item.llaveConfig,
         timeCache:    item.timeCache,
-        bPublico:     item.bPublico
+        bPublico:     item.bPublico,
+        bNoDataError: item.bNoDataError,
+        msgNoData: item.msgNoData
       });
     } 
     // CASO B: Simple Llave/Valor (Tablas maestras, Errores, etc.)
@@ -184,7 +186,7 @@ export function GetCache(tipo: string) : any | null  {
   const kDataT  = 'DT';
   const kLnegra = 'L';
 
-console.log('✅ Buscando instancia con tipo', tipo);
+//console.log('✅ Buscando instancia con tipo', tipo);
 switch (tipo) {
     case kSql:
       return cacheSql;

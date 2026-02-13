@@ -9,7 +9,6 @@ import { GetCache, putCache} from '@util/index.js';
 
 const kCorrecto = 1;
 const kErrorSistema = 2;
-const kErrorAut = 4;
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 
 export async function ctrlLogin(req : Request, res : Response) {
@@ -111,7 +110,7 @@ export async function ctrlRefresh(req: Request, res: Response) {
 
   if (!tokenViejo) {
       res.status(401).json({
-      estatus: kErrorAut,
+      estatus: kErrorSistema,
       data: null,
       errorUs: 'No se encontró sesión para renovar.',
       errorNeg: null
@@ -147,7 +146,7 @@ export async function ctrlRefresh(req: Request, res: Response) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 12 * 60 * 60 * 1000, // 12 horas coincidiendo con el token
+      maxAge: 24 * 60 * 60 * 1000, // 12 horas coincidiendo con el token
       path: '/',
     });
 
@@ -163,7 +162,7 @@ export async function ctrlRefresh(req: Request, res: Response) {
   } catch (error) {
     console.error('❌ Error crítico en refresh:', error);
       res.status(401).json({
-      estatus: kErrorAut,
+      estatus: kErrorSistema,
       data: null,
       errorUs: 'No fue posible renovar la sesión de seguridad.',
       errorNeg: null

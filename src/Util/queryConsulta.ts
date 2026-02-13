@@ -16,11 +16,12 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
       } else {
         resFormat = resultado
       }
-     // console.log('✅resultado Format ', resFormat);
+      console.log('✅resultado Format ', resFormat);
       if (tipo === kSql) {
-        if (resFormat.length === 0) {
+        if (resFormat.length === 0 || null) {
           return {estatus: kCorrecto, data : null, errorUs: null, errorNeg : null};
-        } else {
+        } 
+        else {
           return {estatus: kCorrecto, data : resFormat, errorUs: null, errorNeg : null};
         }
       } else {
@@ -273,4 +274,14 @@ export function IncHeader (sql : string, infHeader : I_Header) : string {
     sqlFmtHeader = `${sql} ${jsonQheaderNom}`;
   } 
   return sqlFmtHeader;
+}
+
+//const resRquest : I_InfResponse = prepResponse(query, resultado, tipo) as I_InfResponse;
+
+export function verificaResult (resRquest : I_InfResponse, bNoDataError : boolean, msgNoData : string) : string | null {
+  let msgUsuario = null; 
+  if (resRquest.data === null && bNoDataError) {
+    msgUsuario = msgNoData;
+}
+  return msgUsuario
 }

@@ -36,6 +36,7 @@ export async function validatePublicProcess(req: Request, res: Response, next: N
 */
 
 export async function validatePublicProcess(req: Request, res: Response, next: NextFunction): Promise<void> {
+    console.log('✅ Validando opcion publica');
     const kErrorAut = 2
     const header: I_Header = {
         idProceso: req.body.idProceso ?? 9999,
@@ -48,13 +49,14 @@ export async function validatePublicProcess(req: Request, res: Response, next: N
 
     try {
         // 1. Validamos si es un proceso público usando el lanzador
+        console.log('✅ Lanzando verificacion publica');
         const esPublico = await ejecFuncion(
             checkIsPublicProcess, 
             header, 
             contexto, 
             req
         );
-
+        console.log('✅ Pregunta si es publico para crear contexto');
         if (esPublico) {
             // 2. Ejecutamos contexto público (GUEST)
             return await ejecFuncion(
@@ -96,11 +98,13 @@ export async function validatePublicProcess(req: Request, res: Response, next: N
 
 async function checkIsPublicProcess(req: Request): Promise<boolean> {
     const idQuery = req.body.idProceso;
+    console.log('✅ Valor id Query', idQuery);
     if (!idQuery) return false;
 
     const kProceso = 'P';
     const instCache = GetCache(kProceso); 
     const meta: any = instCache.get(idQuery);
+    console.log('✅ Valor en Memoria', meta);
 
     if (meta && meta.bPublico) {
         console.log('🌐 Proceso Público Detectado:', idQuery);
@@ -111,7 +115,7 @@ async function checkIsPublicProcess(req: Request): Promise<boolean> {
 
 export async function validatePublicQuery(req: Request, res: Response, next: NextFunction) {
 
-    const kErrorAut = 4
+    const kErrorAut = 2
 
     const header: I_Header = {
         idProceso: req.body.idQuery ?? 9999,
