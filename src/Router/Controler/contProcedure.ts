@@ -14,7 +14,11 @@ export async function ctrlExecProcedure(req : Request, res : Response) : Promise
   if (idProcedure) {
     try {
     const resData = await execProcedureService (idProcedure, parmRemp);
-    return void res.status(200).json (resData);
+    if (resData.errorUs) {
+      return void res.status(422).json (resData);
+      } else {
+      return void res.status(200).json (resData);
+    }
     console.log( '✅ Regreso de ejecutar procedimiento'); 
     } catch {
     return void res.status(422).json
@@ -25,3 +29,4 @@ export async function ctrlExecProcedure(req : Request, res : Response) : Promise
   }
 }
 
+ 

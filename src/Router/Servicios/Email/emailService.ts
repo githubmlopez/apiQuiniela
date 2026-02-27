@@ -34,7 +34,7 @@ export async function emailService(model : any, email : string) {
         "F_EXPIRACION" : fechaExpiracion.toLocaleString('sv-SE').replace(',', ''),
         "F_CREACION"   : new Date().toLocaleString('sv-SE').replace(',', ''),
     }
-    console.log('✅ Enviado Vreate Record Service ');
+    console.log('✅ Enviado Create Record Service ');
     const resData = await ejecFuncion(
               createRecordService, 
               header, 

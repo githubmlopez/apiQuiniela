@@ -22,64 +22,64 @@
   export async function ctrCrudCreate(req : Request, res : Response) {
   console.log( '✅ Crud Create', req.datosUsuario);
   const { model, data} = creaObjCrud(req.datosUsuario, req.body);
-
+  const contexto = 'No fue posible Crear el registro';
   try {
     const resData = await createRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar procedimiento'); 
     } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
 
  export async function ctrCrudUpdate(req : Request, res : Response) {
   console.log( '✅ Crud Update', req.datosUsuario);
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
-
+  const contexto = 'No fue posible Actualizar el registro';
   try {
     const resData = await updateRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Uddate'); 
     } catch (error : any) {
+        console.log( '✅ Excepcion UPDATE ', error);
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
 
  export async function ctrCrudDelete(req : Request, res : Response) {
   console.log( '✅ Crud Delete', req.datosUsuario);
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
-
+  const contexto = 'No fue posible Borrar el registro';
   try {
     const resData = await deleteRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Delete'); 
     } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
 
 export async function ctrCrudBulkC(req : Request, res : Response) {
   console.log( '✅ Bulk Insert', req.datosUsuario);
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
-
+  const contexto = 'No fue posible realizar la actualizacion';
   try {
-
     const resData = await bulkCreateRecordService(model, data);
     res.status(200).json (resData);
     console.log( '✅ Regreso de ejecutar Bulk Insert'); 
     } catch (error : any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
 
  export async function ctrCrudBulkU(req : Request, res : Response) {
   console.log( '✅ Bulk Update', req.datosUsuario);
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
-
+  const contexto = 'No fue posible realizar la actualizacion';
   try {
 
     const resData = await bulkUpdateRecordService(model, data);
@@ -87,13 +87,13 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
     console.log( '✅ Regreso de ejecutar Modify'); 
     } catch (error) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
 
  export async function ctrFindByKey(req : Request, res : Response) {
   const { model, data } = creaObjCrud(req.datosUsuario, req.body);
-  const contexto = 'Ejecucion Find By Key';
+  const contexto = 'en busqueda de registro';
   try {
 
     if (!data || Array.isArray(data)) {
@@ -110,7 +110,7 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
     }
     } catch (error :any) {
     res.status(422).json
-    ({estatus: kErrorSistema, data :null, errorUs: error.message, errorNeg : null});
+    ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
  
@@ -122,7 +122,7 @@ export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): {
     // Assuming 'sequelize' is available globally or imported here
     const model = sequelize.models[modelo]; 
     
-//    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);
+//    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);||
     
     return { model, data};
 }

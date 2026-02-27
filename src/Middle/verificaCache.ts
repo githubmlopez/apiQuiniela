@@ -4,58 +4,6 @@ import { envConfig } from '@config/index.js';
 import { I_Header} from '@modelos/index.js';
 import { ejecFuncion} from '@util/index.js';
 
-/*
-export async function verificaCache(req: Request, res: Response, next: NextFunction): Promise<void> {
-    console.log('⚠️ Verificando Borrado Cache');
-    const kErrorAut = 2;
-    const usarCache = envConfig.MEM_CACHE;
-
-    // 1. Salida temprana si el caché está desactivado
-    if (!usarCache) {
-        return next();
-    }
-
-    // Usamos variables que sí puedan ser actualizadas (let)
-    let id: string = '';
-    let tipo: 'M' | 'P' = 'M';
-
-    // 2. Extraer ID y Tipo (Usando Nullish Coalescing y Optional Chaining)
-    const modeloBody = req.body?.model;
-    const procBody = req.body?.idProcedure;
-    console.log('⚠️ Verificando Borrado Cache', modeloBody, procBody);
-    if (modeloBody !== undefined && modeloBody !== null) {
-        console.log('✅ Solicita Borrado Modelo');
-        id = String(modeloBody).trim();
-        tipo = 'M';
-    } else if (procBody !== undefined && procBody !== null) {
-        console.log('✅ Solicita Borrado Procedimiento');
-        id = String(procBody).trim();
-        tipo = 'P';
-    } else {
-        console.log('✅ No solicita Borrado', tipo, id);
-        // Si no hay ninguno de los dos, no hay nada que limpiar
-        return next();
-    }
-
-    // 3. Validación de seguridad extra: si el id quedó vacío tras el trim()
-    if (!id) return next();
-
-    try {
-        // Usamos el 'tipo' detectado dinámicamente
-        await BorraCache(tipo, id);
-        next(); 
-    } catch (error) {
-        console.error('❌ Error limpiando caché en middleware:', error);
-        
-        return void res.status(401).json({
-            estatus: kErrorAut,
-            errorUs: 'Error al borrar memoria cache',
-            errorNeg: null
-        });
-    }
-}
-*/
-
 export async function verificaCache(req: Request, res: Response, next: NextFunction): Promise<void> {
     const kErrorAut = 2;
     const usarCache = envConfig.MEM_CACHE;

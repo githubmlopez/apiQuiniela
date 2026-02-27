@@ -3,10 +3,9 @@
   import { I_Header} from '@modelos/index.js';
   import { Request, Response, NextFunction } from 'express';
   import { CustomJwtPayload } from '@modelos/index.js'; 
-  import { AsyncLocalStorage } from 'async_hooks';
+  import { userContext} from '@middle/index.js'
   import { GetCache } from '@util/MemoCache.js';
 
-  export const userContext = new AsyncLocalStorage<I_Header>();
 
   const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 
@@ -134,27 +133,4 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     });
 };
 
-export const runPublicContext = (idProceso: any, req: Request, next: NextFunction) => {
-    const datosGuest = {
-        cveAplicacion: 'PUBLICO',
-        cveUsuario   : 'GUEST',
-        cveIdioma    : 'ES',
-        cvePerfil    : 'GUEST'
-    };
 
-    // 1. Seteamos en el request para compatibilidad
-    req.datosUsuario = datosGuest;
-
-    // 2. Preparamos el Header para el AsyncLocalStorage
-    const header: I_Header = {
-        idProceso: idProceso ?? 9999,
-        ...datosGuest
-    };
-
-    console.log(`🌐 Ejecutando contexto público para proceso: ${idProceso}`);
-
-    // 3. Ejecutamos el siguiente middleware dentro del contexto
-    return userContext.run(header, () => {
-        next();
-    });
-};

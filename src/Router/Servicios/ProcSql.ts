@@ -65,6 +65,7 @@ export async function ExecProcedure(
       const query : string = meta.sql;
       const bNoDataError : boolean = meta.bNoDataError;
       const msgNoData : string = meta.msgNoData;
+      
       console.log(query);
       let sqlFmt = ' '
       if (parmRemp !== null)  {

@@ -4,6 +4,7 @@ export * from './excepcion.js';
 export * from './utilComun.js';
 export * from './cargaModelos.js';
 export * from './globalErrors.js';
+export * from './cierreSeguro.js';
 export * from './controlers.js';
 export * from './queryConsulta.js';
 export * from './validadores.js';

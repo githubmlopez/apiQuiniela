@@ -54,7 +54,7 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
    if (resData && resData.PASSWORD) {
       console.log('✅ Hash ', resData.PASSWORD, password);
       const verHash : boolean = await verify(resData.PASSWORD, password);
-      if (verHash && resData.SIT_USUARIO ===  kActivo) { 
+      if (verHash && resData.SIT_USUARIO ===  kActivo && !resData.B_BLOQUEADO) { 
         console.log('✅ Resultado', resData);
         token = _sign(
         { cveAplicacion : cveAplicacion, cveUsuario : resData.CVE_USUARIO, cveIdioma : resData.CVE_IDIOMA,
