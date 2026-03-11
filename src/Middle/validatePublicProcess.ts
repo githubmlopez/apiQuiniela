@@ -4,117 +4,14 @@ import { GetCache } from '@util/MemoCache.js';
 import { I_Header} from '@modelos/index.js';
 import { ejecFuncion} from '@util/index.js';
 import { AsyncLocalStorage } from 'async_hooks';
-/*
-export async function validatePublicProcess(req: Request, res: Response, next: NextFunction) : Promise<void>{
-// Bloque de codigo para validar si es una ruta publica
-    try {
-        if (req.body.hasOwnProperty('idProceso')) {
-            const idQuery = req.body.idProceso;
-            const kProceso = 'P';
-            const instCache = GetCache(kProceso); 
-            const meta: any = instCache.get(idQuery);
-
-            if (meta && meta.bPublico) {
-                console.log('🌐 Proceso Público Detectado:', idQuery);
-                return runPublicContext(idQuery, req, next);
-            }
-        }
-    } catch (error) {
-        const kErrorAut = 2;
-        console.error('❌ Error en validación pública:', error);
-        return void res.status(401).json({
-            estatus: kErrorAut,
-            errorUs: 'Error al validar acceso público',
-            errorNeg: null
-        });
-    }
-
-    // Si no fue público, procedemos a la autenticación normal por Token
-    return authenticateToken(req, res, next);
-}
-*/
+import { envConfig } from '@config/index.js';
 
 export const userContext = new AsyncLocalStorage<I_Header>();
 
-export async function validatePublicQuery(req: Request, res: Response, next: NextFunction): Promise<void> {
-    console.log('✅ Valor Proceso ', req.body.idProceso );
-    const kErrorAut = 2
-    const header: I_Header = {
-        idProceso: req.body.idProceso ?? 9999,
-        cveAplicacion: 'PUBLICO',
-        cveUsuario: 'GUEST',
-        cveIdioma: 'ES',
-        cvePerfil: 'GUEST'
-    };
-    let contexto = 'Middleware Proceso Publico';
-
-    try {
-        // 1. Validamos si es un proceso público usando el lanzador
-        console.log('✅ Lanzando verificacion publica');
-        const esPublico = await ejecFuncion(
-            checkIsPublicProcess, 
-            header, 
-            contexto, 
-            req
-        );
-        console.log('✅ Pregunta si es publico para crear contexto', esPublico);
-        if (esPublico) {
-            // 2. Ejecutamos contexto público (GUEST)
-            return await ejecFuncion(
-                runPublicContext, 
-                header, 
-                contexto, 
-                req.body.idProceso, 
-                req, 
-                next
-            );
-        }
-
-        // 3. Si no es público, procedemos a autenticación por Token
-        contexto = 'Autenticacion de Token';
-        return await ejecFuncion(
-            authenticateToken, 
-            header, 
-            contexto, 
-            req,    
-            res, 
-            next
-        );
-
-    } catch (errorDesc: any) {
-        /**
-         * Si llegó aquí es porque:
-         * a) Falló el acceso a la caché.
-         * b) Falló el token (Expirado o Inválido).
-         * El error ya fue registrado en DB por ejecFuncion.
-         */
-        return void res.status(401).json({
-            estatus: kErrorAut,
-            data: null,
-            errorUs: errorDesc, // Mensaje amigable (ej: "Tu sesión ha expirado.")
-            errorNeg: null
-        });
-    }
-}
-
-async function checkIsPublicProcess(req: Request): Promise<boolean> {
-    const idQuery = req.body.idProcedure;
-    console.log('✅ Valor id Procedure', idQuery);
-    if (!idQuery) return false;
-
-    const kProcedure = 'P';
-    const instCache = GetCache(kProcedure); 
-    const meta: any = instCache.get(idQuery);
-    console.log('✅ Valor en Memoria', meta);
-
-    if (meta && meta.bPublico) {
-        console.log('🌐 Proceso Público Detectado:', idQuery);
-        return true;
-    }
-    return false;
-}
-
 export async function validatePublicProcess(req: Request, res: Response, next: NextFunction) {
+
+    const internalToken = req.headers['x-internal-token'];
+    const JASPER_SECRET = envConfig.SECRET;
 
     const kErrorAut = 2
     console.log('✅ Valor Proceso ', req.body.idProceso );
@@ -128,6 +25,25 @@ export async function validatePublicProcess(req: Request, res: Response, next: N
     let contexto = 'Middleware Validacion Publica';
 
     try {
+
+        if (internalToken && internalToken === JASPER_SECRET) {
+            console.log('🚀 Acceso Interno Validado (API JASPER)');
+        
+            const headerJasper: I_Header = {
+            idProceso: req.body.idProceso ?? 9999,
+            cveAplicacion: 'API_JASPER',
+            cveUsuario: 'SYSTEM_JASPER',
+            cveIdioma: 'ES',
+            cvePerfil: 'ADMIN' // O el perfil que requiera para ejecutar queries
+        };
+
+        // Ejecutamos el contexto directamente (similar a runPublicContext pero con identidad Jasper)
+            return userContext.run(headerJasper, () => {
+            req.datosUsuario = headerJasper; // Seteamos para compatibilidad
+            next();
+        });
+        }
+
         // 1. Validamos si el proceso es público (Consultamos Caché)
         const esPublico = await ejecFuncion(
             checkIsPublic,

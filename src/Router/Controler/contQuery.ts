@@ -39,8 +39,8 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
 export async function ctrlGetMe(req : Request, res : Response) : Promise<void> {
   const requestBody  = req.body;
   const idProceso = requestBody.idProceso;
-  const cveAplicacion = req.datosUsuario.cveAplicacion;
-  const cveUsuario = req.datosUsuario.cveUsuario;
+  const cveAplicacion = requestBody.datosUsuario.cveAplicacion;
+  const cveUsuario = requestBody.datosUsuario.cveUsuario;
   if (!cveAplicacion || !cveUsuario) {
     return void res.status(422).json({ 
         estatus: kErrorSistema, 

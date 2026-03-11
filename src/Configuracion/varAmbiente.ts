@@ -50,5 +50,6 @@ export const envConfig : AEnvConfig = {
   SMTP_PASS: process.env.SMTP_PASS  as string,
   SMTP_FROM: process.env.SMTP_FROM  as string,
   MEM_CACHE: process.env.DB_LOGGING?.toLowerCase() === 'true',
+  SECRET: process.env.SECRET  as string
 }
 

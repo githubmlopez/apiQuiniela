@@ -43,7 +43,8 @@ export interface AEnvConfig {
   SMTP_USER: string;
   SMTP_PASS: string;
   SMTP_FROM: string;
-  MEM_CACHE: boolean
+  MEM_CACHE: boolean;
+  SECRET: string;
 }
 
 export interface I_CreaObjetoEvento extends Partial<I_FC_TAREA_EVENTO> {
@@ -150,16 +151,4 @@ export interface I_EmailOptions {
   token: string;
 }
 
-/*
-export interface I_GetMe {
-  cveUsuario : string;
-  idQuiniela: number;
-  idParticipante: number;
-  idPeriodo: number;
-  bResSurv: boolean;       
-  bSurvivor: boolean;      
-  fLimite: FileSystemWriteChunkType;
-  horaLimite: string;      
-  titQuiniela: string;     
-}
-*/
+
