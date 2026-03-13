@@ -1,3 +1,6 @@
+import jwt from 'jsonwebtoken';
+import { envConfig } from '@config/index.js';
+import { CustomJwtPayload } from '@modelos/index.js'; 
 import { Request, Response } from 'express';
 import { I_InfReqQuery, KeyValueObject} from '@modelos/index.js';
 import { QueryByIdService } from '@router/index.js';
@@ -6,6 +9,7 @@ import { ejecFuncion, creaHeadEsq} from '@util/index.js';
 import {getMe}  from '@router/index.js';
 
 const kErrorSistema = 2;
+const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 
 export async function ctrlExecQuery(req : Request, res : Response): Promise<void> {
   //console.log( '✅ ExecQuery', req.datosUsuario);
@@ -37,13 +41,18 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
 }
 
 export async function ctrlGetMe(req : Request, res : Response) : Promise<void> {
+  const token = req.cookies?.auth_token;
+  const decoded = jwt.verify(token, palabraSegura) as CustomJwtPayload;
+  console.log('✅decoded ', decoded);
   const requestBody  = req.body;
-  const idProceso = requestBody.idProceso;
-  const cveAplicacion = requestBody.datosUsuario.cveAplicacion;
-  const cveUsuario = requestBody.datosUsuario.cveUsuario;
+//  const idProceso = requestBody.idProceso;
+//  const cveAplicacion = requestBody.datosUsuario.cveAplicacion;
+    const idProceso = requestBody.idProceso;
+    const cveAplicacion = decoded.cveAplicacion;
+  const cveUsuario = decoded.cveUsuario;
   if (!cveAplicacion || !cveUsuario) {
     return void res.status(422).json({ 
-        estatus: kErrorSistema, 
+        estatus: kErrorSistema,   
         data: null, 
         errorUs: 'No existen datos del usuario', 
         errorNeg: null 
