@@ -113,7 +113,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Apellido Paterno',
       exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.APELLIDO_PATERNO, campo, label) || 
-        validators.length(inst.APELLIDO_PATERNO, 1, 20, campo, label)
+        validators.length(inst.APELLIDO_PATERNO, 1, 10, campo, label)
     },
 
     // 3. APELLIDO_MATERNO: Obligatorio, Máx 50 chars
@@ -122,7 +122,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Apellido Materno',
       exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.APELLIDO_MATERNO, campo, label) || 
-        validators.length(inst.APELLIDO_MATERNO, 1, 20, campo, label)
+        validators.length(inst.APELLIDO_MATERNO, 1, 10, campo, label)
     },
 
     // 4. NOMBRE: Obligatorio, Máx 50 chars
@@ -131,7 +131,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Nombre',
         exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.NOMBRE, campo, label) || 
-        validators.length(inst.NOMBRE, 1, 20, campo, label)
+        validators.length(inst.NOMBRE, 1, 10, campo, label)
     },
 
     // 5. PASSWORD: Opcional (NULL en DB), Máx 256 chars
@@ -184,16 +184,25 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
 });
 
 // ============================================
-// 🧩 Hook BEFORE SAVE para FC_SEG_USUARIO
+// 🧩 Hook BEFORE CREATE para FC_SEG_USUARIO
 // ============================================
 
-FC_SEG_USUARIO.addHook('beforeSave', async (instance: any) => {
-
-    // Ejemplo de transformación
-    instance.PASSWORD = await hash(instance.PASSWORD) as string;
-    
+FC_SEG_USUARIO.addHook('beforeCreate', async (instance: any) => {
+    if (instance.PASSWORD) {
+        instance.PASSWORD = await hash(instance.PASSWORD.trim());
+    }
 });
 
-   return sequelize.models.FC_SEG_USUARIO
+// ============================================
+// 🧩 Hook BEFORE UPDATE para FC_SEG_USUARIO
+// ============================================
+
+FC_SEG_USUARIO.addHook('beforeUpdate', async (instance: any) => {
+    if (instance.changed('PASSWORD')) {
+        instance.PASSWORD = await hash(instance.PASSWORD.trim());
+    }
+});
+
+return sequelize.models.FC_SEG_USUARIO
 
 }

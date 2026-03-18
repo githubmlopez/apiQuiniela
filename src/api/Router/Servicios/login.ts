@@ -72,17 +72,17 @@ export async function login(idProceso: number, cveAplicacion : string, cveUsuari
              objRes = {estatus: kCorrecto, data : resResp, errorUs: null, errorNeg : null};
 
         } else {
-           objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
+           objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password 1', errorNeg : null};
         }
       } else {
-      console.log('❌ Error usuario password');
-      objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};
+      console.log('❌ Error usuario password', verHash);
+      objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password 2', errorNeg : null};
       }
    } else {
-     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null};      
+     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password 3', errorNeg : null};      
    }
    } else {
-     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password', errorNeg : null}; 
+     objRes = {estatus: kErrorSistema, data : null, errorUs: 'Error en usuario o Password 4', errorNeg : null}; 
    } 
    return objRes;
 }

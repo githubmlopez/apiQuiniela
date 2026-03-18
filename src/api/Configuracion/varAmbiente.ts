@@ -12,7 +12,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const env = process.env.NODE_ENV || kdesarrollo;
-const envPath = path.resolve(__dirname, '../../', `.env.${env}`).trim();
+const envPath = path.resolve(process.cwd(), `.env.${env}`);
+//const envPath = path.resolve(__dirname, '../../', `.env.${env}`).trim();
 // Carga las variables de entorno desde la ruta especificada
 const result = dotenv.config({ path: envPath });
 

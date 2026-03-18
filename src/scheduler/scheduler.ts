@@ -9,8 +9,8 @@ const kSistemas = 'sistemas'
 
 export const initCronJobs = () => {
     // Tarea Nocturna (ej. 2:00 AM) - Proceso pesado
-
-    const idProcedure = 99;
+    const procCierreQuin = 11;
+    const idProcedure = procCierreQuin;
 
     const headerCron : I_Header = {
     idProceso  : 99,
@@ -22,7 +22,7 @@ export const initCronJobs = () => {
 
     const contexto = 'Ejecucion de Cierre de dia';
 
-cron.schedule('0 2 * * *', async () => {
+    cron.schedule('0 2 * * *', async () => {
     await ejecFuncion(
         ExecProcedure, 
         headerCron, 

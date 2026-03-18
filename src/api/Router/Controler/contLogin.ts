@@ -16,8 +16,8 @@ export async function ctrlLogin(req : Request, res : Response) {
   const requestBody : I_Autentica = req.body;
   const idProceso = requestBody.idProceso;
   const cveAplicacion = requestBody.cveAplicacion;
-  const cveUsuario = requestBody.cveUsuario;
-  const password = requestBody.password;
+  const cveUsuario    = requestBody.cveUsuario?.trim(); 
+  const password      = requestBody.password?.trim();
   const header : I_Header = creaHeadEsq(cveAplicacion);
   header.idProceso = idProceso;
   header.cveUsuario = cveUsuario;

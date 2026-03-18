@@ -43,12 +43,9 @@ export async function ctrlExecQuery(req : Request, res : Response): Promise<void
 export async function ctrlGetMe(req : Request, res : Response) : Promise<void> {
   const token = req.cookies?.auth_token;
   const decoded = jwt.verify(token, palabraSegura) as CustomJwtPayload;
-  console.log('✅decoded ', decoded);
   const requestBody  = req.body;
-//  const idProceso = requestBody.idProceso;
-//  const cveAplicacion = requestBody.datosUsuario.cveAplicacion;
-    const idProceso = requestBody.idProceso;
-    const cveAplicacion = decoded.cveAplicacion;
+  const idProceso = requestBody.idProceso;
+  const cveAplicacion = decoded.cveAplicacion;
   const cveUsuario = decoded.cveUsuario;
   if (!cveAplicacion || !cveUsuario) {
     return void res.status(422).json({ 
