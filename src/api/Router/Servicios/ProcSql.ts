@@ -20,12 +20,10 @@ skip? : number
 )  : Promise<I_InfResponse>{
 
 // Obtener query de memoria cache
-
   const kSql = 'S';
 
   const instCache = GetCache(kSql);
   const meta: any = instCache.get(idQuery);
-
   const query : string = meta.sql;
   const bNoDataError : boolean = meta.bNoDataError;
   const msgNoData : string = meta.msgNoData;

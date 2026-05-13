@@ -11,7 +11,7 @@
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): any => {
     const token = req.cookies?.auth_token;
-    
+    console.log('✅ Token ', token);    
     // Validaciones de negocio (No generan folio de error en DB)
     if (!token) {
         return res.status(401).json({

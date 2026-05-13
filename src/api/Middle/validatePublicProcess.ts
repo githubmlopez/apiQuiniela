@@ -112,7 +112,10 @@ async function checkIsPublic(req: Request): Promise<boolean> {
         tipo = kProcedure;            
     }   
     console.log(' idQuery check ', idQuery )
-    if (!idQuery) return false;
+    if (!idQuery) {
+        console.log('✅ No es Publico ', );
+        return false;
+    }    
     const instCache = GetCache(tipo);
     const meta: any = instCache.get(idQuery);
 

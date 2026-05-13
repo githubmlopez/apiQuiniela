@@ -40,7 +40,8 @@ export async function ctrlLogin(req : Request, res : Response) {
       res.cookie('auth_token', tokenParaCookie, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
+        //        sameSite: 'strict',
 //        maxAge: 1 * 60 * 1000,
          maxAge: 12 * 60 * 60 * 1000, // 12 horas
         path: '/',

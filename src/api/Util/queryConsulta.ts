@@ -1,6 +1,51 @@
-
 import { I_ResProcedure, I_InfResponse, I_Header  } from '@modelos/index.js';
 import { KeyValueObject } from '@modelos/index.js';
+
+export function formatQuery (
+query : string,
+parmRemp : KeyValueObject,
+campos? : string[],
+where? : string[],
+orderBy? : string[],
+numReg? : number,
+skip? : number) : string {
+
+  let queryCamp = ' ';
+  if (query.includes('{C}')) {
+    queryCamp = fmtCampos(query, campos);
+  } else {
+    queryCamp = query;
+  }  
+  console.log('qc ', queryCamp );
+
+  let querypred = ' '
+  if (query.includes('{P}')) {
+    querypred = constPredicado(queryCamp, where)
+  } else {
+    querypred = queryCamp;
+  }
+  console.log('qp ', querypred );
+
+  let queryNext = ' '
+  if (query.includes('{S}')) {
+    queryNext = generarPaginacion(querypred, orderBy, numReg, skip)
+  } else {
+    queryNext = querypred;
+  }
+  console.log('qp ', queryNext );
+
+
+  let sqlFmt = ' '
+  if (parmRemp)  {
+    sqlFmt = formatRepPar(queryNext, parmRemp);
+    console.log('fmt ' + sqlFmt);
+  } else {
+    sqlFmt = querypred;  
+  }
+
+  return sqlFmt;
+}
+
 
 export function prepResponse(query : string, resultado : any, tipo : string) : I_InfResponse {
     const kCorrecto = 1;
@@ -76,74 +121,81 @@ const specialOperators = ['>', '<', 'LIKE', 'IN', '=', 'BETWEEN'];
 
 // Función de utilidad para verificar si el valor contiene un operador especial
 function containsSpecialOperator(val: string): boolean {
-    // 1. Verificar si incluye el separador de BETWEEN
-    if (val.includes('|')) {
-        return true;
-    }
-    
-    // 2. Convertir a mayúsculas y verificar si comienza con otro operador
+    // 1. Limpieza y preparación
     const upperVal = val.toUpperCase().trim();
-    
+
+    // 2. Evaluación de la lista de operadores
     for (const op of specialOperators) {
-        if (upperVal.startsWith(op)) {
+        // Caso A: El valor es exactamente el operador (poco común pero posible)
+        if (upperVal === op) {
+            return true;
+        }
+
+        // Caso B: El valor comienza con el operador seguido de un espacio 
+        // (Ejemplo: "IN (1,2,3)" o "LIKE '%MARIO%'")
+        if (upperVal.startsWith(op + ' ') || upperVal.startsWith(op + '(')) {
+            return true;
+        }
+        
+        // Caso C: Operadores de comparación pegados (Ejemplo: ">10" o "<5")
+        // Solo aplica para operadores matemáticos de un solo carácter
+        if (['>', '<', '='].includes(op) && upperVal.startsWith(op) && !isNaN(Number(upperVal.substring(1).trim()))) {
             return true;
         }
     }
-    
+
     return false;
 }
 
-export function formatRepPar(query: string, repParameters: KeyValueObject) : string {
-      const kNumero: string = 'number';
-      const kstring: string = 'string';
-      const kmodelo: string = '$99';
-      console.log('✅ Parametros Formateado', repParameters);
-      let formattedQuery = query;
-    
-      for (const key in repParameters) {
-        if (repParameters.hasOwnProperty(key)) {
-          console.log('✅ Condicion cumplida ', key);
-          const value: string | number = repParameters[key];
-          
-          const placeholder = key;
-          console.log('voy regex ');
-          // Crear una nueva expresión regular con el flag 'g' para reemplazar todas las coincidencias
-          // Se escapa el '$' ya que tiene un significado especial en expresiones regulares
-          const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-//    
-          if (typeof value === kNumero || key === kmodelo) {
-              formattedQuery = formattedQuery.replace(regex, String(value));
-          } else if (typeof value === kstring) {
-    // === LÓGICA DE EXCEPCIÓN AÑADIDA AQUÍ ===
-          if (containsSpecialOperator(String(value))) {
-        // No encierra en comillas si contiene un operador especial
-              formattedQuery = formattedQuery.replace(regex, String(value));
-          } else {
-        // Encierra en comillas si es una cadena normal
-              formattedQuery = formattedQuery.replace(regex, `'${value}'`);
-          }
-          } else {
-    // Por defecto, encierra otros tipos entre comillas
-          formattedQuery = formattedQuery.replace(regex, `'${value}'`); 
-          }
+export function formatRepPar(query: string, repParameters: KeyValueObject): string {
+  const kNumero: string = 'number';
+  const kstring: string = 'string';
+  const kmodelo: string = '$99';
+  
+  let formattedQuery = query;
+
+  for (const key in repParameters) {
+    if (repParameters.hasOwnProperty(key)) {
+      const value: string | number = repParameters[key];
+      const valStr = String(value);
+      const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+
+      // 1. CASO NÚMERO O MODELO ($99)
+      // Se inserta el valor tal cual (sin comillas)
+      if (typeof value === kNumero || key === kmodelo) {
+        formattedQuery = formattedQuery.replace(regex, valStr);
+      } 
+      
+      // 2. CASO STRING
+      else if (typeof value === kstring) {
+        // Si ya trae un operador (IN, LIKE, >, <, =), no ponemos comillas
+        if (containsSpecialOperator(valStr)) {
+          formattedQuery = formattedQuery.replace(regex, valStr);
+        } else {
+          // Si es un texto plano, le ponemos comillas simples
+          formattedQuery = formattedQuery.replace(regex, `'${valStr}'`);
         }
+      } 
+      
+      // 3. CUALQUIER OTRO TIPO (Seguridad)
+      else {
+        formattedQuery = formattedQuery.replace(regex, `'${valStr}'`);
       }
-//    
-      // 2. Handle missing values (replace with ""):
-      const placeholders = query.match(/\$\d+/g); // Find all placeholders like $1, $2, etc.
-    
-      if (placeholders) {
-        // Check if there are any placeholders
-        for (const placeholder of placeholders) {
-          if (!repParameters.hasOwnProperty(placeholder)) {
-            // If the placeholder is NOT in values
-            const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-            formattedQuery = formattedQuery.replace(regex, '\' \''); // Replace with ""
-          }
-        }
+    }
+  }
+
+  // Limpieza de marcadores no enviados (reemplazo por espacio con comillas)
+  const placeholders = query.match(/\$\d+/g);
+  if (placeholders) {
+    for (const placeholder of placeholders) {
+      if (!repParameters.hasOwnProperty(placeholder)) {
+        const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        formattedQuery = formattedQuery.replace(regex, "' '");
       }
-    
-      return formattedQuery;
+    }
+  }
+
+  return formattedQuery;
 }
 
 export function fmtCampos(sql: string, campos: string[] | null | undefined): string {
@@ -168,51 +220,6 @@ export function generarPaginacion(
       const formattedQuery = query.replace("{S}", `${orderByClausula} ${offsetFetchClausula}`);
       return formattedQuery;
       }
-}
-
-export function formatQuery (
-query : string,
-parmRemp : KeyValueObject,
-campos? : string[],
-where? : string[],
-orderBy? : string[],
-numReg? : number,
-skip? : number) : string {
-
-  let queryCamp = ' ';
-  if (query.includes('{C}')) {
-    queryCamp = fmtCampos(query, campos);
-  } else {
-    queryCamp = query;
-  }  
-  console.log('qc ', queryCamp );
-
-  let querypred = ' '
-  if (query.includes('{P}')) {
-    querypred = constPredicado(queryCamp, where)
-  } else {
-    querypred = queryCamp;
-  }
-  console.log('qp ', querypred );
-
-  let queryNext = ' '
-  if (query.includes('{S}')) {
-    queryNext = generarPaginacion(querypred, orderBy, numReg, skip)
-  } else {
-    queryNext = querypred;
-  }
-  console.log('qp ', queryNext );
-
-
-  let sqlFmt = ' '
-  if (parmRemp)  {
-    sqlFmt = formatRepPar(queryNext, parmRemp);
-    console.log('fmt ' + sqlFmt);
-  } else {
-    sqlFmt = querypred;  
-  }
-
-  return sqlFmt;
 }
 
 export function processSqlServerJsonResult(sqlQueryResult: any): Array<Record<string, any>> | null {

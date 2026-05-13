@@ -1,39 +1,45 @@
-import cron from 'node-cron';
-import { I_Header} from '@modelos/index.js';
-import { ExecProcedure } from '@router/index.js';
-import { ejecFuncion } from '@util/index.js';
+import { I_ConfCron} from '@modelos/index.js';
+import { ejecutaProcCron, obtConfigCron } from '@util/index.js';
+import { cargaCache} from '@util/index.js';
+import { ejecFuncion, setupGlobalError,  creaHeadEsq} from '@util/index.js';
+import { I_Header } from '@modelos/index.js';
 
-const kCveAplicacion = 'NFL'
-const kEspanol = 'ES';
-const kSistemas = 'sistemas'
+const cveAplicacion = 'setGlobalE'
+const header : I_Header = creaHeadEsq(cveAplicacion);
 
-export const initCronJobs = () => {
-    // Tarea Nocturna (ej. 2:00 AM) - Proceso pesado
-    const procCierreQuin = 11;
-    const idProcedure = procCierreQuin;
+await setupGlobalError();
+console.log('✅ setupGlobalError');
+const contMem = 'Carga inf a Memoria';
+await ejecFuncion (cargaCache, header, contMem) 
+console.log('✅ cargaCache');
 
-    const headerCron : I_Header = {
-    idProceso  : 99,
-    cveAplicacion : kCveAplicacion,
-    cveUsuario : kSistemas,
-    cveIdioma  : kEspanol,
-    cvePerfil  : kSistemas
+export const initCronJobs = async () => {
+    try {
+        console.log('🚀 Iniciando inicialización de Cron Jobs...');
+        
+        const kIdCronCierre = 1; 
+        const config: I_ConfCron | null = await obtConfigCron(kIdCronCierre); 
+
+        if (!config) {
+            console.error(`❌ No se encontró configuración para el ID_CRON: ${kIdCronCierre}.`);
+            return;
+        }
+
+        console.log('✅ Configuración cargada:', config);
+        
+        const cronExpression = `${config.cronMinuto} ${config.cronHora} ${config.cronDom} ${config.cronMes} ${config.cronDow}`;
+        const kIdProcedure = '13'; 
+        const contexto = `Ejecución automática: ${config.descCron}`;
+
+        await ejecutaProcCron(kIdProcedure, contexto, cronExpression); 
+        
+        console.log(`📡 Planificador en espera para: ${config.descCron} (${cronExpression})`);
+
+    } catch (error) {
+        console.error('❌ Error crítico al inicializar Cron Jobs:', error);
     }
 
-    const contexto = 'Ejecucion de Cierre de dia';
-
-    cron.schedule('0 2 * * *', async () => {
-    await ejecFuncion(
-        ExecProcedure, 
-        headerCron, 
-        contexto,
-        String(idProcedure), 
-        null,
-        headerCron
-    );
-}, { 
-    timezone: "America/Mexico_City" 
-});
-
-console.log('✅ Planificador de tareas activado');
+  
 };
+
+initCronJobs();

@@ -151,4 +151,12 @@ export interface I_EmailOptions {
   token: string;
 }
 
-
+export interface I_ConfCron {
+  idCron     : number;
+  descCron   : string;
+  cronMinuto : string;
+  cronHora   : string;
+  cronDom    : string;
+  cronMes    : string;
+  cronDow    : string;
+}
