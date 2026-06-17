@@ -16,11 +16,11 @@ export async function def_FC_SEG_PASS_RESET(sequelize: any) {
          allowNull: false,
       },
       F_EXPIRACION : {
-         type: DataTypes.STRING(25)  ,
+         type: DataTypes.DATE(3),
          allowNull: false,
       },
       F_CREACION : {
-         type: DataTypes.STRING(25)  ,
+         type: DataTypes.DATE(3),
          allowNull: true,
       },
    },

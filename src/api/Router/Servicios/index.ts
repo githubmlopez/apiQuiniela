@@ -6,3 +6,4 @@ export * from './ProcSql.js';
 export * from './CRUD/index.js';
 export * from './Email/index.js';
 export * from './QueryProc/index.js';
+export * from './Cargas/index.js';

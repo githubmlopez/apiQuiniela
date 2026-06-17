@@ -6,6 +6,7 @@ import {login}  from '@router/index.js';
 import { I_Autentica, I_Header, I_InfResponse} from '@modelos/index.js';
 import { ejecFuncion, creaHeadEsq} from '@util/index.js';
 import { GetCache, putCache} from '@util/index.js';
+import { DateTime } from 'luxon';
 
 const kCorrecto = 1;
 const kErrorSistema = 2;
@@ -71,7 +72,10 @@ export async function ctrlLogout(req: Request, res: Response) {
     const token = req.cookies?.auth_token;
     const kLNegra = 'L';
     const cacheL = 'cacheLnegra';
-    const objDataL = [{llave : token, valor : new Date()}];
+
+    const ahoraCDMX = DateTime.now().setZone('America/Mexico_City').toJSDate();
+
+    const objDataL = [{ llave: token, valor: ahoraCDMX }];
 
     const instCache = GetCache(kLNegra)
     putCache(kLNegra, instCache, objDataL);

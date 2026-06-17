@@ -4,6 +4,7 @@ import { getInstancia } from '@config/index.js';
 import { I_InfResponse, I_FC_TAREA_EVENTO, I_Header, I_CreaObjetoEvento } from '@modelos/index.js';
 import { crearObjetoEvento, createExcepcion } from '@util/index.js';
 import {ExecProcedure} from '@router/index.js';
+import { DateTime } from 'luxon';
 
 const kErrorSistema = 3;
 const kDesarrollo = 'D';
@@ -23,9 +24,10 @@ export async function ejecFuncion<T extends (...args: any[]) => any>(
     return await fn(...args) //.catch((error : any)  => { throw (error) });
   } catch (error: any) {
     console.log('✅ Objeto error I', error);
+    const ahoraCDMX = DateTime.now().setZone('America/Mexico_City').toJSDate();
     const opciones : I_CreaObjetoEvento = {
     ID_PROCESO: header.idProceso ?? kProcComun,
-    F_EVENTO: new Date(),
+    F_EVENTO: ahoraCDMX,
     ID_EVENTO: await obtenFolio(kFolioEvento, header) as number,
     CVE_APLICACION : header.cveAplicacion ?? kAplicComun,
     CVE_USUARIO : header.cveUsuario ?? kUsuarioComun

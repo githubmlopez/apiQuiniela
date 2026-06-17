@@ -77,6 +77,8 @@ export async function getMe(idProceso: number, cveAplicacion: string, cveUsuario
             fLimite: parsedInfPeriodo.F_LIMITE,
             horaLimite: parsedInfPeriodo.HORA_LIMITE,
             titQuiniela: parsedInfQuiniela.TIT_QUINIELA,
+            idEquipoVa: parsedInfQuiniela.ID_EQUIPO_FAV,
+            nomEquipoVa: parsedInfQuiniela.NOM_EQUIPO,
             nomEquipoFav: parsedInfSurvivor.NOM_EQUIPO,
             bSurvivor: parsedInfSurvivor.B_SURVIVOR
         };

@@ -3,6 +3,7 @@ import { I_FC_TAREA_EVENTO, I_CreaObjetoEvento} from '@modelos/index.js';
 import { getInstancia } from '@config/index.js';
 import { logger } from '@util/index.js';
 import { crearObjetoEvento, createExcepcion, obtenFolio, creaHeadEsq } from '@util/index.js';
+import { DateTime } from 'luxon';
 
 
 // Utilizado para manejo de Promesas (asincrono) con error
@@ -47,9 +48,11 @@ export async function setupGlobalError(): Promise<void> {
     const kProcComun = 9999;
     const kUsuarioComun = 'Dummy';
     const kAplicComun = 'Dummy';
+    const ahoraCDMX = DateTime.now().setZone('America/Mexico_City').toJSDate();
+
     const opciones : I_CreaObjetoEvento = {
       ID_PROCESO: kProcComun,
-      F_EVENTO: new Date(),
+      F_EVENTO: ahoraCDMX,
       ID_EVENTO: await obtenFolio(kFolioEvento, header) as number,
       CVE_APLICACION : kAplicComun,
       CVE_USUARIO : kUsuarioComun

@@ -56,7 +56,7 @@ export async function loginFacebook(
 
     // 3. Si NO existe, lo creamos (Auditoría automática de nuevo usuario)
     if (resData === null) {
-      // Aquí podrías usar otro servicio de creación que ya tengas o model.create
+
  /*     resData = await model.create({
         CVE_USUARIO: cveUsuario,
         NOMBRE: `${fbData.first_name} ${fbData.last_name}`,

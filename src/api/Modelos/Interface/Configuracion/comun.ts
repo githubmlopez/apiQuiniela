@@ -160,3 +160,35 @@ export interface I_ConfCron {
   cronMes    : string;
   cronDow    : string;
 }
+
+export interface I_NflNews {
+    NEWS_ID: number | null;
+    SOURCE: string;
+    SOURCE_NEWS_ID: string;
+    HEADLINE: string | null;
+    SUMMARY: string | null;
+    ARTICLE_URL: string | null;
+    IMAGE_URL: string | null;
+    PUBLISHED_DATE: string | null;
+    CATEGORY: string | null;
+    TEAM_CODE: string | null;
+    PLAYER_NAME: string | null;
+    IMPACT_LEVEL: number;
+    IS_PUBLISHED: boolean;
+    IS_ACTIVE: boolean;
+}
+
+export interface I_EspnPartido {
+
+    ID_EVENTO_ESPN: number;
+    ID_PERIODO: string;
+    EQUIPO_1: string;
+    EQUIPO_2: string;
+    MARCADOR_1: number | null;
+    MARCADOR_2: number | null;
+    STATUS_PARTIDO: string | null;
+    HORA: string;
+    ESTADIO: string | null;
+    F_PARTIDO: string;
+    F_TEXTO: string;
+}

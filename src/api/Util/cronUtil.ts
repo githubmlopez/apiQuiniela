@@ -3,13 +3,14 @@ import {I_ConfCron, I_Header, I_InfResponse} from '@modelos/index.js';
 import { ejecFuncion} from '@util/index.js';
 import { ExecRawQueryById} from '@router/index.js';
 import { ExecProcedure } from '@router/index.js';
+import { I_NflNews } from '@modelos/index.js';
 
 const kCveAplicacion = 'NFL'
 const kEspanol = 'ES';
 const kSistemas = 'sistemas';
 
 const headerCron: I_Header = {
-idProceso: 99,
+idProceso: 9999,
 cveAplicacion: kCveAplicacion,
 cveUsuario: kSistemas,
 cveIdioma: kEspanol,
@@ -54,19 +55,45 @@ export async function obtConfigCron(idCron: number): Promise<I_ConfCron | null> 
     return resCron;
 }
 
-export async function ejecutaProcCron(idProcCron: string, contexto : string, cronExpression : string): Promise<void> {
+export async function ejecutaProcCron(idProcCron: string, contexto : string, cronExpression : string, monitor : string): Promise<void> {
         console.log('*** Ejecutando Cron' );
         // 3. Programar la tarea con los valores de la DB
         cron.schedule(cronExpression, async () => {
             console.log(`🚀 Iniciando proceso de cierre configurado (${cronExpression})`);
-            
-            const parmRemp = { $1: 1,  $2: 0};
 
+            const parmRemp = {$1 : monitor, $2 : 0}
+            
             await ejecFuncion(
                 ExecProcedure, 
                 headerCron, 
                 contexto,
                 idProcCron,
+                parmRemp,
+                headerCron
+            );
+        }, { 
+            timezone: "America/Mexico_City" 
+        });
+
+        console.log(`✅ Planificador activado para: ${cronExpression} (CDMX)`);
+    }
+
+    export async function ejecutaCargaCron(idProcedure: string, contexto : string, cronExpression : string, jsonInf : I_NflNews[]): Promise<void> {
+        console.log('*** Ejecutando Cron de Carga de información' );
+        // 3. Programar la tarea con los valores de la DB
+        cron.schedule(cronExpression, async () => {
+            console.log(`🚀 Iniciando Carga Informacion (${cronExpression})`);
+
+            const pNews: string = JSON.stringify(jsonInf);
+            const pNewsSql = pNews.replace(/'/g, "''");
+
+            const parmRemp = {$1 : pNewsSql}
+            
+            await ejecFuncion(
+                ExecProcedure, 
+                headerCron, 
+                contexto,
+                idProcedure,
                 parmRemp,
                 headerCron
             );
