@@ -56,7 +56,26 @@ if (envConfig.SERVER_URI &&
     
     console.log(`🌐 Conectando vía TCP/IP a: ${dbConfig.host}`);
 } else {
-    // Si es localhost, omitimos host/port para que use el protocolo local de Windows
+    dbConfig.host = kNomLocal; 
+    dbConfig.port = undefined; 
+    
+    // Forzamos la inicialización del objeto si no existe
+    if (!dbConfig.dialectOptions) {
+        dbConfig.dialectOptions = {};
+    }
+
+    // Usamos una aserción de tipo (as any) para indicarle a TypeScript 
+    // que sabemos perfectamente que 'options' va ahí dentro.
+    const dOpts = dbConfig.dialectOptions as any;
+    if (!dOpts.options) {
+        dOpts.options = {};
+    }
+
+    // Inyectamos los parámetros locales de forma segura
+    dOpts.options.instanceName = 'SQLEXPRESS02';
+    dOpts.options.encrypt = true;
+    dOpts.options.trustServerCertificate = true;
+
     console.log(`🏠 Conectando vía Local Shared Memory`);
 } 
   

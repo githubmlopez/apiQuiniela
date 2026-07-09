@@ -4,13 +4,15 @@
   "description": "Manejo de Excepciones",
   "main": "./dist/index.js",
   "type": "module",
-  "scripts": {
-    "build": "tsc && tsc-alias",
-    "cron": "npm run build && cross-env NODE_ENV=development node ./dist/scheduler/scheduler.js",
-    "stcron": "npm run build && cross-env NODE_ENV=production node ./dist/scheduler/scheduler.js",
-    "dev": "npm run build && cross-env NODE_ENV=development node ./dist/server.js",
-    "start": "npm run build && cross-env NODE_ENV=production node ./dist/server.js"
-  },
+"scripts": {
+  "build": "tsc && tsc-alias",
+  "dev:quiniela": "npm run build && cross-env NODE_ENV=development APP_SISTEMA=quiniela node ./dist/server.js",
+  "cron:quiniela": "npm run build && cross-env NODE_ENV=development APP_SISTEMA=quiniela node ./dist/scheduler/scheduler.js",
+  "dev:condom": "npm run build && cross-env NODE_ENV=development APP_SISTEMA=condom node ./dist/server.js",
+  "cron:condom": "npm run build && cross-env NODE_ENV=development APP_SISTEMA=condom node ./dist/scheduler/scheduler.js",
+  "start": "npm run build && cross-env NODE_ENV=production node ./dist/server.js",
+  "stcron": "npm run build && cross-env NODE_ENV=production node ./dist/scheduler/scheduler.js"
+},
   "author": "Mario Lopez",
   "license": "ISC",
   "devDependencies": {

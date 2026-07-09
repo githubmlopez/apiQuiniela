@@ -39,3 +39,4 @@ export function buildPKWhereClause<T extends object>(model: any, data: T): any {
 
   return whereClause;
 }
+

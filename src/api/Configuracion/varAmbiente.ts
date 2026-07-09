@@ -13,13 +13,15 @@
  */
 
 import * as dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
 import path from 'path';
 import { AEnvConfig } from '@modelos/index.js';
 
 // --- Constantes de Control de Entornos ---
 const kProduccion : string = 'production'; 
 const kdesarrollo : string = 'development'; 
+
+// Si APP_SISTEMA es 'quiniela', buscará ".quiniela"
+const sistemaPrefix = process.env.APP_SISTEMA ? `.${process.env.APP_SISTEMA}` : '';
 
 /**
  * Captura el entorno de ejecución actual.
@@ -36,7 +38,7 @@ const env = process.env.NODE_ENV || kdesarrollo;
  * apuntando a la raíz del proyecto, sin importar el Sistema Operativo anfitrión.
  * Ejemplo: /raiz/.env.development (Linux) o C:\raiz\.env.production (Windows)
  */
-const envPath = path.resolve(process.cwd(), `.env.${env}`);
+const envPath = path.resolve(process.cwd(), `.env${sistemaPrefix}.${env}`);
 
 // --- Carga e Inyección de Variables de Entorno al Proceso ---
 const result = dotenv.config({ path: envPath });
@@ -91,7 +93,8 @@ export const envConfig : AEnvConfig = Object.freeze({
   SMTP_USER: process.env.SMTP_USER  as string,
   SMTP_PASS: process.env.SMTP_PASS  as string,
   SMTP_FROM: process.env.SMTP_FROM  as string,
-  MEM_CACHE: process.env.DB_LOGGING?.toLowerCase() === 'true',
-  SECRET: process.env.SECRET  as string
+  MEM_CACHE: process.env.MEM_CACHE?.toLowerCase() === 'true',
+  SECRET: process.env.SECRET  as string,
+  SISTEMA: process.env.APP_SISTEMA  as string
 })
 

@@ -93,7 +93,7 @@ export async function createRecord <M extends Model>(
        }
     }
 }
-
+  
 export async function updateRecord <M extends Model>(
   model: typeof Model & (new () => M),
   data: any, // Los datos de entrada contienen los campos a actualizar y las PKs
@@ -175,6 +175,7 @@ export async function updateRecord <M extends Model>(
      };
    }
 }
+
 
 export async function deleteRecord <M extends Model>(
   model: typeof Model & (new () => M),

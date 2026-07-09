@@ -45,6 +45,7 @@ export interface AEnvConfig {
   SMTP_FROM: string;
   MEM_CACHE: boolean;
   SECRET: string;
+  SISTEMA: string
 }
 
 export interface I_CreaObjetoEvento extends Partial<I_FC_TAREA_EVENTO> {
