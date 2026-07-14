@@ -26,7 +26,7 @@ yarn-error.log*
 
 # --- CONFIGURACIÓN ESPECÍFICA ---
 # Ignora el archivo de configuración de TypeScript como pediste
-tsconfig.json
+# tsconfig.json
 
 # --- YARN (Opcional, si usas Yarn) ---
 .yarn/*
