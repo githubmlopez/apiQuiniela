@@ -106,9 +106,8 @@ export interface I_InfResponse {
 // Interfaces para respuesta de Query y Store Procedure
 export interface I_ResProcedure {
   data: string | null;
-  errUs: string | null;
-  errNeg: string | null 
-}
+  errorUs: string | null;  
+  errorNeg: string | null; }
 
 export interface I_ResQuery {
   data  : string;

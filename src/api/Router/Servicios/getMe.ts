@@ -154,24 +154,26 @@ export function buildCondomResponse(
     cveUsuario: string
 ) {
 
-    // parseos completamente diferentes
+    const parsedInfEmpresa = JSON.parse(getMeData.infEmpresa);
+    const parsedInfPeriodo = JSON.parse(getMeData.infPeriodo);
 
-    const infoUsuario = JSON.parse(getMeData.infoUsuarioCondom);
-
+   
     return {
 
         cveUsuario,
 
         cveIdioma: resData.CVE_IDIOMA,
         cvePerfil: resData.CVE_PERFIL,
-
+        
         nombreCompleto:
             `${resData.NOMBRE} ${resData.APELLIDO_PATERNO} ${resData.APELLIDO_MATERNO || ''}`.trim(),
 
-        edificio: infoUsuario.EDIFICIO,
-        departamento: infoUsuario.DEPARTAMENTO,
-        administrador: infoUsuario.ADMINISTRADOR
-
+        cveEmpresa: parsedInfEmpresa.CVE_EMPRESA,
+        idEmpresa: parsedInfEmpresa.ID_EMPRESA,
+        descEmpresa: parsedInfEmpresa.DESC_EMPRESA,
+        cveChequera: parsedInfEmpresa.CVE_CHEQUERA,
+        anoMes: parsedInfPeriodo.ANO_MES
+        
     };
 
 }

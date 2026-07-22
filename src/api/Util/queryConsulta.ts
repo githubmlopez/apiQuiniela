@@ -76,23 +76,23 @@ export function prepResponse(query : string, resultado : any, tipo : string) : I
           if (objetoTipado.data) {
             const parsedData = JSON.parse(objetoTipado.data);
             if (Array.isArray(parsedData)) {
-              return {estatus: kCorrecto, data : parsedData, errorUs : null,
-              errorNeg :null};
+              return {estatus: kCorrecto, data : parsedData, errorUs : null, errorNeg :null};
             } else {
               console.log('✅NO Es un arreglo ');
               return {estatus: kCorrecto, data : [JSON.parse(objetoTipado.data)], errorUs : null,
               errorNeg :null};
             }
           } else {
-            if (objetoTipado.errNeg) {
-            return {estatus: kErrorNeg, data : null, errorUs : objetoTipado.errUs, errorNeg : JSON.parse(objetoTipado.errNeg)};
+            if (objetoTipado.errorNeg) {
+            console.log('✅Tiene errores de negocio ', objetoTipado.errorNeg);  
+            return {estatus: kErrorNeg, data : null, errorUs : objetoTipado.errorUs, errorNeg : JSON.parse(objetoTipado.errorNeg)};
             } else {
-//            throw('No fue posible extraer informacion 1');
-              return {estatus: kCorrecto, data : null, errorUs : null, errorNeg : null};
+            console.log('✅No tiene ni data ni errorneg ', objetoTipado.errorUs);  
+              return {estatus: kErrorUs, data : null, errorUs : objetoTipado.errorUs, errorNeg : null};
             }
           }
         }
-        return {estatus: kErrorUs, data : null, errorUs : 'No fue posible extrer informacion 2', errorNeg : null};
+        return {estatus: kErrorUs, data : null, errorUs : 'No fue posible extrer informacion', errorNeg : null};
     }
 }
 
@@ -254,7 +254,7 @@ export function processSqlServerJsonResult(sqlQueryResult: any): Array<Record<st
     // Parsear el string JSON completo a un objeto JavaScript
     // Se tipa explícitamente como '{ data?: any }' para hinting, pero el retorno final es 'any'
     const parsedResult: { data?: any } = JSON.parse(fullJsonString);
-    console.log('✅Parseado ', fullJsonString);
+    console.log('✅Parseado ', parsedResult);
 
     // Si tu JSON final tiene una propiedad 'data'
     if (parsedResult && parsedResult.data) {
