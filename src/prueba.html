@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Autenticación y Cookies</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        pre { background: #eef1f5; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .status { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Prueba de Autenticación API</h2>
+    <p>Endpoint: <code>http://143.198.100.194:3010/api/Login/Autentica</code></p>
+    
+    <button onclick="ejecutarAutenticacion()">Enviar Petición Login</button>
+
+    <div class="status" id="status">Estado: Esperando acción...</div>
+
+    <h3>1. Encabezados recibidos (Response Headers)</h3>
+    <pre id="headers">-- Ninguno --</pre>
+
+    <h3>2. Cookies almacenadas en el Navegador (`document.cookie`)</h3>
+    <pre id="documentCookies">-- Ninguna --</pre>
+
+    <h3>3. Respuesta del Servidor (Body)</h3>
+    <pre id="responseBody">-- Ninguna --</pre>
+</div>
+
+<script>
+async function ejecutarAutenticacion() {
+    const statusEl = document.getElementById('status');
+    const headersEl = document.getElementById('headers');
+    const docCookiesEl = document.getElementById('documentCookies');
+    const bodyEl = document.getElementById('responseBody');
+
+    statusEl.innerText = "Estado: Enviando petición...";
+    headersEl.innerText = "";
+    bodyEl.innerText = "";
+
+    const payload = {
+        "idProceso": 23,
+        "cveAplicacion": "NFL",
+        "cveUsuario": "eavila@quiniela.com",
+        "password": "eavila "
+    };
+
+    try {
+        const response = await fetch("http://143.198.100.194:3010/api/Login/Autentica", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // Requerido para recibir/guardar cookies cross-origin
+            credentials: "include", 
+            body: JSON.stringify(payload)
+        });
+
+        statusEl.innerText = `Estado: ${response.status} ${response.statusText}`;
+
+        // Obtener headers legibles por JS
+        let headersText = "";
+        response.headers.forEach((value, key) => {
+            headersText += `${key}: ${value}\n`;
+        });
+        headersEl.innerText = headersText || "No hay encabezados visibles (posible bloqueo CORS).";
+
+        // Leer respuesta del body
+        const data = await response.json();
+        bodyEl.innerText = JSON.stringify(data, null, 2);
+
+        // Mostrar cookies legibles por document.cookie
+        docCookiesEl.innerText = document.cookie ? document.cookie : "(Vacío - revisa si la cookie es HttpOnly o fue bloqueada por el navegador)";
+
+    } catch (error) {
+        statusEl.innerText = "Estado: Error en la petición (Revisa la consola F12 para detalles de CORS)";
+        bodyEl.innerText = error.toString();
+    }
+}
+</script>
+
+</body>
+</html>
