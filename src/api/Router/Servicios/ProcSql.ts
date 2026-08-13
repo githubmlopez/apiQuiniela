@@ -34,7 +34,7 @@ skip? : number
 
   const sqlFmt = formatQuery (query, parmRemp, campos, where, orderBy, numReg, skip);
   const resultado : I_InfResponse = await ExecQuery(kSql, sqlFmt, bNoDataError, msgNoData);
-  console.log('✅resultado ', resultado);
+  console.log('✅resultado ERQ', resultado);
   return resultado;
   // return {data : resultado, errorUs: null, errorNeg : null};
      

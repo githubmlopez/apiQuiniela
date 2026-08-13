@@ -156,24 +156,25 @@ export function buildCondomResponse(
 
     const parsedInfEmpresa = JSON.parse(getMeData.infEmpresa);
     const parsedInfPeriodo = JSON.parse(getMeData.infPeriodo);
+    const parsedInfCliente = JSON.parse(getMeData.infCliente);
 
    
     return {
 
         cveUsuario,
-
         cveIdioma: resData.CVE_IDIOMA,
         cvePerfil: resData.CVE_PERFIL,
-        
         nombreCompleto:
             `${resData.NOMBRE} ${resData.APELLIDO_PATERNO} ${resData.APELLIDO_MATERNO || ''}`.trim(),
-
-        cveEmpresa: parsedInfEmpresa.CVE_EMPRESA,
-        idEmpresa: parsedInfEmpresa.ID_EMPRESA,
-        descEmpresa: parsedInfEmpresa.DESC_EMPRESA,
-        cveChequera: parsedInfEmpresa.CVE_CHEQUERA,
-        anoMes: parsedInfPeriodo.ANO_MES
-        
+        cveEmpresa: parsedInfEmpresa.cveEmpresa,
+        descEmpresa: parsedInfEmpresa.descEmpresa,
+        cveChequera: parsedInfEmpresa.cveChequera,
+        idEmpresa: parsedInfEmpresa.idEmpresa,
+        anoMes: parsedInfPeriodo.anoMes,
+        idCliente : parsedInfCliente.idCliente,
+        nomCliente : parsedInfCliente.nomCliente,
+        cveEdificio: parsedInfCliente.cveEdificio,
+        descEdificio : parsedInfCliente.descEdificio
     };
 
 }

@@ -14,7 +14,7 @@ export async function validatePublicProcess(req: Request, res: Response, next: N
     const JASPER_SECRET = envConfig.SECRET;
 
     const kErrorAut = 2
-    console.log('✅ Valor Proceso ', req.body.idProceso );
+    console.log('✅ Valor Proceso ', req.body.idProceso,  );
     const header: I_Header = {
         idProceso: req.body.idProceso ?? 9999,
         cveAplicacion: 'PUBLICO',
@@ -101,8 +101,8 @@ async function checkIsPublic(req: Request): Promise<boolean> {
     const kCrudProc  = 1000;
 
     if (req.body.hasOwnProperty('idQuery')) {
-        tipo = kSql;
         idQuery = req.body.idQuery;
+        tipo = kSql;
     }  else {
         idQuery = req.body.idProcedure;
         tipo = kProcedure;
@@ -113,7 +113,7 @@ async function checkIsPublic(req: Request): Promise<boolean> {
     }   
     console.log(' idQuery check ', idQuery )
     if (!idQuery) {
-        console.log('✅ No es Publico ', );
+        console.log('✅ No es Publico ');
         return false;
     }    
     const instCache = GetCache(tipo);
