@@ -97,7 +97,10 @@ async function checkIsPublic(req: Request): Promise<boolean> {
     let tipo    = null;
     const kSql  = 'S';
     const kProcedure = 'P';
+// En los procesos tipo CRUD se debe especificar esta constante 9999 para indicar que son públicos
     const kProcCrud  = 9999;
+// Esta constante se asigna a las operaciones CRUD para simular un procedimiento comun, el 1000 que es público
+// al final es una especie de "truco" para que se valide como un procedimiento público  
     const kCrudProc  = 1000;
 
     if (req.body.hasOwnProperty('idQuery')) {
