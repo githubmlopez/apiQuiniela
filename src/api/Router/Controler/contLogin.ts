@@ -13,7 +13,6 @@ const kErrorSistema = 2;
 const palabraSegura = envConfig.PASS_SEC || 'No hay clave';
 
 export async function ctrlLogin(req : Request, res : Response) {
- 
   const requestBody : I_Autentica = req.body;
   const idProceso = requestBody.idProceso;
   const cveAplicacion = requestBody.cveAplicacion;
@@ -26,7 +25,6 @@ export async function ctrlLogin(req : Request, res : Response) {
   header.cveIdioma  = ' ';
   header.cvePerfil  = ' ';
   const contexto = 'Proceso de Login';
-
   try {
   const result : I_InfResponse = await ejecFuncion(login, header, contexto, idProceso, cveAplicacion, cveUsuario, password)
   if (result.estatus === kCorrecto && result.data?.[0] != null) {
