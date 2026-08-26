@@ -39,6 +39,7 @@ const env = process.env.NODE_ENV || kdesarrollo;
  * Ejemplo: /raiz/.env.development (Linux) o C:\raiz\.env.production (Windows)
  */
 const envPath = path.resolve(process.cwd(), `.env${sistemaPrefix}.${env}`);
+console.log ("🚀 Archivo de configuracion ", envPath)
 
 // --- Carga e Inyección de Variables de Entorno al Proceso ---
 const result = dotenv.config({ path: envPath });

@@ -18,7 +18,13 @@ const corsOptions = obtCorsOpt(allowedOrigins);
 
 // Middlewares
 app.use(helmet());
-app.use(cors(corsOptions));
+//
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+// app.use(cors(corsOptions));
 app.use(express.json());    
 app.use(cookieParser());
 // Le dice a Express que cualquier solicitud que comience con /api/login 
