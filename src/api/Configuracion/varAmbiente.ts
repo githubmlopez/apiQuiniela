@@ -64,9 +64,9 @@ if (process.env.NODE_ENV === kProduccion) {
     console.log("🚀 Aplicación iniciada en PRODUCCIÓN. Silenciando logs de consola...");
     
     // Sobrescritura de funciones miembro a callbacks vacíos
-    console.log = () => {};
-    console.info = () => {};
-    console.warn = () => {};
+    //console.log = () => {};
+    //console.info = () => {};
+    //console.warn = () => {};
     
     /* NOTA DE SEGURIDAD: 'console.error' se mantiene completamente operativo. 
       Las excepciones, fallos de infraestructura y rechazos de promesas no capturados 
