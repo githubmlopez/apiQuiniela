@@ -123,7 +123,7 @@ export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): {
     const model = sequelize.models[modelo]; 
     
 //    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);||
-    
+
     return { model, data};
 }
 

@@ -8,6 +8,8 @@ const cveAplicacion = 'setGlobalE'
 const header : I_Header = creaHeadEsq(cveAplicacion);
 
 await setupGlobalError();
+
+
 console.log('✅ setupGlobalError');
 const contMem = 'Carga inf a Memoria';
 await ejecFuncion (cargaCache, header, contMem);
@@ -39,7 +41,7 @@ export const initCronJobs = async () => {
         
         console.log(`📡 Planificador en espera para: ${config.descCron} (${cronExpression})`);
 
-// Configuración Para calculo de diferencias en Quinielas
+// Configuración Para calculo de diferencias en Quinielas para desempate en la puntuacion
 
         const kIdCronDiferencias = 2; 
         config = await obtConfigCron(kIdCronDiferencias); 
@@ -54,7 +56,7 @@ export const initCronJobs = async () => {
         cronExpression = `${config.cronMinuto} ${config.cronHora} ${config.cronDom} ${config.cronMes} ${config.cronDow}`;
         contexto = `Ejecución automática: ${config.descCron}`;
 
-        monitor = '2';
+        monitor = '2';      
 
         await ejecutaProcCron(kIdProcedure, contexto, cronExpression,  monitor); 
         

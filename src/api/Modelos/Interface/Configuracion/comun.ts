@@ -179,7 +179,6 @@ export interface I_NflNews {
 }
 
 export interface I_EspnPartido {
-
     ID_EVENTO_ESPN: number;
     ID_PERIODO: string;
     EQUIPO_1: string;

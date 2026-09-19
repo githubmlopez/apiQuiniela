@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "noEmitOnError": true,
     /* Configuración de Alias */
     "paths": {
       "@core/*": ["./src/*"],
