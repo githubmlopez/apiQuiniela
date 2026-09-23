@@ -103,3 +103,62 @@ export async function ejecutaProcCron(idProcCron: string, contexto : string, cro
 
         console.log(`✅ Planificador activado para: ${cronExpression} (CDMX)`);
     }
+
+    /*
+import cron from 'node-cron';
+
+type TareaCron = ReturnType<typeof cron.schedule>;
+
+const tareasCron = new Map<string, TareaCron>();
+
+export function ejecutaProcCron(
+    idProcCron: string,
+    contexto: string,
+    cronExpression: string,
+    monitor: string
+): void {
+    if (!cron.validate(cronExpression)) {
+        throw new Error(`Expresión cron inválida: ${cronExpression}`);
+    }
+
+    // Si ya existía un cron con este id, se elimina antes de crear el nuevo
+    eliminarCron(idProcCron);
+
+    const tarea = cron.schedule(cronExpression, async () => {
+        console.log(`🚀 Iniciando proceso de cierre configurado (${cronExpression})`);
+        try {
+            const parmRemp = { $1: monitor, $2: 0 };
+            await ejecFuncion(ExecProcedure, headerCron, contexto, idProcCron, parmRemp, headerCron);
+        } catch (error) {
+            console.error(`❌ Falló el cron ${idProcCron}:`, error);
+        }
+    }, {
+        timezone: 'America/Mexico_City',
+        name: idProcCron,
+        noOverlap: true
+    });
+
+    tareasCron.set(idProcCron, tarea);
+    console.log(`✅ Planificador activado para: ${cronExpression} (CDMX)`);
+}
+
+export function pausarCron(idProcCron: string): void {
+    tareasCron.get(idProcCron)?.stop();
+}
+
+export function reanudarCron(idProcCron: string): void {
+    tareasCron.get(idProcCron)?.start();
+}
+
+export async function ejecutarCronAhora(idProcCron: string): Promise<void> {
+    await tareasCron.get(idProcCron)?.execute();
+}
+
+export function eliminarCron(idProcCron: string): void {
+    const tarea = tareasCron.get(idProcCron);
+    if (tarea) {
+        tarea.destroy();
+        tareasCron.delete(idProcCron);
+    }
+}
+*/

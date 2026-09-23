@@ -1,71 +1,74 @@
 {
-    "idPeriodo": "1",
-    "totalCierre": 1,
-    "totalApertura": 0,
-    "cierre": {
-        "bQuiniela": {
-            "estatus": 1
-        },
-        "bResultado": {
-            "estatus": 1
-        },
-        "bSurvivor": {
-            "estatus": 1
-        },
-        "bExiste": {
-            "estatus": 1
-        },
-        "bPago": {
-            "estatus": 1
-        }
+  "puntosPeriodo": [
+    {
+      "Posicion": 1,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 1,
+      "periodo": "2",
+      "Nombre": "MARIO LOPEZ ",
+      "Puntos": 7,
+      "B_GANADOR": false,
+      "DIFERENCIAL": 0
     },
-    "monitores": [
-        {
-            "cveMonitor": "1",
-            "descMonitor": "CIERRE QUINIELA",
-            "ultimaFechaEjecucion": "2026-09-11",
-            "bCorrecto": true,
-            "detalle": [
-                {
-                    "fOperacion": "2026-09-11",
-                    "idProceso": 29,
-                    "nombreProceso": "Lanzador de cierre de quinielas",
-                    "horaInicio": "16:37:02",
-                    "horaFinal": "16:37:02",
-                    "sitProceso": "CO"
-                }
-            ]
-        },
-        {
-            "cveMonitor": "2",
-            "descMonitor": "CALCULO  DIFERENCIAS",
-            "ultimaFechaEjecucion": "2026-09-11",
-            "bCorrecto": true,
-            "detalle": [
-                {
-                    "fOperacion": "2026-09-11",
-                    "idProceso": 30,
-                    "nombreProceso": "Calculo de Diferencias",
-                    "horaInicio": "21:41:00",
-                    "horaFinal": "21:41:00",
-                    "sitProceso": "CO"
-                }
-            ]
-        },
-        {
-            "cveMonitor": "3",
-            "descMonitor": "APERTURA QUINIELAS",
-            "ultimaFechaEjecucion": "2026-09-11",
-            "bCorrecto": false,
-            "detalle": [
-                {
-                    "fOperacion": "2026-09-11",
-                    "idProceso": 31,
-                    "nombreProceso": "Lanzador Apertura de Quinielas",
-                    "horaInicio": "22:06:00",
-                    "sitProceso": "ER"
-                }
-            ]
-        }
-    ]
+    {
+      "Posicion": 1,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 2,
+      "periodo": "2",
+      "Nombre": "DANIEL LOPEZ .",
+      "Puntos": 7,
+      "B_GANADOR": false,
+      "DIFERENCIAL": 0
+    },
+    {
+      "Posicion": 1,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 3,
+      "periodo": "2",
+      "Nombre": "FRANCISCO  GALAN .",
+      "Puntos": 7,
+      "B_GANADOR": true,
+      "DIFERENCIAL": 10
+    },
+    {
+      "Posicion": 1,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 4,
+      "periodo": "2",
+      "Nombre": "OSCAR ALFARO",
+      "Puntos": 7,
+      "B_GANADOR": false,
+      "DIFERENCIAL": 0
+    }
+  ],
+  "puntosTotal": [
+    {
+      "Posicion": 1,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 3,
+      "Nombre": "FRANCISCO  GALAN .",
+      "Puntos": 16
+    },
+    {
+      "Posicion": 2,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 1,
+      "Nombre": "MARIO LOPEZ ",
+      "Puntos": 15
+    },
+    {
+      "Posicion": 3,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 2,
+      "Nombre": "DANIEL LOPEZ .",
+      "Puntos": 14
+    },
+    {
+      "Posicion": 4,
+      "ID_QUINIELA": 2,
+      "ID_PARTICIPANTE": 4,
+      "Nombre": "OSCAR ALFARO",
+      "Puntos": 13
+    }
+  ]
 }

@@ -10,10 +10,15 @@ const header : I_Header = creaHeadEsq(cveAplicacion);
 
 // Estas funciones tienen su porpio manejo de errores internamente 
 
-const contModel = 'Carga inf a Memoria';
 // En la función carga modelos se crea la instancia de sequelize
 // y la conexión a la base de datos (singleton)
-await ejecFuncion (cargaModelos, header, contModel);
+const contModel = 'Carga de modelos';
+try {
+  await ejecFuncion(cargaModelos, header, contModel);
+} catch (error) {
+  console.error('❌ No fue posible cargar los modelos. El servidor no se iniciará.', error);
+  process.exit(1);
+}
 
 const PORT = envConfig.SV_PORT || 3010;
 const env = process.env.NODE_ENV || 'development';

@@ -1,4 +1,5 @@
-  import { Request, Response } from 'express';
+ 
+ import { Request, Response } from 'express';
   import {getInstancia}  from '@config/index.js';
   import { I_Header, I_InfReqCrud} from '@modelos/index.js';
   import { CustomJwtPayload } from '@modelos/index.js';
@@ -113,7 +114,19 @@ export async function ctrCrudBulkC(req : Request, res : Response) {
     ({estatus: kErrorSistema, data :null, errorUs: 'Error ' + contexto, errorNeg : null});
     }
  }
+ export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): { model: any, data: any } {
+  const modelo = infReq.model;
+  const data: Record<string, any> | Record<string, any>[] | null = infReq.data;
+  const model = sequelize.models[modelo];
+
+  if (!model) {
+    throw new Error(`Modelo '${modelo}' no registrado. Disponibles: ${Object.keys(sequelize.models).join(', ')}`);
+  }
+  return { model, data };
+}
+
  
+/*
 export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): { model: any, data: any} {
     
     const modelo = infReq.model;
@@ -121,9 +134,146 @@ export function creaObjCrud(infToken: CustomJwtPayload, infReq: I_InfReqCrud): {
     
     // Assuming 'sequelize' is available globally or imported here
     const model = sequelize.models[modelo]; 
+
+    console.log('🔎 Modelo pedido:', JSON.stringify(modelo));
+    console.log('🔎 Modelos registrados:', Object.keys(sequelize.models));
+    console.log('🔎 Modelo encontrado:', model?.name ?? 'undefined');
     
 //    const header: I_Header = armaHeaderQuery(infToken, infReq.idProceso);||
 
     return { model, data};
 }
+*/
 
+/*
+import { Request, Response } from 'express';
+import { getInstancia } from '@config/index.js';
+import { I_Header, I_InfReqCrud } from '@modelos/index.js';
+import { CustomJwtPayload } from '@modelos/index.js';
+import {
+  createRecordService, updateRecordService, deleteRecordService,
+  bulkCreateRecordService, bulkUpdateRecordService, findOneByKeyService
+} from '@router/index.js';
+
+const kCorrecto     = 1;
+const kErrorSistema = 2;
+const kErrorNegocio = 3;
+
+export interface I_ObjCrud {
+  infToken : CustomJwtPayload,
+  model    : any,
+  data     : Record<string, any> | null,
+  header   : I_Header
+}
+
+export async function ctrCrudCreate(req: Request, res: Response) {
+  console.log('✅ Crud Create', req.datosUsuario);
+  const contexto = 'No fue posible Crear el registro';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+    const resData = await createRecordService(model, data);
+    res.status(200).json(resData);
+    console.log('✅ Regreso de ejecutar Create');
+  } catch (error: any) {
+    console.error('❌ ctrCrudCreate:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function ctrCrudUpdate(req: Request, res: Response) {
+  console.log('✅ Crud Update', req.datosUsuario);
+  const contexto = 'No fue posible Actualizar el registro';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+    const resData = await updateRecordService(model, data);
+    res.status(200).json(resData);
+    console.log('✅ Regreso de ejecutar Update');
+  } catch (error: any) {
+    console.error('❌ ctrCrudUpdate:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function ctrCrudDelete(req: Request, res: Response) {
+  console.log('✅ Crud Delete', req.datosUsuario);
+  const contexto = 'No fue posible Borrar el registro';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+    const resData = await deleteRecordService(model, data);
+    res.status(200).json(resData);
+    console.log('✅ Regreso de ejecutar Delete');
+  } catch (error: any) {
+    console.error('❌ ctrCrudDelete:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function ctrCrudBulkC(req: Request, res: Response) {
+  console.log('✅ Bulk Insert', req.datosUsuario);
+  const contexto = 'No fue posible realizar la inserción';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+    const resData = await bulkCreateRecordService(model, data);
+    res.status(200).json(resData);
+    console.log('✅ Regreso de ejecutar Bulk Insert');
+  } catch (error: any) {
+    console.error('❌ ctrCrudBulkC:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function ctrCrudBulkU(req: Request, res: Response) {
+  console.log('✅ Bulk Update', req.datosUsuario);
+  const contexto = 'No fue posible realizar la actualizacion';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+    const resData = await bulkUpdateRecordService(model, data);
+    res.status(200).json(resData);
+    console.log('✅ Regreso de ejecutar Bulk Update');
+  } catch (error: any) {
+    console.error('❌ ctrCrudBulkU:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function ctrFindByKey(req: Request, res: Response) {
+  const contexto = 'en busqueda de registro';
+  try {
+    const { model, data } = await creaObjCrud(req.datosUsuario, req.body);
+
+    if (!data || Array.isArray(data)) {
+      throw new Error('Datos de búsqueda inválidos o ausentes.');
+    }
+    const resData = await findOneByKeyService(model, data);
+
+    if (resData) {
+      res.status(200).json({ estatus: kCorrecto, data: resData, errorUs: null, errorNeg: null });
+    } else {
+      res.status(200).json({ estatus: kErrorNegocio, data: null, errorUs: null, errorNeg: ['No existe la información Solicitada'] });
+    }
+  } catch (error: any) {
+    console.error('❌ ctrFindByKey:', error);
+    res.status(422).json({ estatus: kErrorSistema, data: null, errorUs: 'Error ' + contexto, errorNeg: null });
+  }
+}
+
+export async function creaObjCrud(
+  infToken: CustomJwtPayload,
+  infReq: I_InfReqCrud
+): Promise<{ model: any, data: any }> {
+
+  const sequelize = await getInstancia();
+  const modelo = infReq.model;
+  const data: Record<string, any> | Record<string, any>[] | null = infReq.data;
+
+  const model = sequelize.models[modelo];
+
+  if (!model) {
+    throw new Error(
+      `Modelo '${modelo}' no registrado. Disponibles: ${Object.keys(sequelize.models).join(', ')}`
+    );
+  }
+
+  return { model, data };
+}
+*/

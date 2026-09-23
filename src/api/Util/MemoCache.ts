@@ -9,7 +9,7 @@ const cacheDataSql  = creaInstCache();
 const cacheDataProc = creaInstCache();
 const cachePatron   = creaInstCache();
 const cacheLnegra   = creaInstCache();
-
+/*
 export async function cargaCache (
 ) : Promise<void> {
 
@@ -35,6 +35,32 @@ export async function cargaCache (
     console.log('❌ Error al cargar la memoria');
     throw ('Error al cargar memoria, Array vacio');
   } 
+}
+*/
+// Corregida 23/09/2026
+export async function cargaCache(): Promise<void> {
+  const kSql    = 'S';
+  const kProc   = 'P';
+  const kPatron = 'DT';
+
+  const qSql  = envConfig.SEL_QUERY  as string;
+  const qProc = envConfig.SEL_PROC   as string;
+  const qPat  = envConfig.SEL_PATRON as string;
+
+  const resSql: I_InfResponse = await ExecRawQuery(qSql);
+  putCache(kSql, cacheSql, resSql.data);
+
+  const resProc: I_InfResponse = await ExecRawQuery(qProc);
+  putCache(kProc, cacheProc, resProc.data);
+
+  const resPatron: I_InfResponse = await ExecRawQuery(qPat);
+  putCache(kPatron, cachePatron, resPatron.data);
+
+  if (cacheSql.size() === 0 || cacheProc.size() === 0 || cachePatron.size() === 0) {
+    throw new Error(
+      `Error al cargar memoria: SQL=${cacheSql.size()}, PROC=${cacheProc.size()}, PATRON=${cachePatron.size()}`
+    );
+  }
 }
 
 export function putCache(infCache: string, cacheMem: any, resultado: Array<Record<string, any>> | null) {

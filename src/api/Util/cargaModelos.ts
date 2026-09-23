@@ -96,13 +96,16 @@ export async function cargaModelos(): Promise<void> {
         case 'quiniela':
             await cargarModelosQuiniela(sequelize);
             break;
-            
+
         case 'condom':
             await cargarModelosCondom(sequelize);
             break;
-            
+
         default:
-            console.warn(`[Advertencia]: APP_SISTEMA '${sistema}' no reconocido. Solo se cargaron modelos COMUNES.`);
-            break;
+            // Antes solo era un warning y la app arrancaba sin los modelos del sistema
+            throw new Error(`SISTEMA '${sistema}' no reconocido. Valores válidos: 'quiniela', 'condom'. Revisa el archivo .env`);
     }
+
+    const registrados = Object.keys(sequelize.models);
+    console.log(`✅ SISTEMA='${sistema}' | ${registrados.length} modelos registrados:`, registrados);
 }
