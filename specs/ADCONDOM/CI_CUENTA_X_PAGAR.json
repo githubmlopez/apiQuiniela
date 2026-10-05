@@ -7,7 +7,7 @@
     { "name": "ID_PROVEEDOR",     "data_type": "int",           "is_nullable": false },
     { "name": "CVE_CHEQUERA",     "data_type": "varchar(6)",    "is_nullable": false },
     { "name": "CVE_TIPO_FACTURA", "data_type": "varchar(6)",    "is_nullable": false },
-    { "name": "F_OPERACION",      "data_type": "date",          "is_nullable": true  },
+    { "name": "F_OPERACION",      "data_type": "date",          "is_nullable": false },
     { "name": "F_CAPTURA",        "data_type": "date",          "is_nullable": false },
     { "name": "F_CANCELACION",    "data_type": "date",          "is_nullable": true  },
     { "name": "F_PAGO",           "data_type": "date",          "is_nullable": true  },
@@ -39,44 +39,27 @@
     { "name": "F_LIMIT_PAGO",     "data_type": "date",          "is_nullable": true  }
   ],
   "foreign_keys": [
-    {
-      "constraint_name": "FK_PROVEEDOR_CXP",
-      "column": "CVE_EMPRESA",
-      "referenced_table": "CI_PROVEEDOR",
-      "referenced_column": "CVE_EMPRESA"
-    },
-    {
-      "constraint_name": "FK_PROVEEDOR_CXP",
-      "column": "ID_PROVEEDOR",
-      "referenced_table": "CI_PROVEEDOR",
-      "referenced_column": "ID_PROVEEDOR"
-    }
+    { "constraint_name": "FK_PROVEEDOR_CXP", "column": "CVE_EMPRESA", "referenced_table": "CI_PROVEEDOR", "referenced_column": "CVE_EMPRESA" },
+    { "constraint_name": "FK_PROVEEDOR_CXP", "column": "ID_PROVEEDOR", "referenced_table": "CI_PROVEEDOR", "referenced_column": "ID_PROVEEDOR" }
   ],
   "indexes": [
     {
       "index_name": "PK_CI_CUENTA_X_PAGAR",
       "is_unique": true,
       "is_primary_key": true,
-      "columns": [
-        { "value": "CVE_EMPRESA" },
-        { "value": "UUID" }
-      ]
+      "columns": [ { "value": "CVE_EMPRESA" }, { "value": "UUID" } ]
     },
     {
       "index_name": "IX_CI_CUENTA_X_PAGAR",
       "is_unique": true,
       "is_primary_key": false,
-      "columns": [
-        { "value": "ID_CONCILIA_CXP" }
-      ]
+      "columns": [ { "value": "ID_CONCILIA_CXP" } ]
     },
     {
       "index_name": "IX_CUENTA_X_PAGAR_ANOMES",
       "is_unique": false,
       "is_primary_key": false,
-      "columns": [
-        { "value": "ANO_MES" }
-      ]
+      "columns": [ { "value": "ANO_MES" } ]
     }
   ]
 }

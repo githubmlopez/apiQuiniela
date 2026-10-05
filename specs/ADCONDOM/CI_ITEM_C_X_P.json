@@ -1,0 +1,29 @@
+{
+  "table_name": "CI_ITEM_C_X_P",
+  "schema": "dbo",
+  "hasTriggers": true,
+  "columns": [
+    { "name": "CVE_EMPRESA",   "data_type": "varchar(4)",    "is_nullable": false },
+    { "name": "UUID",          "data_type": "varchar(36)",   "is_nullable": false },
+    { "name": "ID_CXP_DET",    "data_type": "int",           "is_nullable": false },
+    { "name": "CVE_OPERACION", "data_type": "varchar(4)",    "is_nullable": false },
+    { "name": "IMP_BRUTO",     "data_type": "numeric(12,2)", "is_nullable": false },
+    { "name": "TX_NOTA",       "data_type": "varchar(200)",  "is_nullable": true  },
+    { "name": "IMP_DESCUENTO", "data_type": "numeric(12,2)", "is_nullable": false },
+    { "name": "IMP_DEDUCIBLE", "data_type": "numeric(12,2)", "is_nullable": false },
+    { "name": "IMP_DEDUC_CAL", "data_type": "numeric(12,2)", "is_nullable": false },
+    { "name": "CVE_OPER_ASIG", "data_type": "varchar(4)",    "is_nullable": false }
+  ],
+  "foreign_keys": [
+    { "constraint_name": "FK_CI_DET_C_REFERENCE_CI_CUENT", "column": "CVE_EMPRESA", "referenced_table": "CI_CUENTA_X_PAGAR", "referenced_column": "CVE_EMPRESA" },
+    { "constraint_name": "FK_CI_DET_C_REFERENCE_CI_CUENT", "column": "UUID", "referenced_table": "CI_CUENTA_X_PAGAR", "referenced_column": "UUID" }
+  ],
+  "indexes": [
+    {
+      "index_name": "PK_CI_DET_CTA_X_PAGAR",
+      "is_unique": true,
+      "is_primary_key": true,
+      "columns": [ { "value": "CVE_EMPRESA" }, { "value": "UUID" }, { "value": "ID_CXP_DET" } ]
+    }
+  ]
+}

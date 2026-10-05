@@ -113,7 +113,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Apellido Paterno',
       exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.APELLIDO_PATERNO, campo, label) || 
-        validators.length(inst.APELLIDO_PATERNO, 1, 20, campo, label)
+        validators.length(inst.APELLIDO_PATERNO, 1, 50, campo, label)
     },
 
     // 3. APELLIDO_MATERNO: Obligatorio, Máx 50 chars
@@ -122,7 +122,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Apellido Materno',
       exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.APELLIDO_MATERNO, campo, label) || 
-        validators.length(inst.APELLIDO_MATERNO, 1, 20, campo, label)
+        validators.length(inst.APELLIDO_MATERNO, 1, 50, campo, label)
     },
 
     // 4. NOMBRE: Obligatorio, Máx 50 chars
@@ -131,7 +131,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       label: 'Nombre',
         exec: (inst : any, campo, label) => 
         validators.isNotNull(inst.NOMBRE, campo, label) || 
-        validators.length(inst.NOMBRE, 1, 20, campo, label)
+        validators.length(inst.NOMBRE, 1, 50, campo, label)
     },
 
     // 5. PASSWORD: Opcional (NULL en DB), Máx 256 chars
@@ -145,7 +145,9 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
     {
       campo: 'B_BLOQUEADO',
       label: 'Indica Bloqueo',
-      exec: (inst : any, campo, label) =>  validators.isBoolean(inst.B_BLOQUEADO, campo, label)
+      exec: (inst : any, campo, label) =>
+        validators.isNotNull(inst.B_BLOQUEADO, campo, label) ||
+        validators.isBoolean(inst.B_BLOQUEADO, campo, label)
     },
 
     // 7. SIT_USUARIO: Obligatorio, Constraint (A, I, B)
@@ -174,7 +176,7 @@ FC_SEG_USUARIO.addHook('beforeValidate', async (instance: any, options: any) => 
       campo: 'IDENTIFICADOR',
       label: 'Identificador',
       exec: (inst : any, campo, label) =>  
-      validators.isNumeric(inst.IDENTIFICADOR, campo, label) 
+      validators.isIntType(inst.IDENTIFICADOR, 'int', campo, label)
     },
   ];
 
@@ -198,7 +200,8 @@ FC_SEG_USUARIO.addHook('beforeCreate', async (instance: any) => {
 // ============================================
 
 FC_SEG_USUARIO.addHook('beforeUpdate', async (instance: any) => {
-    if (instance.changed('PASSWORD')) {
+    // Si se envía PASSWORD nulo o vacío no hay nada que hashear
+    if (instance.changed('PASSWORD') && instance.PASSWORD) {
         instance.PASSWORD = await hash(instance.PASSWORD.trim());
     }
 });

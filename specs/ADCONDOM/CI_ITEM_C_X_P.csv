@@ -1,0 +1,11 @@
+CAMPO,LABEL,MANUAL,VALIDACIONES,DEFAULT,EDITABLE
+CVE_EMPRESA,Cve Empresa,NO,,,NO
+UUID,UUID,NO,,,NO
+ID_CXP_DET,Id Item CxP,SI,,,NO
+CVE_OPERACION,Cve Operación,NO,,,SI
+IMP_BRUTO,Imp Bruto,NO,isNonNegative,,SI
+TX_NOTA,Nota,NO,,,SI
+IMP_DESCUENTO,Imp Descuento,NO,"isNonNegative|compareField(<=, IMP_BRUTO)",0,SI
+IMP_DEDUCIBLE,Imp Deducible,NO,"isNonNegative|compareField(<=, IMP_BRUTO)",0,NO
+IMP_DEDUC_CAL,Imp Deduc Cal,NO,isNonNegative,0,NO
+CVE_OPER_ASIG,Cve Opera Asig,SI,,,NO

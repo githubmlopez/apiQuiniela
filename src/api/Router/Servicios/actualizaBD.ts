@@ -36,9 +36,14 @@ export async function createRecord <M extends Model>(
     console.log(model.primaryKeyAttributes);
     const hasTriggers = (model as any).options?.hasTriggers || false;
     console.log('🚨 hasTriggers ', hasTriggers)
-    const existingRecord = await findOneByKeyService(model, data, { 
-    transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción); 
-    });
+    // Si falta parte de la PK, la genera el hook del modelo (UUID, folio): no hay registro que buscar.
+    // Si el modelo no la asigna, su validación reporta el campo obligatorio.
+    const pkCompleta = model.primaryKeyAttributes.every((k: string) => data?.[k] !== undefined && data?.[k] !== null);
+    const existingRecord = pkCompleta
+      ? await findOneByKeyService(model, data, {
+          transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción);
+        })
+      : null;
 
     if (existingRecord) {
        // Lógica de error cuando el registro existe (consistente con su código)
@@ -59,10 +64,13 @@ export async function createRecord <M extends Model>(
        raw: false
        };
         // 2. Ejecutar la creación con obtResultado
+       // build + save en lugar de create: se conserva la instancia aunque con triggers
+       // save termine en el TypeError que obtResultado trata como éxito, para regresar la llave.
+       let instancia: any = null;
        const resultado : I_OperaResult = await obtResultado(
            async (model: any, datosCreacion: any, createOpts: any) => {
-               // model.create devuelve la instancia del modelo creada (M)
-               const instance = await model.create(datosCreacion, createOpts);
+               instancia = model.build(datosCreacion, { isNewRecord: true, raw: createOpts.raw });
+               await instancia.save(createOpts);
                // 🌟 Se devuelve 1 para indicar éxito.
                return 1; 
            },
@@ -74,11 +82,15 @@ export async function createRecord <M extends Model>(
        // 3. Procesar el resultado final (similar al update)
        if (resultado.estatus === kCorrecto) {
            const filasCreadas = resultado.data as number;
+           // Llave primaria con la que quedó el registro (incluye la generada en los hooks)
+           const llave = instancia
+             ? Object.fromEntries(model.primaryKeyAttributes.map((k: string) => [k, instancia.get(k)]))
+             : null;
            // Asumimos que si estatus es 1, la creación fue exitosa (1 registro afectado)
            // Devolvemos el contador 1 (consistente con la respuesta del update)
            return {
                estatus: resultado.estatus,
-               data: [{contador : filasCreadas}], 
+               data: [{contador : filasCreadas, llave}], 
                errorUs: null,
                errorNeg: null
            };

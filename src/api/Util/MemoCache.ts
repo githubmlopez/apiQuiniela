@@ -56,7 +56,7 @@ export async function cargaCache(): Promise<void> {
   const resPatron: I_InfResponse = await ExecRawQuery(qPat);
   putCache(kPatron, cachePatron, resPatron.data);
 
-  if (cacheSql.size() === 0 || cacheProc.size() === 0 || cachePatron.size() === 0) {
+  if (cacheSql.size() === 0 || cacheProc.size() === 0 ) {
     throw new Error(
       `Error al cargar memoria: SQL=${cacheSql.size()}, PROC=${cacheProc.size()}, PATRON=${cachePatron.size()}`
     );

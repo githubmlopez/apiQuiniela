@@ -74,12 +74,16 @@ async function cargarModelosCondom(sequelize: Sequelize): Promise<void> {
     const { 
         def_CI_ARCH_MOV_BANC, 
         def_CI_CTRL_CARGA_MOVTOS, 
-        def_CI_MOVTO_BANCARIO
-    } = await import('../Modelos/Modelo/ADCONDOM/index.js'); 
+        def_CI_MOVTO_BANCARIO,
+        def_CI_CUENTA_X_PAGAR,
+        def_CI_ITEM_C_X_P
+    } = await import('../Modelos/Modelo/ADCONDOM/index.js');
 
     await def_CI_ARCH_MOV_BANC(sequelize);
     await def_CI_CTRL_CARGA_MOVTOS(sequelize);
     await def_CI_MOVTO_BANCARIO(sequelize);
+    await def_CI_CUENTA_X_PAGAR(sequelize);
+    await def_CI_ITEM_C_X_P(sequelize);
     
 }
 

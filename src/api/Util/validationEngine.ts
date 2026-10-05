@@ -1,6 +1,6 @@
 // validationEngine.ts
 
-interface ValidationRule {
+export interface ValidationRule {
   campo: string;
   label: string;
   // Permitimos que valide el campo solo o que reciba la instancia completa para casos complejos
@@ -22,6 +22,11 @@ export const runValidationEngine = async (
   // el motor sabe que es un Update. Si no, asume que es Inserción.
   const soloCambios = options.validateOnlyChanged === true;
 
+  // En Model.update, beforeValidate recibe una instancia construida solo con los datos enviados:
+  // las dependencias apuntarían a campos ausentes (undefined) y darían errores falsos.
+  // Los modelos generados las validan después en beforeUpdate, con el registro real.
+  const sinDependencias = options.sinDependencias === true;
+
   console.log(`--- [MOTOR] ---`);
   console.log(`Modo: ${soloCambios ? 'ACTUALIZACIÓN (Parcial)' : 'INSERCIÓN (Total)'}`);
   console.log(`Campos detectados como cambiados:`, changedFields);
@@ -32,7 +37,8 @@ export const runValidationEngine = async (
 
     // MODO ACTUALIZACIÓN: Solo validamos lo enviado en el JSON
     const campoCambio = changedFields.includes(rule.campo);
-    const dependenciaCambio = rule.dependencias?.some(dep => changedFields.includes(dep)) ?? false;
+    const dependenciaCambio = !sinDependencias &&
+      (rule.dependencias?.some(dep => changedFields.includes(dep)) ?? false);
     
     return campoCambio || dependenciaCambio;
   };
@@ -53,7 +59,7 @@ export const runValidationEngine = async (
   }
 };
 
-/* Propuesta de sustitución AI 21/09/2026E
+/* Propuesta de sustitución AI 21/09/2026
 // validationEngine.ts
 
 export interface ErrorValidacion {

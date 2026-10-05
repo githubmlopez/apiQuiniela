@@ -70,6 +70,18 @@ const resolverLimite = (l: LimiteFecha | (() => FechaLimite)) => {
   return { ts, texto: fmtFecha(v) };
 };
 
+// ---------- Comparación entre campos ----------
+type OpComparacion = '<' | '<=' | '>' | '>=' | '=' | '!=';
+
+const TEXTO_OP: Record<OpComparacion, string> = {
+  '<':  'menor que',
+  '<=': 'menor o igual que',
+  '>':  'mayor que',
+  '>=': 'mayor o igual que',
+  '=':  'igual a',
+  '!=': 'diferente de',
+};
+
 // ---------- Números ----------
 const aNumero = (v: any): number | null => {
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
@@ -319,6 +331,41 @@ export const validators = {
     if (n === null) return { campo: field, mensaje: `[N]: ${name} debe ser un valor numérico` };
     if (n < 0) return { campo: field, mensaje: `[N]: ${name} no puede ser negativo` };
     return null;
+  },
+
+  // Año-mes en formato YYYYMM (ej. 202609)
+  isAnioMes: (value: any, field: string, label?: string) => {
+    const name = validators.getDisplayName(field, label);
+    if (vacio(value)) return null;
+    const m = /^(\d{4})(\d{2})$/.exec(String(value).trim());
+    if (!m || Number(m[2]) < 1 || Number(m[2]) > 12) {
+      return { campo: field, mensaje: `[N]: ${name} debe tener formato YYYYMM` };
+    }
+    return null;
+  },
+
+  // Compara contra otro campo de la misma instancia (números o fechas).
+  // Si alguno viene vacío o con formato inválido no reporta: eso lo cubre la regla propia de cada campo.
+  compareField: (value: any, op: OpComparacion, other: any, field: string, label?: string, otherLabel?: string) => {
+    const name = validators.getDisplayName(field, label);
+    if (vacio(value) || vacio(other)) return null;
+
+    let a = aNumero(value), b = aNumero(other);
+    if (a === null || b === null) {
+      a = aTimestamp(value);
+      b = aTimestamp(other);
+    }
+    if (a === null || b === null) return null;
+
+    const cumple =
+      op === '<'  ? a <  b :
+      op === '<=' ? a <= b :
+      op === '>'  ? a >  b :
+      op === '>=' ? a >= b :
+      op === '='  ? a === b :
+                    a !== b;
+    if (cumple) return null;
+    return { campo: field, mensaje: `[N]: ${name} debe ser ${TEXTO_OP[op]} ${otherLabel || 'el campo relacionado'}` };
   },
 
 };

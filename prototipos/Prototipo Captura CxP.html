@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Captura de Cuenta por Pagar</title>
+<style>
+  /* Layout: barra navy + lista de cuentas (filtros y tabla) + detalle (encabezado en rejilla y partidas por renglón) */
+  :root {
+    --bg: #F5F6F8;
+    --surface: #FFFFFF;
+    --surface-2: #F8F9FB;
+    --surface-3: #EEF1F5;
+    --field: #FFFFFF;
+    --field-ro: #F1F3F6;
+    --border: #DDE1E6;
+    --border-strong: #C3C9D1;
+    --text: #24292E;
+    --muted: #6A7178;
+    --navy: #1B2A4A;
+    --on-navy: #FFFFFF;
+    --on-navy-muted: #B9C2D6;
+    --accent: #2C5AA0;
+    --accent-hover: #244880;
+    --accent-bg: #E9F0FA;
+    --on-accent: #FFFFFF;
+    --green: #1E8E5A;
+    --green-bg: #E7F5EE;
+    --red: #C0392B;
+    --red-bg: #FBEAE8;
+    --amber: #8A5A00;
+    --amber-bg: #FFF4D6;
+    --grey-bg: #ECEEF1;
+    --overlay: rgba(20, 26, 38, .45);
+    --shadow: 0 12px 32px rgba(0, 0, 0, .18);
+    --font: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161F; --surface: #18202C; --surface-2: #1D2633; --surface-3: #222C3A;
+      --field: #121922; --field-ro: #1A222D; --border: #2B3645; --border-strong: #3A4757;
+      --text: #E3E7EC; --muted: #97A1AD; --navy: #16223A; --on-navy: #FFFFFF; --on-navy-muted: #9FAAC0;
+      --accent: #7AA5E6; --accent-hover: #93B7EE; --accent-bg: #1E2C44; --on-accent: #0E1522;
+      --green: #4CC38A; --green-bg: #16301F; --red: #F07A6C; --red-bg: #3A1D1A;
+      --amber: #E7B54A; --amber-bg: #352B12; --grey-bg: #262F3B;
+      --overlay: rgba(0, 0, 0, .6); --shadow: 0 12px 32px rgba(0, 0, 0, .5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11161F; --surface: #18202C; --surface-2: #1D2633; --surface-3: #222C3A;
+    --field: #121922; --field-ro: #1A222D; --border: #2B3645; --border-strong: #3A4757;
+    --text: #E3E7EC; --muted: #97A1AD; --navy: #16223A; --on-navy: #FFFFFF; --on-navy-muted: #9FAAC0;
+    --accent: #7AA5E6; --accent-hover: #93B7EE; --accent-bg: #1E2C44; --on-accent: #0E1522;
+    --green: #4CC38A; --green-bg: #16301F; --red: #F07A6C; --red-bg: #3A1D1A;
+    --amber: #E7B54A; --amber-bg: #352B12; --grey-bg: #262F3B;
+    --overlay: rgba(0, 0, 0, .6); --shadow: 0 12px 32px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+  .app { max-width: 1080px; margin: 0 auto; padding: 24px 16px 56px; display: grid; gap: 16px; }
+  #detalle { display: grid; gap: 16px; min-width: 0; }
+
+  /* Barra de título */
+  .titlebar {
+    background: var(--navy); color: var(--on-navy); border-radius: 8px;
+    padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; justify-content: space-between;
+  }
+  .titlebar h1 { font-size: 15px; font-weight: 500; margin: 0; text-wrap: balance; }
+  .titlebar .sub { color: var(--on-navy-muted); font-size: 12px; margin-top: 2px; }
+  .simsel { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--on-navy-muted); }
+  .simsel select {
+    width: auto; background: transparent; color: var(--on-navy); border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 5px; padding: 6px 8px; font-size: 12.5px;
+  }
+  .simsel select option { color: #24292E; background: #FFFFFF; }
+
+  /* Tarjetas */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; min-width: 0; }
+  .card-head {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface-3);
+    border-radius: 8px 8px 0 0;
+  }
+  .card-head h2 {
+    margin: 0; font-size: 13px; font-weight: 700; color: var(--text);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .card-head .meta { font-size: 12px; color: var(--muted); }
+  .card-head .grupo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.captura { background: var(--accent-bg); color: var(--accent); }
+  .pill.ok { background: var(--green-bg); color: var(--green); }
+  .pill.warn { background: var(--amber-bg); color: var(--amber); }
+  .pill.bad { background: var(--red-bg); color: var(--red); }
+  .pill.gris { background: var(--grey-bg); color: var(--muted); }
+
+  /* Lista */
+  .filtros { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+  .filtros .field { flex: 1 1 170px; }
+  tbody tr.cuenta { cursor: pointer; }
+  tbody tr.cuenta:hover td { background: var(--surface-2); }
+  tbody tr.cuenta.sel td { background: var(--accent-bg); }
+  tbody tr.cuenta.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  .vacio { padding: 22px; text-align: center; color: var(--muted); }
+
+  /* Detalle */
+  .det-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .det-head h2 { margin: 0; font-size: 16px; font-weight: 600; text-wrap: balance; }
+  .solo-movil { display: none; }
+  .aviso {
+    display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-radius: 8px;
+    background: var(--grey-bg); color: var(--text); border: 1px solid var(--border-strong); font-size: 13.5px;
+  }
+  .aviso strong { font-weight: 600; }
+
+  /* Formulario de encabezado */
+  form { margin: 0; }
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px 16px; padding: 18px;
+  }
+  .field { display: grid; gap: 5px; min-width: 0; align-content: start; }
+  .field.full { grid-column: 1 / -1; }
+  .field label {
+    font-size: 11.5px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em; display: flex; gap: 6px; align-items: baseline;
+  }
+  .lock, .aux { font-size: 10.5px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  .lock { display: none; }
+  form.editando .field[data-editable="no"] .lock { display: inline; }
+  input, select, textarea {
+    width: 100%; font: inherit; font-size: 13.5px; color: var(--text);
+    background: var(--field); border: 1px solid var(--border-strong); border-radius: 5px; padding: 7px 9px;
+  }
+  textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, tr:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  input:disabled, select:disabled, textarea:disabled, input[readonly] {
+    background: var(--field-ro); color: var(--muted); opacity: 1;
+  }
+  input.num { text-align: right; font-variant-numeric: tabular-nums; }
+  input.mono { font-family: var(--mono); font-size: 12px; }
+  .calc { font-weight: 600; }
+  .invalid { border-color: var(--red) !important; background: var(--red-bg) !important; }
+  .err { margin: 0; font-size: 12px; color: var(--red); }
+  .err:empty { display: none; }
+  .hint { font-size: 11.5px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .form-foot {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;
+    padding: 12px 18px 16px; border-top: 1px solid var(--border);
+  }
+  .form-foot:empty { display: none; }
+  .form-foot .sep { flex: 1; }
+
+  /* Botones */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 500; border-radius: 5px;
+    border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer;
+  }
+  .btn:hover { background: var(--surface-3); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--accent-hover); }
+  .btn.danger { background: var(--red); border-color: var(--red); color: var(--on-accent); }
+  .btn.danger-outline { color: var(--red); border-color: var(--red); }
+  .btn.danger-outline:hover { background: var(--red-bg); }
+  .btn:disabled { opacity: .6; cursor: default; }
+
+  /* Partidas */
+  .pendiente {
+    margin: 0; padding: 18px; color: var(--muted); font-size: 13px; text-align: center;
+    border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--surface);
+  }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  thead th {
+    background: var(--surface-2); color: var(--muted); font-weight: 700; font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: .04em; padding: 8px 10px;
+    border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap;
+  }
+  thead th.r { text-align: right; }
+  thead th.c { text-align: center; }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  tbody td.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody td.c { text-align: center; white-space: nowrap; }
+  tbody tr.borrador td, tbody tr.editando td { background: var(--accent-bg); }
+  tbody tr.errores td { background: var(--red-bg); color: var(--red); font-size: 12px; padding-top: 4px; }
+  tbody tr.errores ul { margin: 0; padding-left: 18px; }
+  .folio { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .prov { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td input, td select { padding: 6px 8px; font-size: 13px; }
+  td.w-op { min-width: 220px; }
+  td.w-imp { width: 140px; }
+  .nada { color: var(--muted); }
+
+  .icon-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--text); cursor: pointer; padding: 0; vertical-align: middle;
+  }
+  .icon-btn + .icon-btn { margin-left: 4px; }
+  .icon-btn:hover { background: var(--surface-3); }
+  .icon-btn svg { width: 16px; height: 16px; }
+  .icon-btn.aceptar { background: var(--accent); border-color: var(--accent); color: var(--on-accent); border-radius: 50%; }
+  .icon-btn.aceptar:hover { background: var(--accent-hover); }
+  .icon-btn.basura { color: var(--red); }
+  .icon-btn.cargando { background: var(--border-strong); border-color: var(--border-strong); border-radius: 50%; cursor: wait; }
+  .icon-btn.has-nota::after {
+    content: ""; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--accent); border: 2px solid var(--surface);
+  }
+
+  .totales {
+    display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: flex-end;
+    padding: 12px 18px 14px; border-top: 1px solid var(--border); background: var(--surface-2);
+    border-radius: 0 0 8px 8px; font-size: 13px;
+  }
+  .tot { display: grid; gap: 2px; text-align: right; }
+  .tot span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .tot strong { font-variant-numeric: tabular-nums; font-size: 14px; }
+
+  .spinner {
+    display: inline-block; width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .5); border-top-color: #FFFFFF; animation: spin .7s linear infinite;
+  }
+  .btn:not(.primary):not(.danger) .spinner { border-color: var(--border-strong); border-top-color: var(--text); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast y modales */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%) translateY(12px); background: var(--navy); color: var(--on-navy);
+    padding: 10px 18px; border-radius: 6px; font-size: 13px; opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease; z-index: 500; max-width: calc(100vw - 32px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .overlay {
+    position: fixed; inset: 0; background: var(--overlay); display: none;
+    align-items: center; justify-content: center; z-index: 100; padding: 16px;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); color: var(--text); border-radius: 10px; width: 440px; max-width: 100%;
+    max-height: calc(100vh - 64px); overflow-y: auto; box-shadow: var(--shadow);
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+  }
+  .modal-head h3 { margin: 0; font-size: 14.5px; font-weight: 600; }
+  .modal-head .close { border: none; background: none; cursor: pointer; font-size: 20px; color: var(--muted); line-height: 1; }
+  .modal-body { padding: 16px 18px; display: grid; gap: 10px; }
+  .modal-body p { margin: 0; line-height: 1.5; }
+  .modal-foot { padding: 12px 18px 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border); }
+  .modal.error .modal-head { background: var(--red-bg); }
+  .modal.error .modal-head h3 { color: var(--red); }
+  .err-list { margin: 0; padding-left: 18px; }
+  .err-list li { margin-bottom: 8px; font-size: 13.5px; line-height: 1.4; }
+  .err-code { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .resumen { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; }
+  .resumen dt { color: var(--muted); }
+  .resumen dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+  /* Teléfono: una vista a la vez */
+  @media (max-width: 760px) {
+    .solo-movil { display: inline-flex; }
+    .app:not(.ver-detalle) #detalle { display: none; }
+    .app.ver-detalle #lista { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2s; }
+    .toast { transition: none; }
+  }
+</style>
+<style>
+  /* Reglas base que agrega el visor de artifacts */
+  html, body { margin: 0; }
+  [hidden] { display: none !important; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="titlebar">
+    <div>
+      <h1>Cuentas por pagar · Chequera PBMX1</h1>
+      <div class="sub" id="lineaEstado"></div>
+    </div>
+    <label class="simsel" for="modoSim">Simulación
+      <select id="modoSim">
+        <option value="aleatorio">Aleatoria</option>
+        <option value="exito">Siempre correcto</option>
+        <option value="sistema">Error de sistema</option>
+        <option value="negocio">Error de negocio</option>
+      </select>
+    </label>
+  </header>
+
+  <!-- Lista de cuentas por pagar -->
+  <section class="card" id="lista" aria-labelledby="tLista">
+    <div class="card-head">
+      <div class="grupo"><h2 id="tLista">Cuentas por pagar</h2><span class="meta">Datos de ejemplo</span></div>
+      <button class="btn primary" type="button" id="btnNueva">Nueva cuenta</button>
+    </div>
+    <div class="filtros">
+      <div class="field">
+        <label for="fPeriodo">Periodo</label>
+        <input type="month" id="fPeriodo">
+      </div>
+      <div class="field">
+        <label for="fProveedor">Proveedor</label>
+        <select id="fProveedor"></select>
+      </div>
+      <div class="field">
+        <label for="fSituacion">Situación</label>
+        <select id="fSituacion">
+          <option value="activas">Activas</option>
+          <option value="pendientes">Activas sin conciliar</option>
+          <option value="conciliadas">Conciliadas</option>
+          <option value="canceladas">Canceladas</option>
+          <option value="todas">Todas</option>
+        </select>
+      </div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>F. Operación</th>
+            <th>Proveedor</th>
+            <th class="r">Imp. Bruto</th>
+            <th class="r">Partidas</th>
+            <th>Cuadre</th>
+            <th>Situación</th>
+          </tr>
+        </thead>
+        <tbody id="tbCuentas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Detalle -->
+  <div id="detalle">
+    <div class="det-head">
+      <button class="btn solo-movil" type="button" id="btnRegresar">← Lista</button>
+      <h2 id="detTitulo">Nueva cuenta por pagar</h2>
+      <span class="pill" id="detSituacion" hidden></span>
+    </div>
+    <div class="aviso" id="aviso" role="status" hidden></div>
+
+    <!-- Encabezado: CI_CUENTA_X_PAGAR -->
+    <section class="card" aria-labelledby="tEnc">
+      <div class="card-head">
+        <h2 id="tEnc">Encabezado</h2>
+        <span class="pill captura" id="encEstado">En captura</span>
+      </div>
+      <form id="formEnc" novalidate>
+        <div class="grid">
+          <div class="field" data-editable="no">
+            <label for="F_OPERACION">F. Operación <span class="lock">· No modificable</span></label>
+            <input type="date" id="F_OPERACION">
+            <p class="err" id="err-F_OPERACION"></p>
+          </div>
+          <div class="field" data-editable="no">
+            <label for="UUID">UUID <span class="lock">· No modificable</span></label>
+            <input type="text" id="UUID" class="mono" readonly>
+            <p class="err" id="err-UUID"></p>
+          </div>
+          <div class="field" data-editable="no">
+            <label for="CVE_MONEDA">Moneda <span class="lock">· No modificable</span></label>
+            <select id="CVE_MONEDA"><option value="P">Pesos</option></select>
+            <p class="err" id="err-CVE_MONEDA"></p>
+          </div>
+          <div class="field" data-editable="si">
+            <label for="ID_PROVEEDOR">Proveedor</label>
+            <select id="ID_PROVEEDOR"></select>
+            <p class="err" id="err-ID_PROVEEDOR"></p>
+          </div>
+          <div class="field" data-editable="si">
+            <label for="CVE_FORMA_PAGO">Forma de pago</label>
+            <select id="CVE_FORMA_PAGO">
+              <option value="">Selecciona…</option>
+              <option value="T">Transferencia</option>
+              <option value="E">Efectivo</option>
+              <option value="C">Cheque</option>
+            </select>
+            <p class="err" id="err-CVE_FORMA_PAGO"></p>
+          </div>
+          <div class="field" data-editable="si">
+            <label for="IMP_BRUTO">Imp. Bruto</label>
+            <input type="text" id="IMP_BRUTO" class="num" inputmode="decimal" placeholder="0.00" autocomplete="off">
+            <p class="err" id="err-IMP_BRUTO"></p>
+          </div>
+          <div class="field" data-editable="si">
+            <label for="IMP_IVA">Imp. IVA</label>
+            <input type="text" id="IMP_IVA" class="num" inputmode="decimal" placeholder="0.00" autocomplete="off">
+            <p class="err" id="err-IMP_IVA"></p>
+          </div>
+          <div class="field" data-editable="calc">
+            <label for="IMP_NETO">Imp. Neto <span class="aux">· Bruto + IVA</span></label>
+            <input type="text" id="IMP_NETO" class="num calc" readonly tabindex="-1">
+            <p class="err" id="err-IMP_NETO"></p>
+          </div>
+          <div class="field" data-editable="calc">
+            <label for="CVE_CHEQUERA">Chequera</label>
+            <input type="text" id="CVE_CHEQUERA" value="PBMX1" readonly tabindex="-1">
+            <p class="err" id="err-CVE_CHEQUERA"></p>
+          </div>
+          <div class="field full" data-editable="si">
+            <label for="TX_NOTA">Nota</label>
+            <textarea id="TX_NOTA" maxlength="200" placeholder="Texto libre, hasta 200 caracteres"></textarea>
+            <div class="hint" id="cnt-TX_NOTA">0 / 200</div>
+            <p class="err" id="err-TX_NOTA"></p>
+          </div>
+        </div>
+        <div class="form-foot" id="encFoot"></div>
+      </form>
+    </section>
+
+    <!-- Partidas: CI_ITEM_C_X_P -->
+    <p class="pendiente" id="partidasPendiente">Las partidas se capturan cuando el encabezado queda registrado.</p>
+    <section class="card" id="partidas" aria-labelledby="tPart" hidden>
+      <div class="card-head">
+        <h2 id="tPart">Partidas</h2>
+        <span class="meta" id="partMeta">0 registradas</span>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Operación</th>
+              <th class="r">Imp. Bruto</th>
+              <th class="r">Imp. Descuento</th>
+              <th class="r">Importe</th>
+              <th class="c">Nota</th>
+              <th class="c">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbItems"></tbody>
+        </table>
+      </div>
+      <div class="totales">
+        <div class="tot"><span>Total partidas</span><strong id="totPartidas">$0.00</strong></div>
+        <div class="tot"><span>Imp. bruto factura</span><strong id="totFactura">$0.00</strong></div>
+        <div class="tot"><span>Diferencia</span><strong id="totDif">$0.00</strong></div>
+        <span class="pill" id="totEstado"></span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="overlay" id="overlay"><div class="modal" id="modalBox" role="dialog" aria-modal="true"></div></div>
+
+<script>
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const hoy = () => new Date().toLocaleDateString('en-CA');
+const nuevoUUID = () => (crypto.randomUUID ? crypto.randomUUID()
+  : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+    }));
+const limpiar = v => String(v ?? '').replace(/[,\s$]/g, '');
+const num = v => { const n = Number(limpiar(v)); return Number.isFinite(n) ? n : 0; };
+const fmtMoney = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+const fmtNum = v => { const t = limpiar(v); return t === '' || isNaN(Number(t)) ? v : Number(t).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+const fmtFecha = s => { if (!s) return '—'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+
+/* ---------- Catálogos de ejemplo ---------- */
+const PROVEEDORES = [
+  [101, 'Elevadores Torre Alta, S.A. de C.V.'],
+  [102, 'Impermeabilizaciones del Valle, S.A. de C.V.'],
+  [103, 'Jardinería Integral Arboleda, S.C.'],
+  [104, 'Limpieza Profesional Brillo, S.A. de C.V.'],
+  [105, 'Seguridad Privada Centinela, S.A. de C.V.'],
+].sort((a, b) => a[1].localeCompare(b[1], 'es'));
+const nombreProveedor = id => (PROVEEDORES.find(p => String(p[0]) === String(id)) || [0, '—'])[1];
+
+const OPERACIONES = [
+  ['SERV', 'Agua y luz de áreas comunes'],
+  ['JARD', 'Jardinería'],
+  ['MANT', 'Mantenimiento de áreas comunes'],
+  ['LIMP', 'Servicio de limpieza'],
+  ['VIGI', 'Vigilancia y seguridad'],
+];
+const nombreOperacion = cve => (OPERACIONES.find(o => o[0] === cve) || ['', cve])[1];
+
+/* Ejemplos de errores de negocio que regresaría el servicio.
+   MSG_CONCILIADA simula que otra persona concilió la cuenta mientras estaba abierta. */
+const MSG_CONCILIADA = 'La cuenta por pagar ya fue conciliada y no admite cambios.';
+const ERR_ENCABEZADO = [
+  'El proveedor seleccionado está inactivo y no admite nuevas cuentas por pagar.',
+  'El periodo contable de la fecha de operación está cerrado.',
+  'Ya existe una cuenta por pagar del mismo proveedor con igual fecha e importe.',
+  'La chequera PBMX1 no admite la forma de pago seleccionada.',
+];
+const ERR_ENC_EDICION = [
+  MSG_CONCILIADA,
+  'El proveedor seleccionado está inactivo.',
+  'El nuevo importe bruto es menor que la suma de las partidas registradas.',
+];
+const ERR_PARTIDA = [
+  MSG_CONCILIADA,
+  'La operación seleccionada no está habilitada para este proveedor.',
+  'La suma de las partidas excede el importe bruto de la factura.',
+  'La operación seleccionada requiere una nota que justifique el gasto.',
+];
+const ERR_ELIMINAR = [
+  MSG_CONCILIADA,
+  'La partida ya fue procesada y no puede eliminarse.',
+];
+const ERR_CANCELAR = [
+  MSG_CONCILIADA,
+  'La cuenta tiene un pago programado en la chequera PBMX1; cancela primero el pago.',
+];
+
+/* ---------- Cuentas de ejemplo (mes actual) ---------- */
+const MES = hoy().slice(0, 7);
+const dia = d => `${MES}-${String(d).padStart(2, '0')}`;
+const pda = (folio, op, bruto, desc, nota) => ({ folio, op, bruto: fmtNum(String(bruto)), desc: fmtNum(String(desc)), nota });
+const enc = (fecha, prov, forma, bruto, iva, nota) => ({
+  F_OPERACION: fecha, UUID: nuevoUUID(), CVE_MONEDA: 'P', ID_PROVEEDOR: String(prov), CVE_FORMA_PAGO: forma,
+  IMP_BRUTO: fmtNum(String(bruto)), IMP_IVA: fmtNum(String(iva)), IMP_NETO: bruto + iva, CVE_CHEQUERA: 'PBMX1', TX_NOTA: nota,
+});
+let cuentas = [
+  { folio: 1506, sit: 'A', concilia: 'CC', fConcilia: dia(4), fCancel: null,
+    enc: enc(dia(1), 104, 'T', 4800, 768, 'Limpieza de vidrios en fachada.'),
+    partidas: [pda(3308, 'LIMP', 5000, 200, 'Incluye descuento por pronto pago.')] },
+  { folio: 1505, sit: 'C', concilia: 'NC', fConcilia: null, fCancel: dia(3),
+    enc: enc(dia(1), 102, 'C', 35000, 5600, 'Impermeabilización de azotea, torre B.'),
+    partidas: [pda(3307, 'MANT', 20000, 0, '')] },
+  { folio: 1504, sit: 'A', concilia: 'CO', fConcilia: dia(3), fCancel: null,
+    enc: enc(dia(1), 101, 'T', 12500, 2000, 'Mantenimiento preventivo de elevadores.'),
+    partidas: [pda(3306, 'MANT', 12500, 0, 'Póliza mensual.')] },
+  { folio: 1503, sit: 'A', concilia: 'NC', fConcilia: null, fCancel: null,
+    enc: enc(dia(2), 103, 'E', 6500, 1040, ''),
+    partidas: [] },
+  { folio: 1502, sit: 'A', concilia: 'NC', fConcilia: null, fCancel: null,
+    enc: enc(dia(2), 105, 'T', 42000, 6720, 'Vigilancia 24 h, caseta principal y estacionamiento.'),
+    partidas: [pda(3305, 'VIGI', 30000, 0, 'Caseta principal.')] },
+  { folio: 1501, sit: 'A', concilia: 'NC', fConcilia: null, fCancel: null,
+    enc: enc(dia(1), 104, 'T', 18000, 2880, 'Servicio mensual de limpieza.'),
+    partidas: [pda(3301, 'LIMP', 15000, 0, 'Áreas comunes.'), pda(3302, 'LIMP', 3000, 0, 'Limpieza profunda de cisterna.')] },
+];
+let sigFolioCxp = 1507;   // ID_CONCILIA_CXP simulado (folio 'CXP')
+let sigFolio = 3401;      // ID_CXP_DET simulado (folio 'CXPI')
+
+const bloqueada = c => c && (c.sit === 'C' || c.concilia !== 'NC');
+const situacion = c => c.sit === 'C' ? ['Cancelada', 'gris'] : c.concilia !== 'NC' ? ['Conciliada', 'ok'] : ['Activa', 'captura'];
+const totalCuenta = c => c.partidas.reduce((s, p) => s + num(p.bruto) - num(p.desc), 0);
+function cuadre(factura, total, hay) {
+  const dif = Math.round((factura - total) * 100) / 100;
+  if (dif === 0 && hay) return ['Cuadra', 'ok', dif];
+  if (dif > 0) return [`Faltan ${fmtMoney(dif)}`, 'warn', dif];
+  if (dif < 0) return [`Excede por ${fmtMoney(-dif)}`, 'bad', dif];
+  return ['Sin partidas', 'captura', dif];
+}
+
+/* Validaciones equivalentes a validadores.ts (mismo texto que regresaría el back) */
+const V = {
+  obligatorio: (v, label) => (v === null || v === undefined || String(v).trim() === '') ? `El campo ${label} es obligatorio` : null,
+  importe(v, label, oblig) {
+    const t = limpiar(v);
+    if (t === '') return oblig ? `El campo ${label} es obligatorio` : null;
+    if (!/^-?\d+(\.\d+)?$/.test(t)) return `${label} debe ser un importe válido`;
+    if (t.startsWith('-')) return `${label} no puede ser negativo`;
+    const [ent, dec = ''] = t.split('.');
+    if (dec.length > 2) return `${label} admite máximo 2 decimales`;
+    if (ent.replace(/^0+/, '').length > 10) return `${label} excede el máximo de 10 enteros`;
+    return null;
+  },
+  fecha: (v, label) => (!v ? `El campo ${label} es obligatorio`
+    : (/^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v + 'T00:00:00')) ? null : `${label} no es una fecha válida`)),
+  menorIgual: (a, b, label, labelB) => num(a) <= num(b) ? null : `${label} debe ser menor o igual que ${labelB}`,
+  longitud: (v, max, label) => String(v ?? '').length <= max ? null : `${label} admite máximo ${max} caracteres`,
+};
+
+/* ---------- Simulación del servicio ---------- */
+function resultadoSimulado() {
+  const modo = $('modoSim').value;
+  if (modo !== 'aleatorio') return modo;
+  const r = Math.random();
+  return r < .5 ? 'exito' : r < .75 ? 'sistema' : 'negocio';
+}
+function elegirErrores(lista) {
+  const n = 1 + Math.floor(Math.random() * Math.min(3, lista.length));
+  return [...lista].sort(() => Math.random() - .5).slice(0, n);
+}
+function llamarServicio(erroresPosibles) {
+  return new Promise(res => setTimeout(() => {
+    const r = resultadoSimulado();
+    if (r === 'exito') res({ ok: true });
+    else if (r === 'sistema') res({ ok: false, tipo: 'sistema', codigo: 100 + Math.floor(Math.random() * 900) });
+    else res({ ok: false, tipo: 'negocio', errores: elegirErrores(erroresPosibles) });
+  }, 600 + Math.random() * 600));
+}
+function mostrarFalla(r) {
+  if (r.tipo === 'sistema') {
+    abrirModal(`
+      <div class="modal-head"><h3>Error de sistema</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+      <div class="modal-body">
+        <p>El servicio no respondió correctamente y la operación no se guardó. Intenta de nuevo; si el error continúa, reporta el código.</p>
+        <p class="err-code">Código: SYS-${r.codigo}</p>
+      </div>
+      <div class="modal-foot"><button class="btn primary" data-cerrar>Cerrar</button></div>`, 'error');
+    return;
+  }
+  const concurrencia = actual && r.errores.includes(MSG_CONCILIADA);
+  abrirModal(`
+    <div class="modal-head"><h3>No se pudo guardar</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+    <div class="modal-body">
+      <ul class="err-list">${r.errores.map(m => `<li>${esc(m)}</li>`).join('')}</ul>
+      ${concurrencia ? '<p class="err-code">Al cerrar, la cuenta se vuelve a cargar en solo lectura.</p>' : ''}
+    </div>
+    <div class="modal-foot"><button class="btn primary" data-cerrar>Cerrar</button></div>`, 'error');
+  if (concurrencia) {
+    alCerrarModal = () => {
+      actual.concilia = 'CO';
+      actual.fConcilia = hoy();
+      cargarCuenta(actual);
+      renderLista();
+      toast(`Cuenta ${actual.folio} recargada en solo lectura`);
+    };
+  }
+}
+
+/* ---------- Modales y toast ---------- */
+let alCerrarModal = null;
+function abrirModal(html, cls) {
+  const box = $('modalBox');
+  box.className = 'modal' + (cls ? ' ' + cls : '');
+  box.innerHTML = html;
+  $('overlay').classList.add('show');
+  const foco = box.querySelector('textarea:not([disabled]), .modal-foot .btn.primary, .modal-foot .btn.danger, .modal-foot .btn');
+  if (foco) foco.focus();
+}
+function cerrarModal() {
+  $('overlay').classList.remove('show');
+  const fn = alCerrarModal; alCerrarModal = null;
+  if (fn) fn();
+}
+$('overlay').addEventListener('click', e => {
+  if (e.target.id === 'overlay' || e.target.closest('[data-cerrar]')) cerrarModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('overlay').classList.contains('show')) cerrarModal(); });
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const ICON = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>',
+  pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
+  undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 12h8M8 15.5h8M8 9h4"/></svg>',
+};
+
+/* =========================================================
+   Lista de cuentas
+   ========================================================= */
+let actual = null;   // cuenta abierta en el detalle (null = nueva sin registrar)
+
+$('fPeriodo').value = MES;
+$('fProveedor').innerHTML = '<option value="">Todos</option>' +
+  PROVEEDORES.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
+['fPeriodo', 'fProveedor', 'fSituacion'].forEach(id => $(id).addEventListener('change', renderLista));
+
+function renderLista() {
+  const per = $('fPeriodo').value, prov = $('fProveedor').value, sit = $('fSituacion').value;
+  const visibles = cuentas.filter(c =>
+    (!per || c.enc.F_OPERACION.slice(0, 7) === per) &&
+    (!prov || c.enc.ID_PROVEEDOR === prov) &&
+    (sit === 'todas'
+      || (sit === 'activas' && c.sit === 'A')
+      || (sit === 'pendientes' && c.sit === 'A' && c.concilia === 'NC')
+      || (sit === 'conciliadas' && c.sit === 'A' && c.concilia !== 'NC')
+      || (sit === 'canceladas' && c.sit === 'C')));
+  $('tbCuentas').innerHTML = visibles.length ? visibles.map(c => {
+    const [cTxt, cCls] = cuadre(num(c.enc.IMP_BRUTO), totalCuenta(c), c.partidas.length);
+    const [sTxt, sCls] = situacion(c);
+    return `
+      <tr class="cuenta${c === actual ? ' sel' : ''}" data-folio="${c.folio}" tabindex="0" aria-label="Abrir cuenta ${c.folio}">
+        <td><span class="folio">${c.folio}</span></td>
+        <td>${fmtFecha(c.enc.F_OPERACION)}</td>
+        <td class="prov">${esc(nombreProveedor(c.enc.ID_PROVEEDOR))}</td>
+        <td class="r">${fmtMoney(num(c.enc.IMP_BRUTO))}</td>
+        <td class="r">${c.partidas.length}</td>
+        <td><span class="pill ${cCls}">${cTxt}</span></td>
+        <td><span class="pill ${sCls}">${sTxt}</span></td>
+      </tr>`;
+  }).join('') : '<tr><td colspan="7" class="vacio">No hay cuentas con estos filtros.</td></tr>';
+  actualizarLineaEstado();
+}
+function abrirDesdeLista(fila) {
+  const c = cuentas.find(x => String(x.folio) === fila.dataset.folio);
+  if (!c || c === actual) { verDetalle(); return; }
+  conCambiosPendientes(() => { cargarCuenta(c); renderLista(); verDetalle(); });
+}
+$('tbCuentas').addEventListener('click', e => { const f = e.target.closest('tr.cuenta'); if (f) abrirDesdeLista(f); });
+$('tbCuentas').addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.cuenta')) { e.preventDefault(); abrirDesdeLista(e.target); }
+});
+$('btnNueva').addEventListener('click', () => conCambiosPendientes(() => { nuevaCuenta(); renderLista(); verDetalle(); $('ID_PROVEEDOR').focus(); }));
+$('btnRegresar').addEventListener('click', () => { $('app').classList.remove('ver-detalle'); window.scrollTo(0, 0); });
+function verDetalle() {
+  $('app').classList.add('ver-detalle');
+  if (window.matchMedia('(max-width: 760px)').matches) window.scrollTo(0, 0);
+}
+
+function actualizarLineaEstado() {
+  const activas = cuentas.filter(c => c.sit === 'A' && c.concilia === 'NC');
+  const desc = activas.filter(c => cuadre(num(c.enc.IMP_BRUTO), totalCuenta(c), c.partidas.length)[1] !== 'ok').length;
+  $('lineaEstado').textContent = `${activas.length} activas sin conciliar · ${desc} por completar`;
+}
+
+/* Cambios sin guardar al cambiar de cuenta */
+function ocupado() {
+  return ['guardando', 'guardandoEd', 'cancelando'].includes(encabezado.estado)
+    || partidas.some(p => p.estado === 'guardando' || p.estado === 'eliminando');
+}
+function hayPendientes() {
+  if (encabezado.estado === 'editando') return true;
+  if (encabezado.estado === 'captura') {
+    const d = leerEncabezado();
+    if (d.ID_PROVEEDOR || d.CVE_FORMA_PAGO || limpiar(d.IMP_BRUTO) || limpiar(d.IMP_IVA) || d.TX_NOTA) return true;
+  }
+  return partidas.some(p => p.estado === 'editando'
+    || (p.estado === 'borrador' && (p.datos.op || limpiar(p.datos.bruto) || limpiar(p.datos.desc) || p.datos.nota)));
+}
+function conCambiosPendientes(continuar) {
+  if (ocupado()) { toast('Espera a que termine la operación en curso'); return; }
+  if (!hayPendientes()) { continuar(); return; }
+  abrirModal(`
+    <div class="modal-head"><h3>Hay cambios sin guardar</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+    <div class="modal-body"><p>La captura en curso no se ha aceptado. Si continúas, esos cambios se pierden.</p></div>
+    <div class="modal-foot"><button class="btn primary" data-cerrar>Seguir capturando</button><button class="btn danger-outline" id="btnDescartar">Descartar cambios</button></div>`);
+  $('btnDescartar').addEventListener('click', () => { cerrarModal(); continuar(); });
+}
+
+/* =========================================================
+   Encabezado (CI_CUENTA_X_PAGAR)
+   Estados: captura → guardando → registrada ⇄ editando → guardandoEd
+            registrada → cancelando → (bloqueada)
+   ========================================================= */
+const CAMPOS_CAPTURA = ['F_OPERACION', 'CVE_MONEDA', 'ID_PROVEEDOR', 'CVE_FORMA_PAGO', 'IMP_BRUTO', 'IMP_IVA', 'TX_NOTA'];
+const CAMPOS_EDITABLES = ['ID_PROVEEDOR', 'CVE_FORMA_PAGO', 'IMP_BRUTO', 'IMP_IVA', 'TX_NOTA']; // EDITABLE=SI en el CSV
+const encabezado = { estado: 'captura', guardado: null };
+
+$('ID_PROVEEDOR').innerHTML = '<option value="">Selecciona…</option>' +
+  PROVEEDORES.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
+
+function leerEncabezado() {
+  const d = {};
+  ['F_OPERACION', 'UUID', 'CVE_MONEDA', 'ID_PROVEEDOR', 'CVE_FORMA_PAGO', 'IMP_BRUTO', 'IMP_IVA', 'CVE_CHEQUERA', 'TX_NOTA']
+    .forEach(k => d[k] = $(k).value);
+  d.IMP_NETO = num(d.IMP_BRUTO) + num(d.IMP_IVA);
+  return d;
+}
+function escribirEncabezado(d) {
+  Object.entries(d).forEach(([k, v]) => { if ($(k) && k !== 'IMP_NETO') $(k).value = v; });
+  recalcularNeto();
+  contarNota();
+}
+function recalcularNeto() {
+  const b = $('IMP_BRUTO').value, i = $('IMP_IVA').value;
+  $('IMP_NETO').value = (limpiar(b) === '' && limpiar(i) === '') ? '' : fmtNum(String(num(b) + num(i)));
+}
+function contarNota() { $('cnt-TX_NOTA').textContent = `${$('TX_NOTA').value.length} / 200`; }
+
+function validarEncabezado(d) {
+  const e = {};
+  const poner = (k, m) => { if (m && !e[k]) e[k] = m; };
+  poner('F_OPERACION', V.fecha(d.F_OPERACION, 'F. Operación'));
+  poner('UUID', V.obligatorio(d.UUID, 'UUID'));
+  poner('CVE_MONEDA', V.obligatorio(d.CVE_MONEDA, 'Moneda'));
+  poner('ID_PROVEEDOR', V.obligatorio(d.ID_PROVEEDOR, 'Proveedor'));
+  poner('CVE_FORMA_PAGO', V.obligatorio(d.CVE_FORMA_PAGO, 'Forma de pago'));
+  poner('IMP_BRUTO', V.importe(d.IMP_BRUTO, 'Imp. Bruto', true));
+  poner('IMP_IVA', V.importe(d.IMP_IVA, 'Imp. IVA', true));
+  if (!e.IMP_BRUTO && !e.IMP_IVA) {
+    poner('IMP_IVA', V.menorIgual(d.IMP_IVA, d.IMP_BRUTO, 'Imp. IVA', 'Imp. Bruto'));
+    if (d.IMP_NETO <= 0) poner('IMP_NETO', 'Imp. Neto debe ser mayor que cero');
+    poner('IMP_NETO', V.importe(String(d.IMP_NETO), 'Imp. Neto', true));
+  }
+  poner('TX_NOTA', V.longitud(d.TX_NOTA, 200, 'Nota'));
+  return e;
+}
+function pintarErroresEncabezado(e) {
+  document.querySelectorAll('#formEnc .err').forEach(p => p.textContent = '');
+  document.querySelectorAll('#formEnc .invalid').forEach(x => x.classList.remove('invalid'));
+  Object.entries(e).forEach(([k, m]) => { $('err-' + k).textContent = m; $(k).classList.add('invalid'); });
+  const primero = Object.keys(e)[0];
+  if (primero && !$(primero).readOnly) $(primero).focus();
+}
+
+function aplicarEstadoEncabezado() {
+  const est = encabezado.estado;
+  const bloq = bloqueada(actual);
+  $('formEnc').classList.toggle('editando', est === 'editando');
+  const habilitados = est === 'captura' ? CAMPOS_CAPTURA : est === 'editando' ? CAMPOS_EDITABLES : [];
+  CAMPOS_CAPTURA.forEach(k => { $(k).disabled = !habilitados.includes(k); });
+
+  const pill = $('encEstado'), foot = $('encFoot');
+  const cargando = '<span class="spinner"></span>';
+  if (est === 'captura') {
+    pill.className = 'pill captura'; pill.textContent = 'En captura';
+    foot.innerHTML = '<button class="btn primary" type="submit">Aceptar</button>';
+  } else if (est === 'guardando') {
+    pill.className = 'pill captura'; pill.textContent = 'Validando';
+    foot.innerHTML = `<button class="btn primary" type="button" disabled>${cargando} Validando…</button>`;
+  } else if (est === 'registrada' && bloq) {
+    pill.className = 'pill gris'; pill.textContent = 'Solo lectura';
+    foot.innerHTML = '';
+  } else if (est === 'registrada') {
+    pill.className = 'pill ok'; pill.textContent = 'Registrada';
+    foot.innerHTML = '<button class="btn danger-outline" type="button" id="btnCancelarCuenta">Cancelar cuenta</button><span class="sep"></span><button class="btn" type="button" id="btnEditarEnc">Editar</button>';
+  } else if (est === 'editando') {
+    pill.className = 'pill warn'; pill.textContent = 'Editando';
+    foot.innerHTML = '<button class="btn" type="button" id="btnCancelarEnc">Descartar cambios</button><button class="btn primary" type="submit">Guardar cambios</button>';
+  } else if (est === 'guardandoEd') {
+    pill.className = 'pill warn'; pill.textContent = 'Validando';
+    foot.innerHTML = `<button class="btn primary" type="button" disabled>${cargando} Guardando…</button>`;
+  } else if (est === 'cancelando') {
+    pill.className = 'pill warn'; pill.textContent = 'Cancelando';
+    foot.innerHTML = `<button class="btn danger" type="button" disabled>${cargando} Cancelando…</button>`;
+  }
+  const registrada = est !== 'captura' && est !== 'guardando';
+  $('partidas').hidden = !registrada;
+  $('partidasPendiente').hidden = registrada;
+  pintarCabeceraDetalle();
+}
+
+function pintarCabeceraDetalle() {
+  const sp = $('detSituacion'), av = $('aviso');
+  if (!actual) {
+    $('detTitulo').textContent = 'Nueva cuenta por pagar';
+    sp.hidden = true; av.hidden = true;
+    return;
+  }
+  $('detTitulo').textContent = `Cuenta ${actual.folio} · ${nombreProveedor(actual.enc.ID_PROVEEDOR)}`;
+  const [t, cls] = situacion(actual);
+  sp.className = 'pill ' + cls; sp.textContent = t; sp.hidden = false;
+  if (actual.sit === 'C') {
+    av.innerHTML = `<span><strong>Cuenta cancelada el ${fmtFecha(actual.fCancel)}.</strong> No admite cambios en el encabezado ni en las partidas.</span>`;
+    av.hidden = false;
+  } else if (actual.concilia !== 'NC') {
+    av.innerHTML = `<span><strong>Cuenta conciliada el ${fmtFecha(actual.fConcilia)}.</strong> No admite cambios ni cancelación.</span>`;
+    av.hidden = false;
+  } else {
+    av.hidden = true;
+  }
+}
+
+$('formEnc').addEventListener('input', e => {
+  if (e.target.id === 'IMP_BRUTO' || e.target.id === 'IMP_IVA') recalcularNeto();
+  if (e.target.id === 'TX_NOTA') contarNota();
+  if (e.target.classList.contains('invalid')) { e.target.classList.remove('invalid'); $('err-' + e.target.id).textContent = ''; }
+});
+$('formEnc').addEventListener('focusout', e => {
+  if (e.target.classList.contains('num') && !e.target.readOnly && !V.importe(e.target.value, '', false)) e.target.value = fmtNum(e.target.value);
+});
+$('formEnc').addEventListener('click', e => {
+  if (e.target.id === 'btnEditarEnc') { encabezado.estado = 'editando'; aplicarEstadoEncabezado(); $('ID_PROVEEDOR').focus(); }
+  if (e.target.id === 'btnCancelarEnc') {
+    escribirEncabezado(encabezado.guardado); pintarErroresEncabezado({});
+    encabezado.estado = 'registrada'; aplicarEstadoEncabezado();
+  }
+  if (e.target.id === 'btnCancelarCuenta') confirmarCancelacion();
+});
+$('formEnc').addEventListener('submit', async e => {
+  e.preventDefault();
+  const edicion = encabezado.estado === 'editando';
+  if (!edicion && encabezado.estado !== 'captura') return;
+  const d = leerEncabezado();
+  const errores = validarEncabezado(d);
+  pintarErroresEncabezado(errores);
+  if (Object.keys(errores).length) return;
+
+  encabezado.estado = edicion ? 'guardandoEd' : 'guardando';
+  aplicarEstadoEncabezado();
+  const r = await llamarServicio(edicion ? ERR_ENC_EDICION : ERR_ENCABEZADO);
+  if (r.ok) {
+    encabezado.guardado = { ...d };
+    encabezado.estado = 'registrada';
+    if (edicion) {
+      actual.enc = { ...d };
+      toast('Cambios del encabezado guardados');
+    } else {
+      actual = { folio: sigFolioCxp++, sit: 'A', concilia: 'NC', fConcilia: null, fCancel: null, enc: { ...d }, partidas: [] };
+      cuentas.unshift(actual);
+      toast(`Cuenta ${actual.folio} registrada`);
+      if (!partidas.some(p => p.estado === 'borrador')) agregarBorrador();
+    }
+    aplicarEstadoEncabezado();
+    renderPartidas();
+    renderLista();
+    if (!edicion) enfocarBorrador();
+  } else {
+    encabezado.estado = edicion ? 'editando' : 'captura';
+    aplicarEstadoEncabezado();
+    mostrarFalla(r);
+  }
+});
+
+/* Baja = cancelación lógica (SIT_C_X_P = 'C', F_CANCELACION = hoy) mediante SP */
+function confirmarCancelacion() {
+  if (hayPendientes()) { toast('Acepta o descarta la captura en curso antes de cancelar'); return; }
+  const n = partidas.filter(p => p.folio).length;
+  abrirModal(`
+    <div class="modal-head"><h3>Cancelar cuenta ${actual.folio}</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+    <div class="modal-body">
+      <dl class="resumen">
+        <dt>Proveedor</dt><dd>${esc(nombreProveedor(actual.enc.ID_PROVEEDOR))}</dd>
+        <dt>Imp. neto</dt><dd>${fmtMoney(actual.enc.IMP_NETO)}</dd>
+        <dt>Partidas</dt><dd>${n}</dd>
+      </dl>
+      <p>La cuenta queda cancelada con fecha de hoy y ya no admite cambios. Sus partidas se conservan en solo lectura. Una cuenta cancelada no se puede reactivar.</p>
+    </div>
+    <div class="modal-foot"><button class="btn" data-cerrar>Conservar cuenta</button><button class="btn danger" id="btnConfirmaCancelar">Cancelar cuenta</button></div>`);
+  $('btnConfirmaCancelar').addEventListener('click', async () => {
+    cerrarModal();
+    encabezado.estado = 'cancelando';
+    aplicarEstadoEncabezado();
+    const r = await llamarServicio(ERR_CANCELAR);
+    if (r.ok) {
+      actual.sit = 'C';
+      actual.fCancel = hoy();
+      cargarCuenta(actual);
+      renderLista();
+      toast(`Cuenta ${actual.folio} cancelada`);
+    } else {
+      encabezado.estado = 'registrada';
+      aplicarEstadoEncabezado();
+      mostrarFalla(r);
+    }
+  });
+}
+
+/* =========================================================
+   Partidas (CI_ITEM_C_X_P)
+   Estados: borrador → guardando → guardada ⇄ editando → guardando / eliminando
+   ========================================================= */
+let partidas = [];
+let sigId = 1;
+
+function agregarBorrador() {
+  partidas.push({ id: sigId++, folio: null, estado: 'borrador', datos: { op: '', bruto: '', desc: '', nota: '' }, respaldo: null, errores: null });
+}
+const editable = p => p.estado === 'borrador' || p.estado === 'editando';
+const importePartida = d => num(d.bruto) - num(d.desc);
+
+/* Copia lo ya registrado en la cuenta (lo que tendría la BD) */
+function sincronizarCuenta() {
+  if (!actual) return;
+  actual.partidas = partidas.filter(p => p.folio).map(p => ({ folio: p.folio, ...(p.respaldo || p.datos) }));
+}
+
+function validarPartida(d) {
+  const e = [];
+  const m1 = V.obligatorio(d.op, 'Operación'); if (m1) e.push(['op', m1]);
+  const m2 = V.importe(d.bruto, 'Imp. Bruto', true); if (m2) e.push(['bruto', m2]);
+  const m3 = V.importe(d.desc, 'Imp. Descuento', false); if (m3) e.push(['desc', m3]);
+  if (!m2 && !m3) { const m4 = V.menorIgual(d.desc || 0, d.bruto, 'Imp. Descuento', 'Imp. Bruto'); if (m4) e.push(['desc', m4]); }
+  const m5 = V.longitud(d.nota, 200, 'Nota'); if (m5) e.push(['nota', m5]);
+  return e;
+}
+
+function filaHTML(p) {
+  const d = p.datos;
+  const bloq = bloqueada(actual);
+  const folio = `<span class="folio">${p.folio || 'Nueva'}</span>`;
+  const inv = campo => (p.errores || []).some(x => x[0] === campo) ? ' invalid' : '';
+  const tituloNota = editable(p) ? (d.nota ? 'Editar nota' : 'Agregar nota') : (d.nota ? 'Ver nota' : 'Sin nota');
+  const botonNota = (!editable(p) && !d.nota) ? '<span class="nada">—</span>'
+    : `<button class="icon-btn${d.nota ? ' has-nota' : ''}${inv('nota')}" data-acc="nota" data-id="${p.id}" aria-label="${tituloNota}" title="${tituloNota}">${ICON.note}</button>`;
+  let celdas;
+  if (editable(p)) {
+    celdas = `
+      <td class="w-op"><select id="op-${p.id}" data-campo="op" data-id="${p.id}" class="${inv('op')}" aria-label="Operación">
+        <option value="">Selecciona…</option>
+        ${OPERACIONES.map(([c, n]) => `<option value="${c}"${c === d.op ? ' selected' : ''}>${esc(n)}</option>`).join('')}
+      </select></td>
+      <td class="w-imp"><input id="br-${p.id}" data-campo="bruto" data-id="${p.id}" class="num${inv('bruto')}" inputmode="decimal" placeholder="0.00" value="${esc(d.bruto)}" aria-label="Imp. Bruto" autocomplete="off"></td>
+      <td class="w-imp"><input id="de-${p.id}" data-campo="desc" data-id="${p.id}" class="num${inv('desc')}" inputmode="decimal" placeholder="0.00" value="${esc(d.desc)}" aria-label="Imp. Descuento" autocomplete="off"></td>`;
+  } else {
+    celdas = `
+      <td>${esc(nombreOperacion(d.op))}</td>
+      <td class="r">${fmtMoney(num(d.bruto))}</td>
+      <td class="r">${fmtMoney(num(d.desc))}</td>`;
+  }
+  let acciones;
+  if (p.estado === 'borrador') {
+    acciones = `<button class="icon-btn aceptar" data-acc="aceptar" data-id="${p.id}" aria-label="Aceptar partida" title="Aceptar partida">${ICON.check}</button>`;
+  } else if (p.estado === 'editando') {
+    acciones = `<button class="icon-btn aceptar" data-acc="aceptar" data-id="${p.id}" aria-label="Guardar cambios" title="Guardar cambios">${ICON.check}</button>
+                <button class="icon-btn" data-acc="cancelar" data-id="${p.id}" aria-label="Descartar cambios" title="Descartar cambios">${ICON.undo}</button>`;
+  } else if (p.estado === 'guardando' || p.estado === 'eliminando') {
+    acciones = `<button class="icon-btn cargando" disabled aria-label="Procesando"><span class="spinner"></span></button>`;
+  } else if (bloq) {
+    acciones = '<span class="nada">—</span>';
+  } else {
+    acciones = `<button class="icon-btn" data-acc="editar" data-id="${p.id}" aria-label="Editar partida ${p.folio}" title="Editar">${ICON.pencil}</button>
+                <button class="icon-btn basura" data-acc="eliminar" data-id="${p.id}" aria-label="Eliminar partida ${p.folio}" title="Eliminar">${ICON.trash}</button>`;
+  }
+  const fila = `
+    <tr class="${editable(p) ? p.estado : 'guardada'}" id="fila-${p.id}">
+      <td>${folio}</td>${celdas}
+      <td class="r" id="imp-${p.id}">${fmtMoney(importePartida(d))}</td>
+      <td class="c">${botonNota}</td>
+      <td class="c">${acciones}</td>
+    </tr>`;
+  const errores = p.errores && p.errores.length
+    ? `<tr class="errores"><td></td><td colspan="6"><ul>${p.errores.map(x => `<li>${esc(x[1])}</li>`).join('')}</ul></td></tr>` : '';
+  return fila + errores;
+}
+
+function renderPartidas() {
+  $('tbItems').innerHTML = partidas.length ? partidas.map(filaHTML).join('')
+    : '<tr><td colspan="7" class="vacio">La cuenta no tiene partidas.</td></tr>';
+  actualizarTotales();
+}
+function enfocarBorrador() {
+  const b = partidas.find(p => p.estado === 'borrador');
+  if (b && $('op-' + b.id)) $('op-' + b.id).focus();
+}
+
+function actualizarTotales() {
+  const registradas = partidas.filter(p => p.folio);
+  const total = registradas.reduce((s, p) => s + importePartida(p.respaldo || p.datos), 0);
+  const factura = encabezado.guardado ? num(encabezado.guardado.IMP_BRUTO) : 0;
+  const [txt, cls, dif] = cuadre(factura, total, registradas.length);
+  $('totPartidas').textContent = fmtMoney(total);
+  $('totFactura').textContent = fmtMoney(factura);
+  $('totDif').textContent = fmtMoney(Math.abs(dif));
+  const pill = $('totEstado');
+  pill.className = 'pill ' + cls;
+  pill.textContent = cls === 'ok' ? 'Cuadra con la factura' : txt;
+  $('partMeta').textContent = `${registradas.length} registrada${registradas.length === 1 ? '' : 's'}`;
+}
+
+/* Captura en la fila: actualiza datos sin volver a pintar (conserva el foco) */
+$('tbItems').addEventListener('input', e => {
+  const id = Number(e.target.dataset.id), campo = e.target.dataset.campo;
+  const p = partidas.find(x => x.id === id);
+  if (!p || !campo) return;
+  p.datos[campo] = e.target.value;
+  e.target.classList.remove('invalid');
+  $('imp-' + id).textContent = fmtMoney(importePartida(p.datos));
+});
+$('tbItems').addEventListener('change', e => {
+  const p = partidas.find(x => x.id === Number(e.target.dataset.id));
+  if (p && e.target.dataset.campo) p.datos[e.target.dataset.campo] = e.target.value;
+});
+$('tbItems').addEventListener('focusout', e => {
+  if (e.target.classList.contains('num') && !V.importe(e.target.value, '', false)) {
+    const p = partidas.find(x => x.id === Number(e.target.dataset.id));
+    e.target.value = fmtNum(e.target.value);
+    if (p) p.datos[e.target.dataset.campo] = e.target.value;
+  }
+});
+$('tbItems').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('input')) {
+    e.preventDefault();
+    aceptarPartida(partidas.find(x => x.id === Number(e.target.dataset.id)));
+  }
+});
+$('tbItems').addEventListener('click', e => {
+  const b = e.target.closest('[data-acc]');
+  if (!b) return;
+  const p = partidas.find(x => x.id === Number(b.dataset.id));
+  if (!p) return;
+  ({ aceptar: aceptarPartida, editar: editarPartida, cancelar: cancelarEdicion, eliminar: confirmarEliminar, nota: abrirNota })[b.dataset.acc](p);
+});
+
+async function aceptarPartida(p) {
+  if (!p || !editable(p)) return;
+  const errores = validarPartida(p.datos);
+  p.errores = errores.length ? errores : null;
+  if (errores.length) {
+    renderPartidas();
+    const primero = { op: 'op-', bruto: 'br-', desc: 'de-' }[errores[0][0]];
+    if (primero && $(primero + p.id)) $(primero + p.id).focus();
+    return;
+  }
+  if (limpiar(p.datos.desc) === '') p.datos.desc = '0.00'; // DEFAULT 0
+  const previo = p.estado;
+  p.estado = 'guardando';
+  renderPartidas();
+  const r = await llamarServicio(ERR_PARTIDA);
+  if (r.ok) {
+    p.estado = 'guardada';
+    p.respaldo = null;
+    if (previo === 'borrador') {
+      p.folio = sigFolio++;
+      toast(`Partida ${p.folio} registrada`);
+      if (!partidas.some(x => x.estado === 'borrador')) agregarBorrador();
+    } else {
+      toast(`Partida ${p.folio} actualizada`);
+    }
+    sincronizarCuenta();
+    renderPartidas();
+    renderLista();
+    if (previo === 'borrador') enfocarBorrador();
+  } else {
+    p.estado = previo;
+    renderPartidas();
+    mostrarFalla(r);
+  }
+}
+
+function editarPartida(p) {
+  p.respaldo = { ...p.datos };
+  p.estado = 'editando';
+  p.errores = null;
+  renderPartidas();
+  $('op-' + p.id).focus();
+}
+function cancelarEdicion(p) {
+  p.datos = { ...p.respaldo };
+  p.respaldo = null;
+  p.estado = 'guardada';
+  p.errores = null;
+  renderPartidas();
+}
+
+function confirmarEliminar(p) {
+  abrirModal(`
+    <div class="modal-head"><h3>Eliminar partida ${p.folio}</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+    <div class="modal-body">
+      <p>${esc(nombreOperacion(p.datos.op))} por ${fmtMoney(importePartida(p.datos))}. La partida se elimina de la cuenta por pagar y el total se recalcula.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-cerrar>Conservar partida</button>
+      <button class="btn danger" id="btnConfirmaEliminar">Eliminar</button>
+    </div>`);
+  $('btnConfirmaEliminar').addEventListener('click', async () => {
+    cerrarModal();
+    p.estado = 'eliminando';
+    renderPartidas();
+    const r = await llamarServicio(ERR_ELIMINAR);
+    if (r.ok) {
+      partidas = partidas.filter(x => x !== p);
+      sincronizarCuenta();
+      renderLista();
+      toast(`Partida ${p.folio} eliminada`);
+    } else {
+      p.estado = 'guardada';
+      mostrarFalla(r);
+    }
+    renderPartidas();
+  });
+}
+
+function abrirNota(p) {
+  const puedeEditar = editable(p);
+  const titulo = p.folio ? `Nota · Partida ${p.folio}` : 'Nota · Partida nueva';
+  abrirModal(`
+    <div class="modal-head"><h3>${titulo}</h3><button class="close" data-cerrar aria-label="Cerrar">&times;</button></div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="notaTexto">Nota</label>
+        <textarea id="notaTexto" maxlength="200" ${puedeEditar ? '' : 'disabled'} placeholder="Texto libre, hasta 200 caracteres">${esc(p.datos.nota)}</textarea>
+        <div class="hint" id="notaCnt">${p.datos.nota.length} / 200</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${puedeEditar
+        ? '<button class="btn" data-cerrar>Cancelar</button><button class="btn primary" id="btnNotaOk">Aceptar</button>'
+        : '<button class="btn primary" data-cerrar>Cerrar</button>'}
+    </div>`);
+  $('notaTexto').addEventListener('input', ev => { $('notaCnt').textContent = `${ev.target.value.length} / 200`; });
+  if (puedeEditar) {
+    $('btnNotaOk').addEventListener('click', () => {
+      p.datos.nota = $('notaTexto').value.trim();
+      if (p.errores) p.errores = p.errores.filter(x => x[0] !== 'nota');
+      cerrarModal();
+      renderPartidas();
+    });
+  }
+}
+
+/* ---------- Abrir cuenta existente o nueva ---------- */
+function cargarCuenta(c) {
+  actual = c;
+  $('formEnc').reset();
+  escribirEncabezado(c.enc);
+  pintarErroresEncabezado({});
+  encabezado.guardado = { ...c.enc };
+  encabezado.estado = 'registrada';
+  partidas = c.partidas.map(x => ({
+    id: sigId++, folio: x.folio, estado: 'guardada',
+    datos: { op: x.op, bruto: x.bruto, desc: x.desc, nota: x.nota }, respaldo: null, errores: null,
+  }));
+  if (!bloqueada(c)) agregarBorrador();
+  aplicarEstadoEncabezado();
+  renderPartidas();
+}
+function nuevaCuenta() {
+  actual = null;
+  encabezado.estado = 'captura';
+  encabezado.guardado = null;
+  partidas = [];
+  $('formEnc').reset();
+  escribirEncabezado({ F_OPERACION: hoy(), UUID: nuevoUUID(), CVE_MONEDA: 'P', CVE_CHEQUERA: 'PBMX1', TX_NOTA: '' });
+  pintarErroresEncabezado({});
+  renderPartidas();
+  aplicarEstadoEncabezado();
+}
+
+/* Arranque: la cuenta 1502 (descuadrada) abierta como ejemplo */
+cargarCuenta(cuentas.find(c => c.folio === 1502));
+renderLista();
+</script>
+</body>
+</html>

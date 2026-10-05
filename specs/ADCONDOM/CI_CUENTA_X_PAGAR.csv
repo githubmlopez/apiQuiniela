@@ -1,0 +1,36 @@
+﻿CAMPO,LABEL,MANUAL,VALIDACIONES,DEFAULT,EDITABLE
+CVE_EMPRESA,Cve Empresa,NO,,,NO
+UUID,UUID,NO,,UUID,NO
+ID_PROVEEDOR,Cve Proveedor,NO,,,SI
+CVE_CHEQUERA,Cve Chequera ,NO,,,SI
+CVE_TIPO_FACTURA,Tipo Factura,NO,,CXP,NO
+F_OPERACION,F Operación,NO,,,NO
+F_CAPTURA,F Captura,NO,,HOY,NO
+F_CANCELACION,F Cancelacion,NO,,,NO
+F_PAGO,F Pago,NO,,,NO
+IMP_BRUTO,Imp Bruto,NO,isNonNegative,,SI
+IMP_IVA,Imp Iva,NO,"isNonNegative|compareField(<=, IMP_BRUTO)",,SI
+IMP_NETO,Imp Neto,NO,"isPositive|compareField(>=, IMP_BRUTO)",,SI
+CVE_MONEDA,Cve Moneda,NO,,P,NO
+TIPO_CAMBIO,Tipo Cambio,NO,,1,NO
+CVE_FORMA_PAGO,Forma Pago,NO,"oneOf(T, E,C)",,SI
+NUM_CHEQUE,Num Cheque,NO,,,NO
+NUM_DOCTO_REF,Docto Ref,NO,,,NO
+REFER_PAGO,Ref Pago,NO,,,NO
+TX_NOTA,Nota,NO,,,SI
+NOMBRE_DOCTO_PDF,Docto PDF,NO,,,NO
+NOMBRE_DOCTO_XML,Docto xml,NO,,,NO
+ID_CONCILIA_CXP,Id Concilia,SI,,,NO
+SIT_CONCILIA_CXP,Sit Concilia,NO,"oneOf(CO, CC,NC)",NC,NO
+SIT_C_X_P,Sit CxP,NO,"oneOf(A, C)",A,NO
+CVE_MOT_CONCIL,Mot Concilia,NO,,,NO
+SERIE_PROV,Serie Prov,NO,,,NO
+FOLIO_PROV,Folio Prov,NO,,,NO
+ANOMES_CONT,Ano Mes Cont,NO,isAnioMes,,NO
+ANO_MES_PAGO,Ano Mes Pago,NO,isAnioMes,,NO
+ANO_MES,Ano Mes,NO,isAnioMes,ANIOMES(F_OPERACION),NO
+IMP_ISR_RET,Imp ISR Ret,NO,isNonNegative,0,NO
+IMP_IVA_RET,Imp IVA Ret,NO,isNonNegative,0,NO
+IMP_IEPS,Imp IEPS,NO,isNonNegative,0,NO
+IMP_LOCAL,Imp Local,NO,isNonNegative,0,NO
+F_LIMIT_PAGO,F Limite,NO,,,NO
