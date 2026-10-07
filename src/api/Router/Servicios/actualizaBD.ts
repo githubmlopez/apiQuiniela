@@ -36,10 +36,22 @@ export async function createRecord <M extends Model>(
     console.log(model.primaryKeyAttributes);
     const hasTriggers = (model as any).options?.hasTriggers || false;
     console.log('🚨 hasTriggers ', hasTriggers)
-    // Si falta parte de la PK, la genera el hook del modelo (UUID, folio): no hay registro que buscar.
-    // Si el modelo no la asigna, su validación reporta el campo obligatorio.
-    const pkCompleta = model.primaryKeyAttributes.every((k: string) => data?.[k] !== undefined && data?.[k] !== null);
-    const existingRecord = pkCompleta
+    // Llave primaria: las partes que asigna el back (DEFAULT o MANUAL en el CSV) vienen declaradas en la
+    // propiedad personalizada llavesCalculadas del modelo y pueden faltar; las demás son obligatorias.
+    const llavesCalculadas: string[] = (model as any).options?.llavesCalculadas || [];
+    const faltantes = model.primaryKeyAttributes
+      .filter((k: string) => data?.[k] === undefined || data?.[k] === null || data?.[k] === '');
+    const faltantesObligatorias = faltantes.filter((k: string) => !llavesCalculadas.includes(k));
+    if (faltantesObligatorias.length > 0) {
+       return {
+          estatus: kErrorNeg,
+          data: null,
+          errorUs: null,
+          errorNeg: faltantesObligatorias.map((k: string) => `Falta la llave primaria: ${k}`)
+       };
+    }
+    // Si falta una parte calculada, la asigna el hook del modelo (UUID, folio): no hay registro que buscar.
+    const existingRecord = faltantes.length === 0
       ? await findOneByKeyService(model, data, {
           transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción);
         })
@@ -259,7 +271,7 @@ export async function deleteRecord <M extends Model>(
                 estatus: kErrorNeg,
                 data: null,
                 errorUs: null,
-                errorNeg: ['Error al procesar la eliminación.']
+                errorNeg: resultado.validationErrors ?? ['Error al procesar la eliminación.'] // mensajes [N] de los hooks
             };
         }
    } else {

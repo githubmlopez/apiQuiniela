@@ -6,6 +6,7 @@ export interface ValidationRule {
   // Permitimos que valide el campo solo o que reciba la instancia completa para casos complejos
   exec: (instance: any, campo: string, label: string) => { campo: string; mensaje: string } | null;
   dependencias?: string[]; // Campos extra que, si cambian, disparan esta validación
+  siempre?: boolean;       // Se evalúa en toda inserción y actualización, cambien o no los campos
 }
 
 export const runValidationEngine = async (
@@ -34,6 +35,9 @@ export const runValidationEngine = async (
   const shouldValidate = (rule: ValidationRule) => {
     // MODO INSERCIÓN: Validamos todo (incluyendo el NOMBRE que no viene en el JSON)
     if (!soloCambios) return true;
+
+    // Reglas de estado del registro (p. ej. "cancelado no se modifica"): aplican aunque no cambie nada
+    if (rule.siempre) return true;
 
     // MODO ACTUALIZACIÓN: Solo validamos lo enviado en el JSON
     const campoCambio = changedFields.includes(rule.campo);

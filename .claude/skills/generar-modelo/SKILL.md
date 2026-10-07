@@ -51,6 +51,9 @@ la llave primaria y los índices únicos. **No** se generan relaciones (`belongs
 }
 ```
 
+- `default_value` en una columna (p. ej. `"('SP')"`, el DEFAULT de la BD): no se genera en Sequelize; el valor en
+  inserción lo da el `DEFAULT` del CSV. Si la columna no acepta nulos, trae `default_value` y el CSV no tiene
+  `DEFAULT`, avisa: la validación `isNotNull` rechazaría la inserción antes de que la BD aplique su default.
 - `foreign_keys`: se ignora.
 - Índices con `is_unique: false`: se ignoran.
 - El usuario exporta el JSON desde el schema en una sola línea. Si viene así, dale formato
@@ -116,6 +119,7 @@ export async function def_<TABLA>(sequelize: any) {
       schema: '<schema>',
       timestamps: false,
       hasTriggers: false,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      llavesCalculadas: ['COLUMNA_PK'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : '<PK index_name>',
          unique : true,
@@ -140,6 +144,12 @@ export async function def_<TABLA>(sequelize: any) {
 - `indexes`: primero la PK y después los índices únicos, en el orden del JSON, con su `index_name` real.
 - `hasTriggers`: se toma del atributo `hasTriggers` del JSON. Si el JSON no lo trae: si el `.gen.ts` ya existe,
   conserva su valor; si es nuevo, `false`. En ambos casos avisa que falta en el JSON.
+- `llavesCalculadas`: columnas de la **PK** que asigna el back y que, por lo tanto, pueden faltar en el alta.
+  Una columna de la PK entra si en el CSV tiene `DEFAULT` (cualquier valor o token) o `MANUAL = SI`; columnas que no
+  son de la PK nunca entran. En el orden del JSON; si ninguna califica, `llavesCalculadas: [],`. Sin CSV, `[]`.
+  `createRecord` la usa así: con la PK completa busca duplicados; si falta una parte calculada, omite la búsqueda
+  (el hook la asigna); si falta una parte no calculada, responde `Falta la llave primaria: <COLUMNA>`.
+  Los modelos que no declaran la propiedad (anteriores al generador) exigen la PK completa en el alta.
 
 ## 5. Escribir y registrar
 
@@ -279,8 +289,36 @@ export interface Manual<TABLA> {
   alActualizar?: (instance: any, options: any) => void | Promise<void>;
   /** Reglas adicionales; se ejecutan después de las generadas. */
   reglas?: ValidationRule[];
+  /** Antes de una eliminación física: recibe la llave (where) y regresa los errores [N] que la impiden. */
+  validarEliminacion?: (llave: Record<string, any>, options: any) =>
+    { campo: string; mensaje: string }[] | Promise<{ campo: string; mensaje: string }[]>;
 }
 ```
+
+`validarEliminacion` es opcional. El `.gen.ts` **siempre** genera el hook que la llama (después de `beforeUpdate`):
+
+```ts
+// ============================================
+// 🧩 Hook BEFORE BULK DESTROY para <TABLA>
+// ============================================
+// Model.destroy({ where }) (deleteRecord) no ejecuta beforeDestroy: options.where trae la llave.
+<TABLA>.addHook('beforeBulkDestroy', async (options: any) => {
+  if (!manual.validarEliminacion) return;
+  const errores = await manual.validarEliminacion(options.where, options);
+  if (errores.length > 0) {
+    throw construirErroresValidacion(errores, options.where);
+  }
+});
+```
+
+Sirve para el patrón de eliminación de cada tabla: sin la función, eliminación libre; con una función que siempre
+regresa error, tabla no eliminable; con una consulta (p. ej. al padre con
+`options.model.sequelize.models.<PADRE>.findOne({ …, transaction: options.transaction })`), eliminación condicionada.
+Los mensajes llevan `[N]:` y `deleteRecord` los regresa en `errorNeg`.
+
+Las reglas de `reglas` admiten `siempre: true` (motor de validación): se evalúan en toda modificación aunque no
+cambie ningún campo. Úsalo para reglas de estado del registro (p. ej. "cancelado no se modifica"), con
+`if (inst.isNewRecord) return null;` si no aplican al alta.
 
 `alActualizar` es opcional (el generador no la exige): sirve para ajustar campos cuando cambian otros
 (ej. mantener `CVE_OPER_ASIG` igual a `CVE_OPERACION`). Recibe el registro real, así que puede usar

@@ -24,6 +24,9 @@ export interface ManualCI_ITEM_C_X_P {
   alActualizar?: (instance: any, options: any) => void | Promise<void>;
   /** Reglas adicionales; se ejecutan después de las generadas. */
   reglas?: ValidationRule[];
+  /** Antes de una eliminación física: recibe la llave (where) y regresa los errores [N] que la impiden. */
+  validarEliminacion?: (llave: Record<string, any>, options: any) =>
+    { campo: string; mensaje: string }[] | Promise<{ campo: string; mensaje: string }[]>;
 }
 
 // --- Codigo generado de manera automatica -----
@@ -84,6 +87,7 @@ export async function def_CI_ITEM_C_X_P(sequelize: any) {
       schema: 'dbo',
       timestamps: false,
       hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      llavesCalculadas: ['ID_CXP_DET'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : 'PK_CI_DET_CTA_X_PAGAR',
          unique : true,
@@ -150,6 +154,18 @@ CI_ITEM_C_X_P.addHook('beforeUpdate', async (instance: any, options: any) => {
   // --- 3) Validaciones de lo que cambió, incluidas sus dependencias ---
   await runValidationEngine(instance, reglas, construirErroresValidacion,
     { ...options, validateOnlyChanged: true });
+});
+
+// ============================================
+// 🧩 Hook BEFORE BULK DESTROY para CI_ITEM_C_X_P
+// ============================================
+// Model.destroy({ where }) (deleteRecord) no ejecuta beforeDestroy: options.where trae la llave.
+CI_ITEM_C_X_P.addHook('beforeBulkDestroy', async (options: any) => {
+  if (!manual.validarEliminacion) return;
+  const errores = await manual.validarEliminacion(options.where, options);
+  if (errores.length > 0) {
+    throw construirErroresValidacion(errores, options.where);
+  }
 });
 
    return CI_ITEM_C_X_P;

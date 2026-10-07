@@ -16,7 +16,7 @@ import { manual } from './CI_CUENTA_X_PAGAR.manual.js';
 
 // --- Contrato con CI_CUENTA_X_PAGAR.manual.ts ---
 // Una función por cada campo con MANUAL=SI en el CSV
-export type CamposManualesCI_CUENTA_X_PAGAR = 'ID_CONCILIA_CXP';
+export type CamposManualesCI_CUENTA_X_PAGAR = 'IMP_NETO' | 'ID_CONCILIA_CXP';
 
 export interface ManualCI_CUENTA_X_PAGAR {
   /** Solo en inserción: después de los DEFAULT y antes de validar. */
@@ -25,6 +25,9 @@ export interface ManualCI_CUENTA_X_PAGAR {
   alActualizar?: (instance: any, options: any) => void | Promise<void>;
   /** Reglas adicionales; se ejecutan después de las generadas. */
   reglas?: ValidationRule[];
+  /** Antes de una eliminación física: recibe la llave (where) y regresa los errores [N] que la impiden. */
+  validarEliminacion?: (llave: Record<string, any>, options: any) =>
+    { campo: string; mensaje: string }[] | Promise<{ campo: string; mensaje: string }[]>;
 }
 
 // --- Codigo generado de manera automatica -----
@@ -178,13 +181,18 @@ export async function def_CI_CUENTA_X_PAGAR(sequelize: any) {
          type: DataTypes.DATEONLY  ,
          allowNull: true,
       },
+      SIT_CUADRE : {
+         type: DataTypes.STRING (2),
+         allowNull: false,
+      },
    },
    {
       modelName: 'CI_CUENTA_X_PAGAR',
       tableName: 'CI_CUENTA_X_PAGAR',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: false,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      llavesCalculadas: ['UUID'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : 'PK_CI_CUENTA_X_PAGAR',
          unique : true,
@@ -231,11 +239,13 @@ CI_CUENTA_X_PAGAR.addHook('beforeValidate', async (instance: any, options: any) 
     if (instance.IMP_IVA_RET == null) instance.IMP_IVA_RET = 0;
     if (instance.IMP_IEPS == null) instance.IMP_IEPS = 0;
     if (instance.IMP_LOCAL == null) instance.IMP_LOCAL = 0;
+    if (!instance.SIT_CUADRE) instance.SIT_CUADRE = 'SP';
 
     // Dependen de otro campo
     if (!instance.ANO_MES) instance.ANO_MES = aAnioMes(instance.F_OPERACION); // ANIOMES(F_OPERACION)
 
     // Campos MANUAL (CI_CUENTA_X_PAGAR.manual.ts)
+    await manual.asignar.IMP_NETO(instance, options);
     await manual.asignar.ID_CONCILIA_CXP(instance, options);
   }
 
@@ -267,6 +277,18 @@ CI_CUENTA_X_PAGAR.addHook('beforeUpdate', async (instance: any, options: any) =>
   // --- 3) Validaciones de lo que cambió, incluidas sus dependencias ---
   await runValidationEngine(instance, reglas, construirErroresValidacion,
     { ...options, validateOnlyChanged: true });
+});
+
+// ============================================
+// 🧩 Hook BEFORE BULK DESTROY para CI_CUENTA_X_PAGAR
+// ============================================
+// Model.destroy({ where }) (deleteRecord) no ejecuta beforeDestroy: options.where trae la llave.
+CI_CUENTA_X_PAGAR.addHook('beforeBulkDestroy', async (options: any) => {
+  if (!manual.validarEliminacion) return;
+  const errores = await manual.validarEliminacion(options.where, options);
+  if (errores.length > 0) {
+    throw construirErroresValidacion(errores, options.where);
+  }
 });
 
    return CI_CUENTA_X_PAGAR;
@@ -402,7 +424,8 @@ const reglasGeneradas: ValidationRule[] = [
     label: 'Cve Moneda',
     exec: (inst : any, campo, label) =>
       validators.isNotNull(inst.CVE_MONEDA, campo, label) ||
-      validators.length(inst.CVE_MONEDA, 1, 1, campo, label)
+      validators.length(inst.CVE_MONEDA, 1, 1, campo, label) ||
+      validators.oneOf(inst.CVE_MONEDA, ['P', 'D'], campo, label)
   },
 
   // 14. TIPO_CAMBIO: Opcional, numeric(8,2)
@@ -588,6 +611,16 @@ const reglasGeneradas: ValidationRule[] = [
     label: 'F Limite',
     exec: (inst : any, campo, label) => validators.isDateFormat(inst.F_LIMIT_PAGO, campo, label)
   },
+
+  // 36. SIT_CUADRE: Obligatorio, varchar(2)
+  {
+    campo: 'SIT_CUADRE',
+    label: 'Sit Cuadre',
+    exec: (inst : any, campo, label) =>
+      validators.isNotNull(inst.SIT_CUADRE, campo, label) ||
+      validators.length(inst.SIT_CUADRE, 1, 2, campo, label) ||
+      validators.oneOf(inst.SIT_CUADRE, ['SP', 'CU', 'FA', 'EX'], campo, label)
+  },
 ];
 
 // Reglas que ejecuta el motor: generadas + las del archivo manual
@@ -602,6 +635,7 @@ const noEditables = [
   { campo: 'F_CAPTURA', label: 'F Captura' },
   { campo: 'F_CANCELACION', label: 'F Cancelacion' },
   { campo: 'F_PAGO', label: 'F Pago' },
+  { campo: 'IMP_NETO', label: 'Imp Neto' },
   { campo: 'CVE_MONEDA', label: 'Cve Moneda' },
   { campo: 'TIPO_CAMBIO', label: 'Tipo Cambio' },
   { campo: 'NUM_CHEQUE', label: 'Num Cheque' },
@@ -611,7 +645,6 @@ const noEditables = [
   { campo: 'NOMBRE_DOCTO_XML', label: 'Docto xml' },
   { campo: 'ID_CONCILIA_CXP', label: 'Id Concilia' },
   { campo: 'SIT_CONCILIA_CXP', label: 'Sit Concilia' },
-  { campo: 'SIT_C_X_P', label: 'Sit CxP' },
   { campo: 'CVE_MOT_CONCIL', label: 'Mot Concilia' },
   { campo: 'SERIE_PROV', label: 'Serie Prov' },
   { campo: 'FOLIO_PROV', label: 'Folio Prov' },
@@ -623,4 +656,5 @@ const noEditables = [
   { campo: 'IMP_IEPS', label: 'Imp IEPS' },
   { campo: 'IMP_LOCAL', label: 'Imp Local' },
   { campo: 'F_LIMIT_PAGO', label: 'F Limite' },
+  { campo: 'SIT_CUADRE', label: 'Sit Cuadre' },
 ];

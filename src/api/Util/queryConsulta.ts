@@ -147,11 +147,15 @@ function containsSpecialOperator(val: string): boolean {
     return false;
 }
 
+// Literal de texto SQL: duplica las comillas simples (O'Brien -> 'O''Brien') para que el valor
+// no pueda cerrar la cadena e inyectar SQL.
+const literalTexto = (val: string): string => `'${val.replace(/'/g, "''")}'`;
+
 export function formatRepPar(query: string, repParameters: KeyValueObject): string {
   const kNumero: string = 'number';
   const kstring: string = 'string';
   const kmodelo: string = '$99';
-  
+
   let formattedQuery = query;
 
   for (const key in repParameters) {
@@ -159,27 +163,30 @@ export function formatRepPar(query: string, repParameters: KeyValueObject): stri
       const value: string | number = repParameters[key];
       const valStr = String(value);
       const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      // El reemplazo va como función: un texto con $&, $' o $` se inserta literal
+      // (como cadena, String.replace los interpretaría y copiaría partes del query).
+      const reemplaza = (texto: string) => { formattedQuery = formattedQuery.replace(regex, () => texto); };
 
       // 1. CASO NÚMERO O MODELO ($99)
       // Se inserta el valor tal cual (sin comillas)
       if (typeof value === kNumero || key === kmodelo) {
-        formattedQuery = formattedQuery.replace(regex, valStr);
-      } 
-      
+        reemplaza(valStr);
+      }
+
       // 2. CASO STRING
       else if (typeof value === kstring) {
         // Si ya trae un operador (IN, LIKE, >, <, =), no ponemos comillas
         if (containsSpecialOperator(valStr)) {
-          formattedQuery = formattedQuery.replace(regex, valStr);
+          reemplaza(valStr);
         } else {
-          // Si es un texto plano, le ponemos comillas simples
-          formattedQuery = formattedQuery.replace(regex, `'${valStr}'`);
+          // Si es un texto plano, le ponemos comillas simples (escapadas)
+          reemplaza(literalTexto(valStr));
         }
-      } 
-      
+      }
+
       // 3. CUALQUIER OTRO TIPO (Seguridad)
       else {
-        formattedQuery = formattedQuery.replace(regex, `'${valStr}'`);
+        reemplaza(literalTexto(valStr));
       }
     }
   }
@@ -272,7 +279,7 @@ export function processSqlServerJsonResult(sqlQueryResult: any): Array<Record<st
 export function IncHeader (sql : string, infHeader : I_Header) : string {
   let sqlFmtHeader = sql;
   const jsonHeader : string = JSON.stringify(infHeader);
-  const jsonQheader = `'${jsonHeader}'`
+  const jsonQheader = literalTexto(jsonHeader);   // comillas escapadas (p. ej. usuario o'brien)
   const kNomHeader = '@pHeader';
   const jsonQheaderNom = `${kNomHeader} = ${jsonQheader}`;
   if (sql.split(' ').length > 2) {

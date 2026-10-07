@@ -10,8 +10,8 @@ F_CANCELACION,F Cancelacion,NO,,,NO
 F_PAGO,F Pago,NO,,,NO
 IMP_BRUTO,Imp Bruto,NO,isNonNegative,,SI
 IMP_IVA,Imp Iva,NO,"isNonNegative|compareField(<=, IMP_BRUTO)",,SI
-IMP_NETO,Imp Neto,NO,"isPositive|compareField(>=, IMP_BRUTO)",,SI
-CVE_MONEDA,Cve Moneda,NO,,P,NO
+IMP_NETO,Imp Neto,SI,"isPositive|compareField(>=, IMP_BRUTO)",,NO
+CVE_MONEDA,Cve Moneda,NO,"oneOf(P, D)",P,NO
 TIPO_CAMBIO,Tipo Cambio,NO,,1,NO
 CVE_FORMA_PAGO,Forma Pago,NO,"oneOf(T, E,C)",,SI
 NUM_CHEQUE,Num Cheque,NO,,,NO
@@ -22,7 +22,7 @@ NOMBRE_DOCTO_PDF,Docto PDF,NO,,,NO
 NOMBRE_DOCTO_XML,Docto xml,NO,,,NO
 ID_CONCILIA_CXP,Id Concilia,SI,,,NO
 SIT_CONCILIA_CXP,Sit Concilia,NO,"oneOf(CO, CC,NC)",NC,NO
-SIT_C_X_P,Sit CxP,NO,"oneOf(A, C)",A,NO
+SIT_C_X_P,Sit CxP,NO,"oneOf(A, C)",A,SI
 CVE_MOT_CONCIL,Mot Concilia,NO,,,NO
 SERIE_PROV,Serie Prov,NO,,,NO
 FOLIO_PROV,Folio Prov,NO,,,NO
@@ -34,3 +34,4 @@ IMP_IVA_RET,Imp IVA Ret,NO,isNonNegative,0,NO
 IMP_IEPS,Imp IEPS,NO,isNonNegative,0,NO
 IMP_LOCAL,Imp Local,NO,isNonNegative,0,NO
 F_LIMIT_PAGO,F Limite,NO,,,NO
+SIT_CUADRE,Sit Cuadre,NO,"oneOf(SP, CU, FA, EX)",SP,NO

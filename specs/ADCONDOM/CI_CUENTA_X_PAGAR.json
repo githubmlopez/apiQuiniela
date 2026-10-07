@@ -1,6 +1,7 @@
 {
   "table_name": "CI_CUENTA_X_PAGAR",
   "schema": "dbo",
+  "hasTriggers": true,
   "columns": [
     { "name": "CVE_EMPRESA",      "data_type": "varchar(4)",    "is_nullable": false },
     { "name": "UUID",             "data_type": "varchar(36)",   "is_nullable": false },
@@ -36,7 +37,8 @@
     { "name": "IMP_IVA_RET",      "data_type": "numeric(12,2)", "is_nullable": false },
     { "name": "IMP_IEPS",         "data_type": "numeric(12,2)", "is_nullable": false },
     { "name": "IMP_LOCAL",        "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "F_LIMIT_PAGO",     "data_type": "date",          "is_nullable": true  }
+    { "name": "F_LIMIT_PAGO",     "data_type": "date",          "is_nullable": true  },
+    { "name": "SIT_CUADRE",       "data_type": "varchar(2)",    "is_nullable": false, "default_value": "('SP')" }
   ],
   "foreign_keys": [
     { "constraint_name": "FK_PROVEEDOR_CXP", "column": "CVE_EMPRESA", "referenced_table": "CI_PROVEEDOR", "referenced_column": "CVE_EMPRESA" },

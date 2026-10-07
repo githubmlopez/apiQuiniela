@@ -48,4 +48,33 @@ export const manual: ManualCI_ITEM_C_X_P = {
 
   // Reglas de negocio adicionales; se ejecutan después de las generadas.
   reglas: [],
+
+  // Una partida de una cuenta cancelada o conciliada no se puede eliminar.
+  validarEliminacion: async (llave, options) => {
+    const mensaje = await bloqueoCuenta(llave, options, 'eliminar');
+    return mensaje ? [{ campo: 'UUID', mensaje }] : [];
+  },
 };
+
+/**
+ * Revisa la situación de la cuenta por pagar padre.
+ * Regresa el mensaje [N] si la cuenta está cancelada o conciliada; null si admite cambios en sus partidas.
+ * Reutilizable cuando se valide también el alta y la modificación de partidas en el back.
+ */
+async function bloqueoCuenta(llave: Record<string, any>, options: any, accion: string): Promise<string | null> {
+  const cuentas = options.model.sequelize.models.CI_CUENTA_X_PAGAR;
+  const cuenta = await cuentas.findOne({
+    where: { CVE_EMPRESA: llave.CVE_EMPRESA, UUID: llave.UUID },
+    attributes: ['SIT_C_X_P', 'SIT_CONCILIA_CXP'],
+    transaction: options.transaction,
+    raw: true,
+  });
+  if (!cuenta) return null;   // sin cuenta no hay partidas: la FK lo garantiza
+  if (cuenta.SIT_C_X_P === 'C') {
+    return `[N]: La cuenta por pagar está cancelada; no se pueden ${accion} sus partidas`;
+  }
+  if (cuenta.SIT_CONCILIA_CXP !== 'NC') {
+    return `[N]: La cuenta por pagar ya fue conciliada; no se pueden ${accion} sus partidas`;
+  }
+  return null;
+}

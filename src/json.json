@@ -1,82 +1,34 @@
 {
-  "table_name": "CI_CUENTA_X_PAGAR",
-  "schema": "dbo",
-  "columns": [
-    { "name": "CVE_EMPRESA",      "data_type": "varchar(4)",    "is_nullable": false },
-    { "name": "UUID",             "data_type": "varchar(36)",   "is_nullable": false },
-    { "name": "ID_PROVEEDOR",     "data_type": "int",           "is_nullable": false },
-    { "name": "CVE_CHEQUERA",     "data_type": "varchar(6)",    "is_nullable": false },
-    { "name": "CVE_TIPO_FACTURA", "data_type": "varchar(6)",    "is_nullable": false },
-    { "name": "F_OPERACION",      "data_type": "date",          "is_nullable": true  },
-    { "name": "F_CAPTURA",        "data_type": "date",          "is_nullable": false },
-    { "name": "F_CANCELACION",    "data_type": "date",          "is_nullable": true  },
-    { "name": "F_PAGO",           "data_type": "date",          "is_nullable": true  },
-    { "name": "IMP_BRUTO",        "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "IMP_IVA",          "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "IMP_NETO",         "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "CVE_MONEDA",       "data_type": "varchar(1)",    "is_nullable": false },
-    { "name": "TIPO_CAMBIO",      "data_type": "numeric(8,2)",  "is_nullable": true  },
-    { "name": "CVE_FORMA_PAGO",   "data_type": "varchar(1)",    "is_nullable": false },
-    { "name": "NUM_CHEQUE",       "data_type": "numeric(6,0)",  "is_nullable": true  },
-    { "name": "NUM_DOCTO_REF",    "data_type": "varchar(40)",   "is_nullable": true  },
-    { "name": "REFER_PAGO",       "data_type": "varchar(70)",   "is_nullable": true  },
-    { "name": "TX_NOTA",          "data_type": "varchar(200)",  "is_nullable": true  },
-    { "name": "NOMBRE_DOCTO_PDF", "data_type": "varchar(25)",   "is_nullable": true  },
-    { "name": "NOMBRE_DOCTO_XML", "data_type": "varchar(25)",   "is_nullable": true  },
-    { "name": "ID_CONCILIA_CXP",  "data_type": "int",           "is_nullable": false },
-    { "name": "SIT_CONCILIA_CXP", "data_type": "varchar(2)",    "is_nullable": false },
-    { "name": "SIT_C_X_P",        "data_type": "varchar(2)",    "is_nullable": false },
-    { "name": "CVE_MOT_CONCIL",   "data_type": "varchar(2)",    "is_nullable": true  },
-    { "name": "SERIE_PROV",       "data_type": "varchar(20)",   "is_nullable": true  },
-    { "name": "FOLIO_PROV",       "data_type": "varchar(40)",   "is_nullable": true  },
-    { "name": "ANOMES_CONT",      "data_type": "varchar(6)",    "is_nullable": true  },
-    { "name": "ANO_MES_PAGO",     "data_type": "varchar(6)",    "is_nullable": true  },
-    { "name": "ANO_MES",          "data_type": "varchar(6)",    "is_nullable": false },
-    { "name": "IMP_ISR_RET",      "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "IMP_IVA_RET",      "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "IMP_IEPS",         "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "IMP_LOCAL",        "data_type": "numeric(12,2)", "is_nullable": false },
-    { "name": "F_LIMIT_PAGO",     "data_type": "date",          "is_nullable": true  }
-  ],
-  "foreign_keys": [
+  "encabezado": {
+    "uuid": "00000000-0000-4000-8000-000000990006",
+    "idConciliaCxp": 990006,
+    "fOperacion": "2026-10-07",
+    "cveMoneda": "P",
+    "idProveedor": 41,
+    "nomProveedor": "JOSE ANTONIO BAUCHAN LOZANO / BOUPELL CONSULTORES",
+    "cveFormaPago": "T",
+    "impBruto": 12500.00,
+    "impIva": 2000.00,
+    "impNeto": 14500.00,
+    "cveChequera": "PBMX1",
+    "txNota": "Prueba: conciliada CO",
+    "situacion": "Conciliada",
+    "bEditable": 0,
+    "sitCuadre": "CU",
+    "numPartidas": 1,
+    "totalPartidas": 12500.00,
+    "diferencia": 0.00
+  },
+  "partidas": [
     {
-      "constraint_name": "FK_PROVEEDOR_CXP",
-      "column": "CVE_EMPRESA",
-      "referenced_table": "CI_PROVEEDOR",
-      "referenced_column": "CVE_EMPRESA"
-    },
-    {
-      "constraint_name": "FK_PROVEEDOR_CXP",
-      "column": "ID_PROVEEDOR",
-      "referenced_table": "CI_PROVEEDOR",
-      "referenced_column": "ID_PROVEEDOR"
-    }
-  ],
-  "indexes": [
-    {
-      "index_name": "PK_CI_CUENTA_X_PAGAR",
-      "is_unique": true,
-      "is_primary_key": true,
-      "columns": [
-        { "value": "CVE_EMPRESA" },
-        { "value": "UUID" }
-      ]
-    },
-    {
-      "index_name": "IX_CI_CUENTA_X_PAGAR",
-      "is_unique": true,
-      "is_primary_key": false,
-      "columns": [
-        { "value": "ID_CONCILIA_CXP" }
-      ]
-    },
-    {
-      "index_name": "IX_CUENTA_X_PAGAR_ANOMES",
-      "is_unique": false,
-      "is_primary_key": false,
-      "columns": [
-        { "value": "ANO_MES" }
-      ]
+      "idCxpDet": 990107,
+      "cveOperacion": "90",
+      "descOperacion": "Retención ISR Terceros",
+      "impBruto": 12500.00,
+      "impDescuento": 0.00,
+      "importe": 12500.00,
+      "txNota": null,
+      "cveOperAsig": "90"
     }
   ]
 }
