@@ -118,7 +118,7 @@ export async function def_<TABLA>(sequelize: any) {
       tableName: '<TABLA>',
       schema: '<schema>',
       timestamps: false,
-      hasTriggers: false,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTrigger: false,  // OPCIÓN DE SEQUELIZE: tabla con triggers (INSERT/UPDATE con OUTPUT ... INTO @tmp)
       llavesCalculadas: ['COLUMNA_PK'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : '<PK index_name>',
@@ -142,8 +142,11 @@ export async function def_<TABLA>(sequelize: any) {
 ```
 
 - `indexes`: primero la PK y después los índices únicos, en el orden del JSON, con su `index_name` real.
-- `hasTriggers`: se toma del atributo `hasTriggers` del JSON. Si el JSON no lo trae: si el `.gen.ts` ya existe,
-  conserva su valor; si es nuevo, `false`. En ambos casos avisa que falta en el JSON.
+- `hasTrigger` (opción nativa de Sequelize, en singular): se toma del atributo `hasTriggers` del JSON (así lo
+  exporta el usuario). Con `true`, Sequelize hace los INSERT/UPDATE con `OUTPUT ... INTO @tmp`, que SQL Server
+  permite en tablas con triggers. Si el JSON no lo trae: si el `.gen.ts` ya existe, conserva su valor; si es nuevo,
+  `false`. En ambos casos avisa que falta en el JSON. **No** generes la propiedad antigua `hasTriggers` (en plural):
+  se retiró junto con el parche de `obtResultado` (2026-10-07).
 - `llavesCalculadas`: columnas de la **PK** que asigna el back y que, por lo tanto, pueden faltar en el alta.
   Una columna de la PK entra si en el CSV tiene `DEFAULT` (cualquier valor o token) o `MANUAL = SI`; columnas que no
   son de la PK nunca entran. En el orden del JSON; si ninguna califica, `llavesCalculadas: [],`. Sin CSV, `[]`.

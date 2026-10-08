@@ -13,7 +13,7 @@ Cada uno indica qué lo mitiga hoy y qué se propone para cerrarlo.
 | V03 | 🟠 | API: `CVE_EMPRESA` se toma del body, no de la sesión | Abierto |
 | V04 | 🟠 | CxP: alta/modificación de partidas en cuenta cancelada o conciliada | Mitigado (front) |
 | V05 | 🟠 | CxP: `/Crud/Borra` puede eliminar físicamente una cuenta | Mitigado (front) |
-| V06 | 🟠 | CRUD: `obtResultado` trata un `TypeError` como éxito | Abierto |
+| V06 | 🟠 | CRUD: `obtResultado` trata un `TypeError` como éxito | Corregido, en prueba (2026-10-07) |
 | V07 | 🟠 | Logs: `createRecord` imprime los datos recibidos (incluidas contraseñas) | Abierto |
 | V08 | 🟡 | CRUD: violación de llave foránea llega como error de sistema | Abierto |
 | V09 | 🟡 | Queries: `FOR JSON` con `FROM` y sin filas termina en error de sistema | Abierto |
@@ -81,6 +81,11 @@ Cada uno indica qué lo mitiga hoy y qué se propone para cerrarlo.
 - **Mitigación actual:** ninguna.
 - **Propuesta:** usar la opción nativa de Sequelize para tablas MSSQL con triggers (`hasTrigger` en el modelo) y
   retirar el parche; o limitarlo a la llamada exacta de inserción en tablas con `hasTriggers`.
+- **Solución aplicada (2026-10-07):** los modelos con triggers (`CI_CUENTA_X_PAGAR`, `CI_ITEM_C_X_P`, `FC_SEG_USUARIO`,
+  `Q_PARTIDO`) usan la opción nativa `hasTrigger: true`; Sequelize genera `OUTPUT ... INTO @tmp` + `SELECT * FROM @tmp`.
+  Se retiraron la propiedad `hasTriggers`, el `returning` condicionado y el parche del `TypeError` en `obtResultado`.
+- **Pendiente:** probar alta y modificación en las cuatro tablas (incluidas las de producción). Respaldo de los
+  archivos previos en el scratchpad de la sesión (`respaldo-v06`).
 - **Detectado:** 2026-10-03.
 
 ## V07 🟠 Logs con datos sensibles

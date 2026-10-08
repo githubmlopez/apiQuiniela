@@ -86,7 +86,7 @@ export async function def_CI_ITEM_C_X_P(sequelize: any) {
       tableName: 'CI_ITEM_C_X_P',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTrigger: true,  // OPCIÓN DE SEQUELIZE: tabla con triggers (INSERT/UPDATE con OUTPUT ... INTO @tmp)
       llavesCalculadas: ['ID_CXP_DET'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : 'PK_CI_DET_CTA_X_PAGAR',

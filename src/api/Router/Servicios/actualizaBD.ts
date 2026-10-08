@@ -34,8 +34,6 @@ export async function createRecord <M extends Model>(
   ): Promise<I_InfResponse> {
     console.log(data);
     console.log(model.primaryKeyAttributes);
-    const hasTriggers = (model as any).options?.hasTriggers || false;
-    console.log('🚨 hasTriggers ', hasTriggers)
     // Llave primaria: las partes que asigna el back (DEFAULT o MANUAL en el CSV) vienen declaradas en la
     // propiedad personalizada llavesCalculadas del modelo y pueden faltar; las demás son obligatorias.
     const llavesCalculadas: string[] = (model as any).options?.llavesCalculadas || [];
@@ -71,13 +69,12 @@ export async function createRecord <M extends Model>(
        ...opciones,
        individualHooks: true,
        hooks: true,
-       returning: hasTriggers ? false : true,
-       hasTriggers: hasTriggers, 
+       // Tablas con triggers: la opción hasTrigger del modelo hace que Sequelize use OUTPUT ... INTO @tmp
        raw: false
        };
         // 2. Ejecutar la creación con obtResultado
-       // build + save en lugar de create: se conserva la instancia aunque con triggers
-       // save termine en el TypeError que obtResultado trata como éxito, para regresar la llave.
+       // build + save en lugar de create: se conserva la instancia para regresar la llave
+       // (incluidas las partes que asignan los hooks: UUID, folio).
        let instancia: any = null;
        const resultado : I_OperaResult = await obtResultado(
            async (model: any, datosCreacion: any, createOpts: any) => {
@@ -126,9 +123,6 @@ export async function updateRecord <M extends Model>(
   console.log('✅ Update Data   **** ', data, model);
 
     // 1. Verificar la existencia del registro (usando la PK de 'data')
-  
-  const hasTriggers = (model as any).options?.hasTriggers || false;
-
   const existingRecord = await findOneByKeyService(model, data, { 
     transaction: opciones?.transaction // 🌟 CRÍTICO: Debe ir dentro de la transacción); 
     });
@@ -144,8 +138,7 @@ export async function updateRecord <M extends Model>(
         const updateOptions = {
             ...opciones, 
             individualHooks: true, // 🌟 Incorporar individualHooks: true
-            returning: hasTriggers ? false : true,
-            hasTrigger: hasTriggers, 
+            returning: true,       // con hasTrigger en el modelo, Sequelize usa OUTPUT ... INTO @tmp
             raw: false,
             where: whereClause, // 🌟 CRÍTICO: Incluir la cláusula WHERE
             validateOnlyChanged: true   // No es una variable de sequelize se implemento para indicar actualizacion  
@@ -210,9 +203,7 @@ export async function deleteRecord <M extends Model>(
    console.log(model.primaryKeyAttributes);
    
     // Asumimos kErrorNeg y kCorrecto están definidos globalmente o importados
-    const kCorrecto = 1; 
-
-    const hasTriggers = (model as any).options?.hasTriggers || false;
+    const kCorrecto = 1;
 
     // 1. Verificar la existencia del registro (usando la PK de 'data')
     const existingRecord = await findOneByKeyService(model, data, { 
@@ -227,7 +218,6 @@ export async function deleteRecord <M extends Model>(
         const deleteOptions = {
             ...opciones, // Preservar la transacción
             where: whereClause, // CRÍTICO: Incluir la cláusula WHERE
-            returning: hasTriggers ? false : true,
             // NOTA: Se omite individualHooks: true, según su requerimiento.
         };
 
@@ -412,17 +402,8 @@ export async function obtResultado (
         const data = await operacionCallback(...args);
         return { estatus: kCorrecto, validationErrors: null, data }; 
     } catch (error: any) { // 1. Añadimos :any para que TS no sufra
-        // 2. Manejo del error específico de Sequelize + MSSQL Triggers
-//      -----------------------------------------------------------------------
-        if (error instanceof TypeError && error.message.includes("reading 'id'")) {
-            console.log("✅ Registro insertado exitosamente (Trigger ejecutado)");
-            return { 
-                estatus: kCorrecto, 
-                validationErrors: null, 
-                data: 1 
-            };
-        }
-//      -----------------------------------------------------------------------
+        // 2. Las tablas con triggers se resuelven con la opción hasTrigger del modelo (Sequelize):
+        //    ningún error se convierte en éxito aquí.
         // 3. TODO el manejo de errores debe estar dentro de las llaves del catch
         const errorNeg: I_OperaResult = armaErrorNeg(error);
         return errorNeg;

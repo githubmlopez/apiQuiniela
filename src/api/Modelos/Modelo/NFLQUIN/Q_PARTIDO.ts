@@ -62,7 +62,7 @@ export async function def_Q_PARTIDO(sequelize: any) {
       tableName: 'Q_PARTIDO',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTrigger: true,  // OPCIÓN DE SEQUELIZE: tabla con triggers (INSERT/UPDATE con OUTPUT ... INTO @tmp)
       indexes: [ {
          name : 'PK_Q_PARTIDO',
          unique : true,

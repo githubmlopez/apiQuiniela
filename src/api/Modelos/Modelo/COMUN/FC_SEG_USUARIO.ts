@@ -61,7 +61,7 @@ export async function def_FC_SEG_USUARIO(sequelize: any) {
       tableName: 'FC_SEG_USUARIO',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTrigger: true,  // OPCIÓN DE SEQUELIZE: tabla con triggers (INSERT/UPDATE con OUTPUT ... INTO @tmp)
       indexes: [ {
          name : 'PK_CF_SEG_USUARIO',
          unique : true,

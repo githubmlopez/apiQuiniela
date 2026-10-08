@@ -191,7 +191,7 @@ export async function def_CI_CUENTA_X_PAGAR(sequelize: any) {
       tableName: 'CI_CUENTA_X_PAGAR',
       schema: 'dbo',
       timestamps: false,
-      hasTriggers: true,  // PROPIEDAD PERSONALIZADA : NO AFECTA A SEQUELIZE
+      hasTrigger: true,  // OPCIÓN DE SEQUELIZE: tabla con triggers (INSERT/UPDATE con OUTPUT ... INTO @tmp)
       llavesCalculadas: ['UUID'],  // PROPIEDAD PERSONALIZADA : partes de la PK que asigna el back
       indexes: [ {
          name : 'PK_CI_CUENTA_X_PAGAR',
